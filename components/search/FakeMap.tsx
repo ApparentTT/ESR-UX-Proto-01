@@ -164,11 +164,11 @@ export function FakeMap({ pins, fitKey, hoveredId, selectedId, onPinClick, onPin
   const placed = useMemo(() => {
     const W = 96, H = 34;
     const OFFSETS = [[0, 0], [0, -H], [0, H], [-W, 0], [W, 0], [-W, -H], [W, -H], [-W, H], [W, H], [0, -2 * H], [0, 2 * H], [-2 * W, 0], [2 * W, 0]];
-    const boxes: { x: number; y: number }[] = [];
+    const boxes: { x: number; y: number; ax: number; ay: number; extra: number }[] = [];
     const out = new Map<string, { x: number; y: number; ax: number; ay: number }>();
     for (const p of pins) {
       const a = project([p.lat, p.lng]);
-      let pos = a;
+      let pos: { x: number; y: number } | null = null;
       for (const [dx, dy] of OFFSETS) {
         const c = { x: a.x + dx, y: a.y + dy };
         const inside = c.x > W / 2 && c.x < size.w - W / 2 && c.y > H && c.y < size.h - H;
@@ -178,10 +178,20 @@ export function FakeMap({ pins, fitKey, hoveredId, selectedId, onPinClick, onPin
           break;
         }
       }
-      boxes.push(pos);
+      if (!pos) {
+        // No free slot nearby: fold into a "+n" badge on the nearest pin rather than stacking.
+        let best = boxes[0];
+        for (const b of boxes) if ((b.ax - a.x) ** 2 + (b.ay - a.y) ** 2 < (best.ax - a.x) ** 2 + (best.ay - a.y) ** 2) best = b;
+        if (best) {
+          best.extra++;
+          continue;
+        }
+        pos = a;
+      }
+      boxes.push({ ...pos, ax: a.x, ay: a.y, extra: 0 });
       out.set(p.id, { x: pos.x, y: pos.y, ax: a.x, ay: a.y });
     }
-    return out;
+    return { out, overflow: boxes.filter((b) => b.extra > 0) };
   }, [pins, project, size]);
 
   // Minor street texture, anchored to the map so it pans with it.
@@ -200,7 +210,7 @@ export function FakeMap({ pins, fitKey, hoveredId, selectedId, onPinClick, onPin
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
       onKeyDown={onKeyDown}
-      className={`focus-inset relative cursor-grab touch-none select-none overflow-hidden bg-[#D7DADE] active:cursor-grabbing ${className}`}
+      className={`focus-inset relative isolate cursor-grab touch-none select-none overflow-hidden bg-[#D7DADE] active:cursor-grabbing ${className}`}
     >
       {size.w > 0 && (
         <svg aria-hidden="true" width={size.w} height={size.h} className="absolute inset-0">
@@ -233,12 +243,12 @@ export function FakeMap({ pins, fitKey, hoveredId, selectedId, onPinClick, onPin
             </g>
           ))}
           {pins.map((p) => {
-            const pl = placed.get(p.id);
+            const pl = placed.out.get(p.id);
             if (!pl || (pl.x === pl.ax && pl.y === pl.ay)) return null;
             return <line key={p.id} x1={pl.ax} y1={pl.ay} x2={pl.x} y2={pl.y} stroke="#111826" strokeOpacity={0.35} strokeWidth={1} />;
           })}
           {pins.map((p) => {
-            const pl = placed.get(p.id);
+            const pl = placed.out.get(p.id);
             return pl ? <circle key={p.id} cx={pl.ax} cy={pl.ay} r={2.5} fill="#111826" /> : null;
           })}
           {labels.map((l) => {
@@ -256,7 +266,9 @@ export function FakeMap({ pins, fitKey, hoveredId, selectedId, onPinClick, onPin
       {/* Pins: one per visible result, labelled with size */}
       {size.w > 0 &&
         pins.map((p) => {
-          const { x, y } = placed.get(p.id)!;
+          const pl = placed.out.get(p.id);
+          if (!pl) return null;
+          const { x, y } = pl;
           if (x < -60 || y < -30 || x > size.w + 60 || y > size.h + 30) return null;
           const on = hoveredId === p.id || selectedId === p.id;
           return (
@@ -278,6 +290,24 @@ export function FakeMap({ pins, fitKey, hoveredId, selectedId, onPinClick, onPin
             </button>
           );
         })}
+
+      {/* Pins with no room fold into "+n"; pressing it zooms in on that spot */}
+      {placed.overflow.map((b) => (
+        <button
+          key={`${Math.round(b.ax)}:${Math.round(b.ay)}`}
+          type="button"
+          onClick={() => {
+            touched.current = true;
+            setView((v) => ({ lat: v.lat - (b.ay - size.h / 2) / v.k, lng: v.lng + (b.ax - size.w / 2) / (v.k * COS), k: Math.min(K_MAX, v.k * 2) }));
+            setMoved(true);
+          }}
+          aria-label={`${b.extra} more ${b.extra === 1 ? "property" : "properties"} here. Zoom in`}
+          className="absolute left-0 top-0 z-[25] inline-flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-ink px-1.5 text-[11px] font-semibold tabular-nums text-white"
+          style={{ transform: `translate(${b.x + 40}px, ${b.y - 22}px) translate(-50%, 0)` }}
+        >
+          +{b.extra}
+        </button>
+      ))}
 
       {/* Draw your own area: visible but non-functional */}
       <button

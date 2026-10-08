@@ -88,20 +88,31 @@ export function SearchExperience() {
 
   const onSearchArea = useCallback((bbox: Bbox) => setFilters({ ...filters, bbox }), [filters, setFilters]);
 
-  // ?demo=scrolled: load a second batch, then scroll the list to the bottom so the next batch starts loading.
+  // ?demo=scrolled: park the filter bar at the top, load a second batch, then scroll the list to its end so
+  // the next batch starts loading with skeletons and Back to top showing.
+  const loadMoreRef = useRef(loadMore);
+  loadMoreRef.current = loadMore;
+  const demoRan = useRef(false);
   useEffect(() => {
-    if (!demoScrolled) return;
-    const t1 = setTimeout(loadMore, 50);
+    if (!demoScrolled || demoRan.current) return;
+    demoRan.current = true;
+    const t1 = setTimeout(() => loadMoreRef.current(), 50);
     const t2 = setTimeout(() => {
-      if (isDesktop && paneRef.current) paneRef.current.scrollTo({ top: paneRef.current.scrollHeight, behavior: "smooth" });
-      else window.scrollTo({ top: document.documentElement.scrollHeight - window.innerHeight * 1.6, behavior: "smooth" });
-      setDemoScrolled(false);
-    }, 1400);
+      const pane = paneRef.current;
+      if (window.matchMedia(DESKTOP_QUERY).matches && pane) {
+        // Park the pane just under the sticky bar so it sits fully in view, then run the list to its end.
+        const barH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar-h")) || 0;
+        window.scrollTo({ top: pane.getBoundingClientRect().top + window.scrollY - barH - 16 });
+        pane.scrollTo({ top: pane.scrollHeight, behavior: "smooth" });
+      }
+      else window.scrollTo({ top: document.documentElement.scrollHeight - window.innerHeight * 1.8, behavior: "smooth" });
+    }, 1100);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      demoRan.current = false;
     };
-  }, [demoScrolled, isDesktop, loadMore]);
+  }, [demoScrolled]);
 
   const title = isEmpty ? "No properties match these filters" : `${total.toLocaleString("en-US")} ${total === 1 ? "property" : "properties"} ${scopeLabel(filters)}`;
   const subtitle = isEmpty ? filterSummary(filters) : `Showing ${shown} of ${total}${hasMore ? " · scroll for more" : ""}`;
