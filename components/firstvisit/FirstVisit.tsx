@@ -116,7 +116,11 @@ export function FirstVisit() {
                   if (e.key === "ArrowDown") {
                     e.preventDefault();
                     document.querySelector<HTMLButtonElement>("#home-suggestions button")?.focus();
-                  } else if (e.key === "Escape") setFocused(false);
+                  } else if (e.key === "Escape") {
+                    // Handled here: closing the suggestions must not also cancel drawing on the preview map.
+                    e.preventDefault();
+                    setFocused(false);
+                  }
                 }}
                 placeholder={`Search ${MARKET.regionLabel}, city or estate`}
                 className="field h-14 w-full rounded-btn border border-line bg-white pl-12 pr-4 text-base placeholder:text-muted focus:border-ink focus:outline-none focus:ring-1 focus:ring-ink md:h-[72px]"
@@ -128,6 +132,7 @@ export function FirstVisit() {
                   aria-label="Suggestions"
                   onKeyDown={(e) => {
                     if (e.key === "Escape") {
+                      e.preventDefault();
                       setFocused(false);
                       inputRef.current?.focus();
                     }

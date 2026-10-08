@@ -96,7 +96,11 @@ export function SearchExperience() {
   // Search this area and a drawn area are both "where": the newer one replaces the older.
   const onSearchArea = useCallback((bbox: Bbox) => setFilters({ ...filters, bbox, area: null }), [filters, setFilters]);
   const onDrawArea = useCallback(
-    (area: LatLng[] | null) => setFilters(area ? { ...filters, area, q: "", pref: [], bbox: null } : { ...filters, area: null }),
+    (area: LatLng[] | null) => {
+      setFilters(area ? { ...filters, area, q: "", pref: [], bbox: null } : { ...filters, area: null });
+      // On the mobile and tablet map the chip row changes the bar height; re-park once it has re-measured.
+      if (!window.matchMedia(DESKTOP_QUERY).matches) requestAnimationFrame(() => requestAnimationFrame(() => parkResultsRef.current()));
+    },
     [filters, setFilters],
   );
   const onDrawRequestHandled = useCallback(() => setDrawPending(false), []);
@@ -116,6 +120,9 @@ export function SearchExperience() {
       if (main) window.scrollTo({ top: main.offsetTop });
     }
   }, []);
+
+  const parkResultsRef = useRef(parkResults);
+  parkResultsRef.current = parkResults;
 
   const startDraw = useCallback(() => {
     if (!window.matchMedia(DESKTOP_QUERY).matches) setView("map");
@@ -200,7 +207,9 @@ export function SearchExperience() {
         }}
         onStartDraw={startDraw}
       />
-      <section className="bg-surface" aria-label="Search results">
+      {/* The mobile map view opts out of scroll anchoring: when the chip row appears or goes after
+          drawing, the page must stay parked with the map directly under the sticky bar. */}
+      <section data-results className={`bg-surface ${showMobileMap ? "[overflow-anchor:none]" : ""}`} aria-label="Search results">
         {showMobileMap ? (
           <>
             <h1 className="sr-only">{title}</h1>
@@ -214,6 +223,7 @@ export function SearchExperience() {
             <Container className="pb-8 lg:grid lg:grid-cols-[minmax(0,1.53fr)_minmax(0,1fr)] lg:gap-8">
               <div
                 ref={paneRef}
+                data-results-pane
                 className={`thin-scrollbar lg:-mx-1 lg:overflow-y-auto lg:overscroll-contain lg:px-1 lg:py-1 ${isDesktop ? paneHeight : ""}`}
               >
                 {isEmpty ? (

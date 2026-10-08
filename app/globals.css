@@ -26,8 +26,20 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  /* Keep focused controls and scrollIntoView targets clear of the sticky filter bar. */
-  scroll-padding-top: calc(var(--bar-h, 0px) + 16px);
+}
+
+/*
+  Content under the sticky filter bar keeps clear of it when focused or scrolled into view.
+  Scoped to the results (not html scroll-padding), so the bar's own controls never trigger a
+  page jump and the skip link still lands on the content.
+*/
+[data-results] :is(a, button, input, select, textarea, [tabindex]),
+[data-results-pane] {
+  scroll-margin-top: calc(var(--bar-h, 0px) + 16px);
+}
+[data-results] [role="region"],
+[data-results] [role="region"] * {
+  scroll-margin-top: var(--bar-h, 0px);
 }
 
 body {

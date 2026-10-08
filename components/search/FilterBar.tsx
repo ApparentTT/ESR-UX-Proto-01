@@ -109,7 +109,10 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
     publish();
     const ro = new ResizeObserver(publish);
     ro.observe(el);
-    return () => ro.disconnect();
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty("--bar-h");
+    };
   }, []);
 
   const counts = groupCounts(filters);

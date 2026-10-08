@@ -76,8 +76,12 @@ export function PanelFrame({ open, variant, title, onClose, anchorRef, initialFo
     });
     return () => {
       cancelAnimationFrame(t);
+      // Hand focus back to the trigger, unless the user has already moved it somewhere else
+      // (tabbing out of a popover closes it; focus must stay where they tabbed to).
       const el = returnFocus.current;
-      if (el && document.contains(el) && el.tagName !== "INPUT") el.focus({ preventScroll: true });
+      const active = document.activeElement;
+      const lost = !active || active === document.body || !!panelRef.current?.contains(active);
+      if (el && lost && document.contains(el) && el.tagName !== "INPUT") el.focus({ preventScroll: true });
     };
   }, [open, initialFocusRef]);
 
@@ -108,16 +112,18 @@ export function PanelFrame({ open, variant, title, onClose, anchorRef, initialFo
     return () => document.removeEventListener("keydown", onKey);
   }, [open, onClose, isModal]);
 
-  // Popover: outside click closes (and discards the draft).
+  // Popover: an outside click, or keyboard focus moving elsewhere, closes it (and discards the draft).
   useEffect(() => {
     if (!open || variant !== "popover") return;
-    const onDown = (e: PointerEvent) => {
-      const t = e.target as Node;
-      if (panelRef.current?.contains(t) || anchorRef?.current?.contains(t)) return;
-      onClose();
-    };
+    const outside = (t: Node) => !(panelRef.current?.contains(t) || anchorRef?.current?.contains(t));
+    const onDown = (e: PointerEvent) => outside(e.target as Node) && onClose();
+    const onFocus = (e: FocusEvent) => outside(e.target as Node) && onClose();
     document.addEventListener("pointerdown", onDown);
-    return () => document.removeEventListener("pointerdown", onDown);
+    document.addEventListener("focusin", onFocus);
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("focusin", onFocus);
+    };
   }, [open, variant, onClose, anchorRef]);
 
   // Modal variants lock page scroll.

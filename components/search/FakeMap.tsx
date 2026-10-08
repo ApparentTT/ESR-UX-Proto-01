@@ -56,7 +56,17 @@ function fit(pins: Property[], area: LatLng[] | null | undefined, w: number, h: 
   return { lat, lng: (west + e) / 2, k };
 }
 
-const DRAW_HELP = "Drawing an area. Press and drag to draw, or click to place points and click the first point to finish. Keyboard: arrow keys move the map, Enter places a point at the centre, Backspace removes the last point, Escape cancels.";
+const DRAW_HELP = "Drawing an area. Press and drag to draw, or tap or click to place points, then the first point again to finish. Keyboard: arrow keys move the map, Enter places a point at the centre, Backspace removes the last point, Escape cancels.";
+
+/**
+ * How the user last interacted, so keyboard instructions only show for keyboard starts.
+ * (:focus-visible after programmatic focus is true on a fresh page load, even on a phone.)
+ */
+let lastInput: "key" | "pointer" | "none" = "none";
+if (typeof document !== "undefined") {
+  document.addEventListener("keydown", () => (lastInput = "key"), true);
+  document.addEventListener("pointerdown", () => (lastInput = "pointer"), true);
+}
 
 /**
  * Simulated map. No tiles, no API key: a greyscale SVG of Japan drawn in the same
@@ -151,11 +161,16 @@ export function FakeMap({
   const [hint, setHint] = useState<string | null>(null);
   const [announce, setAnnounce] = useState("");
   const [kbCursor, setKbCursor] = useState(false);
-  const stroke = useRef<{ sx: number; sy: number; lx: number; ly: number; dragged: boolean; base: LatLng[]; touch: boolean } | null>(null);
+  const stroke = useRef<{ id: number; sx: number; sy: number; lx: number; ly: number; dragged: boolean; base: LatLng[]; touch: boolean; cancelled?: boolean } | null>(null);
   /** Where and when the click that started drawing happened, to ignore the second half of a double click. */
   const startClick = useRef<{ x: number; y: number; t: number } | null>(null);
   /** Return focus to the map when the control that had it disappears. */
-  const focusMap = () => requestAnimationFrame(() => boxRef.current?.focus({ preventScroll: true }));
+  // Only when focus has nowhere better to be: never pull it away from something the user moved to.
+  const focusMap = () =>
+    requestAnimationFrame(() => {
+      const active = document.activeElement;
+      if (!active || active === document.body || boxRef.current?.contains(active)) boxRef.current?.focus({ preventScroll: true });
+    });
 
   const unproject = useCallback(
     (x: number, y: number): LatLng => [view.lat - (y - size.h / 2) / view.k, view.lng + (x - size.w / 2) / (view.k * COS)],
@@ -171,11 +186,11 @@ export function FakeMap({
     setPoints([]);
     setHint(null);
     startClick.current = ev && ev.detail ? { x: ev.clientX, y: ev.clientY, t: performance.now() } : null;
-    setAnnounce("Drawing mode on. Press and drag on the map, or click to place points.");
+    setAnnounce("Drawing mode on. Press and drag on the map, or tap or click to place points.");
     const box = boxRef.current;
     box?.focus({ preventScroll: true });
     // Started from the keyboard: show the crosshair and keyboard instructions straight away.
-    setKbCursor(!!box?.matches(":focus-visible"));
+    setKbCursor(lastInput === "key");
     onDrawStart?.();
   }, [onDrawStart]);
 
@@ -185,7 +200,10 @@ export function FakeMap({
     setHint(null);
     setKbCursor(false);
     setAnnounce("Drawing cancelled.");
-    requestAnimationFrame(() => boxRef.current?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => {
+      const active = document.activeElement;
+      if (!active || active === document.body || boxRef.current?.contains(active)) boxRef.current?.focus({ preventScroll: true });
+    });
   }, []);
 
   const finishDrawing = (raw: LatLng[]) => {
@@ -224,6 +242,9 @@ export function FakeMap({
   useEffect(() => {
     if (!drawRequested || !size.w || !onDrawArea) return;
     startDrawing();
+    // Started from a panel option: the second tap of a double tap would land on the map, so ignore
+    // any press in the first moments (position unknown, hence NaN).
+    startClick.current = { x: NaN, y: NaN, t: performance.now() };
     onDrawRequestHandled?.();
   }, [drawRequested, size.w, onDrawArea, startDrawing, onDrawRequestHandled]);
 
@@ -259,14 +280,26 @@ export function FakeMap({
   const onPointerDown = (e: React.PointerEvent) => {
     if (isMapUi(e.target)) return;
     if (drawing) {
+      // A second finger (pinch, two-finger pan) abandons the gesture rather than merging into the stroke.
+      const live = stroke.current;
+      if (live) {
+        if (!live.cancelled) {
+          live.cancelled = true;
+          setPoints(live.base);
+          setHint(null);
+        }
+        return;
+      }
+      if (!e.isPrimary) return;
       // Ignore the second press of a double click on Draw your own area: same screen spot, moments later.
       const sc = startClick.current;
-      if (e.button !== 0 || (sc && performance.now() - sc.t < 500 && Math.hypot(e.clientX - sc.x, e.clientY - sc.y) < 10)) return;
+      const recent = sc && performance.now() - sc.t < 450;
+      if (e.button !== 0 || (recent && (Number.isNaN(sc.x) || Math.hypot(e.clientX - sc.x, e.clientY - sc.y) < 10))) return;
       startClick.current = null;
       e.preventDefault();
       setKbCursor(false);
       const { x, y } = local(e);
-      stroke.current = { sx: x, sy: y, lx: x, ly: y, dragged: false, base: pointsRef.current, touch: e.pointerType !== "mouse" };
+      stroke.current = { id: e.pointerId, sx: x, sy: y, lx: x, ly: y, dragged: false, base: pointsRef.current, touch: e.pointerType !== "mouse" };
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       return;
     }
@@ -276,6 +309,7 @@ export function FakeMap({
   const onPointerMove = (e: React.PointerEvent) => {
     const st = stroke.current;
     if (drawing && st) {
+      if (st.cancelled || e.pointerId !== st.id) return;
       const { x, y } = local(e);
       // Freehand only starts from an empty map; once points are placed, every press adds one point,
       // so a tap that slides a little never closes the shape early. Touch gets a larger tap slop.
@@ -304,9 +338,19 @@ export function FakeMap({
   };
   const onPointerUp = (e: React.PointerEvent) => {
     const st = stroke.current;
+    // Other fingers lifting do not end the stroke.
+    if (drawing && st && e.pointerId !== st.id) return;
     stroke.current = null;
     drag.current = null;
-    if (!drawing || !st || e.type === "pointercancel") return;
+    if (!drawing || !st || st.cancelled) return;
+    if (e.type === "pointercancel") {
+      // An interrupted freehand stroke leaves nothing behind, so the retry draws freehand again.
+      if (st.dragged) {
+        setPoints(st.base);
+        setHint(null);
+      }
+      return;
+    }
     if (st.dragged) {
       // Lifting the pen closes a freehand shape.
       finishDrawing(pointsRef.current);
@@ -504,7 +548,7 @@ export function FakeMap({
       {drawing ? (
         <div data-map-ui className="anim-pop absolute left-3 right-[60px] top-3 z-30 max-w-[340px] cursor-default rounded-card border border-ink bg-white p-3 shadow-panel">
           <p className="text-sm font-medium">Draw around the area you want to search</p>
-          <p className="mt-0.5 text-[13px] text-muted">{hint ?? "Press and drag, or click to place points."}</p>
+          <p className="mt-0.5 text-[13px] text-muted">{hint ?? "Press and drag, or tap or click to place points."}</p>
           {kbCursor && <p className="mt-1 text-[13px] text-muted">Keyboard: arrows move the map, Enter adds a point at the cross, Backspace removes it.</p>}
           <div className="mt-2.5 flex items-center gap-2">
             <button type="button" onClick={cancelDrawing} className="inline-flex h-9 items-center rounded-btn border border-line bg-white px-3 text-sm hover:border-ink">
@@ -526,8 +570,8 @@ export function FakeMap({
           </div>
         </div>
       ) : area && onDrawArea ? (
-        <div data-map-ui className="absolute left-3 right-[60px] top-3 z-30 flex flex-wrap gap-2">
-          <button type="button" onClick={(e) => startDrawing(e)} className="inline-flex h-10 items-center gap-2 rounded-btn border border-ink bg-white px-3 text-sm">
+        <div className="pointer-events-none absolute left-3 right-[60px] top-3 z-30 flex flex-wrap gap-2">
+          <button type="button" onClick={(e) => startDrawing(e)} className="pointer-events-auto inline-flex h-10 items-center gap-2 rounded-btn border border-ink bg-white px-3 text-sm">
             <Icon name="gesture" />
             Redraw area
           </button>
@@ -537,7 +581,7 @@ export function FakeMap({
               onDrawArea(null);
               focusMap();
             }}
-            className="inline-flex h-10 items-center gap-2 rounded-btn border border-line bg-white px-3 text-sm hover:border-ink"
+            className="pointer-events-auto inline-flex h-10 items-center gap-2 rounded-btn border border-line bg-white px-3 text-sm hover:border-ink"
           >
             <Icon name="close" />
             Clear area
