@@ -18,25 +18,28 @@ type Props = {
   layout?: "list" | "pills";
   /** id used by the bar's combobox for aria-controls */
   listboxId?: string;
+  /** Close the panel and start drawing on the map */
+  onStartDraw?: () => void;
 };
 
 const KIND_ICON: Record<Suggestion["kind"], string> = { city: "location_on", ward: "location_on", prefecture: "map", estate: "warehouse" };
 
+/** Picking a place replaces any drawn area. */
 export function applySuggestion(draft: Filters, s: Suggestion): Filters {
   if (s.kind === "prefecture") {
     const id = PREFECTURES.find((p) => p.name === s.value)!.id;
-    return { ...draft, q: "", pref: draft.pref.includes(id) ? draft.pref : [...draft.pref, id] };
+    return { ...draft, q: "", area: null, pref: draft.pref.includes(id) ? draft.pref : [...draft.pref, id] };
   }
-  return { ...draft, q: s.value };
+  return { ...draft, q: s.value, area: null };
 }
 
-export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, inputRef, layout = "list", listboxId = "location-suggestions" }: Props) {
+export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, inputRef, layout = "list", listboxId = "location-suggestions", onStartDraw }: Props) {
   const suggestions = locationSuggestions(text, draft);
   // Once a known place is picked, the field shows its name; hide the suggestion list until the user types again.
   const picked = isKnownPlace(draft.q) && text.trim().toLowerCase() === displayQuery(draft.q).toLowerCase();
   const counts = prefectureCounts(draft);
   const togglePref = (id: (typeof PREFECTURES)[number]["id"], on: boolean) =>
-    onDraft({ ...draft, pref: on ? [...draft.pref, id] : draft.pref.filter((p) => p !== id) });
+    onDraft({ ...draft, area: null, pref: on ? [...draft.pref, id] : draft.pref.filter((p) => p !== id) });
 
   const pick = (s: Suggestion) => {
     onDraft(applySuggestion(draft, s));
@@ -72,7 +75,7 @@ export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, i
               placeholder={`Search ${MARKET.regionLabel}, city or estate`}
               onChange={(e) => {
                 onText(e.target.value);
-                onDraft({ ...draft, q: e.target.value.trim() });
+                onDraft({ ...draft, q: e.target.value.trim(), area: e.target.value.trim() ? null : draft.area });
               }}
               onKeyDown={(e) => {
                 if (e.key === "ArrowDown") {
@@ -117,6 +120,16 @@ export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, i
         </section>
       )}
 
+      {draft.area && (
+        <div className="mb-3 flex min-h-11 items-center gap-3 rounded-btn bg-surface px-3 text-[15px]">
+          <Icon name="gesture" />
+          <span className="flex-1">Drawn area on the map</span>
+          <button type="button" onClick={() => onDraft({ ...draft, area: null })} className="rounded-btn px-1 py-1 text-sm text-muted-surface underline hover:text-ink">
+            Remove
+          </button>
+        </div>
+      )}
+
       <section aria-labelledby="browse-region">
         <div className="mb-1 mt-2 flex items-baseline justify-between gap-3">
           <h3 id="browse-region" className="text-[13px] text-muted">
@@ -140,25 +153,22 @@ export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, i
         )}
       </section>
 
-      <div className="mt-3 border-t border-line pt-2">
-        <DrawAreaOption />
-      </div>
+      {onStartDraw && (
+        <div className="mt-3 border-t border-line pt-2">
+          <DrawAreaOption onClick={onStartDraw} redraw={!!draft.area} />
+        </div>
+      )}
     </div>
   );
 }
 
-/** Visible but non-functional in the prototype. */
-export function DrawAreaOption() {
+/** Closes the panel and puts the map into drawing mode. */
+export function DrawAreaOption({ onClick, redraw }: { onClick: () => void; redraw?: boolean }) {
   return (
-    <button
-      type="button"
-      aria-disabled="true"
-      title="Drawing an area is not part of this prototype"
-      onClick={(e) => e.preventDefault()}
-      className="flex min-h-11 w-full cursor-default items-center gap-3 rounded-btn text-left text-[15px]"
-    >
+    <button type="button" onClick={onClick} className="-mx-2 flex min-h-11 w-[calc(100%+16px)] items-center gap-3 rounded-btn px-2 text-left text-[15px] hover:bg-surface">
       <Icon name="gesture" />
-      <span>Draw your own area on the map</span>
+      <span className="flex-1">{redraw ? "Redraw your area on the map" : "Draw your own area on the map"}</span>
+      <Icon name="arrow_forward" className="text-muted" />
     </button>
   );
 }

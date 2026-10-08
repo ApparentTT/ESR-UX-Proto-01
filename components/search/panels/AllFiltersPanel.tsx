@@ -19,6 +19,8 @@ type Props = {
   onText: (t: string) => void;
   onClose: () => void;
   footer: { resetLabel: string; onReset: () => void; count: number; onApply: () => void };
+  /** Close the panel and start drawing an area on the map */
+  onStartDraw?: () => void;
 };
 
 function Group({ title, sub, children, id }: { title: string; sub?: string; children: React.ReactNode; id: string }) {
@@ -34,7 +36,7 @@ function Group({ title, sub, children, id }: { title: string; sub?: string; chil
 }
 
 /** Every filter in one continuous scroll with a sticky footer. Centred modal on desktop, full-height sheet on mobile. */
-export function AllFiltersPanel({ open, variant, draft, onDraft, text, onText, onClose, footer }: Props) {
+export function AllFiltersPanel({ open, variant, draft, onDraft, text, onText, onClose, footer, onStartDraw }: Props) {
   const susCounts = sustainabilityCounts(draft);
   const amenCounts = amenityCounts(draft);
 
@@ -46,7 +48,7 @@ export function AllFiltersPanel({ open, variant, draft, onDraft, text, onText, o
   return (
     <PanelFrame open={open} variant={variant} title="All filters" onClose={onClose} footer={footer}>
       <Group id="af-location" title="Location" sub={MARKET.regionHeading}>
-        <LocationPanel draft={draft} onDraft={onDraft} text={text} onText={onText} showSearchInput layout="pills" listboxId="af-location-suggestions" />
+        <LocationPanel draft={draft} onDraft={onDraft} text={text} onText={onText} showSearchInput layout="pills" listboxId="af-location-suggestions" onStartDraw={onStartDraw} />
       </Group>
       <Group id="af-type" title="Property type">
         <TypePanel draft={draft} onDraft={onDraft} layout="pills" />

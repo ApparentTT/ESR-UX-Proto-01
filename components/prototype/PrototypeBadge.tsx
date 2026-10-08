@@ -15,6 +15,15 @@ const STATES: { n: number; label: string; href: string }[] = [
   { n: 6, label: "No results", href: "/properties/search?q=aomori&type=cold-storage&min=20000" },
 ];
 
+/** A shape drawn around the Kawasaki and Yokohama waterfront, as a worked example of a drawn area. */
+const EXAMPLE_AREA = "35.620_139.600,35.600_139.830,35.450_139.830,35.300_139.690,35.380_139.520";
+
+const MAP_LINKS: { label: string; href: string; icon: string; mobileOnly?: boolean }[] = [
+  { label: "Draw your own area", href: "/properties/search?pref=kanagawa&draw=1", icon: "gesture" },
+  { label: "Results in a drawn area", href: `/properties/search?area=${EXAMPLE_AREA}`, icon: "pentagon" },
+  { label: "Map view with card carousel", href: "/properties/search?pref=kanagawa&view=map", icon: "map", mobileOnly: true },
+];
+
 const PANELS: { label: string; href: string }[] = [
   { label: "Location", href: "/properties/search?panel=location" },
   { label: "Property type", href: "/properties/search?type=logistics,business-park&panel=type" },
@@ -89,14 +98,24 @@ export function PrototypeBadge() {
               ))}
             </ul>
 
-            <h2 className="mt-4 px-2 text-xs font-semibold uppercase tracking-wide text-muted lg:hidden">Mobile</h2>
-            <ul className="mt-1 lg:hidden">
-              <li>
-                <Link href="/properties/search?pref=kanagawa&view=map" onClick={() => setOpen(false)} className={link}>
-                  <Icon name="map" size={18} className="text-muted" />
-                  Map view with card carousel
-                </Link>
-              </li>
+            <h2 className="mt-4 px-2 text-xs font-semibold uppercase tracking-wide text-muted">Map</h2>
+            <ul className="mt-1">
+              {MAP_LINKS.filter((m) => !m.mobileOnly).map((m) => (
+                <li key={m.label}>
+                  <Link href={m.href} onClick={() => setOpen(false)} className={link}>
+                    <Icon name={m.icon} size={18} className="text-muted" />
+                    {m.label}
+                  </Link>
+                </li>
+              ))}
+              {MAP_LINKS.filter((m) => m.mobileOnly).map((m) => (
+                <li key={m.label} className="lg:hidden">
+                  <Link href={m.href} onClick={() => setOpen(false)} className={link}>
+                    <Icon name={m.icon} size={18} className="text-muted" />
+                    {m.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

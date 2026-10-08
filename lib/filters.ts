@@ -12,6 +12,7 @@ import {
 } from "@/data/types";
 import { MARKET } from "@/config/market";
 import { PLACES } from "@/data/mapGeometry";
+import { centroid, pointInPolygon, type LatLng } from "./geo";
 
 export type AvailFilter = "now" | "6m" | "12m";
 export type SortId = "newest" | "size" | "availability";
@@ -29,6 +30,8 @@ export type Filters = {
   sus: SustainabilityId[];
   amen: AmenityId[];
   bbox: Bbox | null;
+  /** Hand-drawn search area. Replaces q and pref when drawn. */
+  area: LatLng[] | null;
 };
 
 export const EMPTY_FILTERS: Filters = {
@@ -42,6 +45,7 @@ export const EMPTY_FILTERS: Filters = {
   sus: [],
   amen: [],
   bbox: null,
+  area: null,
 };
 
 /* ---------- Size scale ---------- */
@@ -82,6 +86,13 @@ const num = (v: string | null) => {
 
 type ParamsLike = { get(key: string): string | null };
 
+/** area=lat_lng,lat_lng,... (at least three points) */
+function parseArea(v: string | null): LatLng[] | null {
+  const pts = list(v).map((pair) => pair.split("_").map(Number) as LatLng);
+  const ok = pts.length >= 3 && pts.every((p) => p.length === 2 && p.every(Number.isFinite) && Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180);
+  return ok ? pts : null;
+}
+
 export function parseFilters(sp: ParamsLike): Filters {
   const avail = sp.get("avail");
   const bboxParts = list(sp.get("bbox")).map(Number);
@@ -96,6 +107,7 @@ export function parseFilters(sp: ParamsLike): Filters {
     sus: list(sp.get("sus")).filter((t): t is SustainabilityId => SUS_IDS.has(t as SustainabilityId)),
     amen: list(sp.get("amen")).filter((t): t is AmenityId => AMEN_IDS.has(t as AmenityId)),
     bbox: bboxParts.length === 4 && bboxParts.every(Number.isFinite) ? (bboxParts as Bbox) : null,
+    area: parseArea(sp.get("area")),
   };
 }
 
@@ -117,6 +129,7 @@ export function filtersToParams(f: Filters, extra: Record<string, string | null 
   if (f.sus.length) p.set("sus", f.sus.join(","));
   if (f.amen.length) p.set("amen", f.amen.join(","));
   if (f.bbox) p.set("bbox", f.bbox.map((n) => n.toFixed(3)).join(","));
+  if (f.area) p.set("area", f.area.map(([lat, lng]) => `${lat.toFixed(3)}_${lng.toFixed(3)}`).join(","));
   for (const [k, v] of Object.entries(extra)) if (v) p.set(k, v);
   return p;
 }
@@ -199,6 +212,7 @@ export function matches(p: Property, f: Filters, skip?: FacetKey) {
   if (skip !== "location") {
     if (!matchesQuery(p, f.q)) return false;
     if (f.pref.length && !f.pref.includes(p.prefecture)) return false;
+    if (f.area && !pointInPolygon([p.lat, p.lng], f.area)) return false;
   }
   if (skip !== "type" && f.type.length && !f.type.includes(p.type)) return false;
   if (skip !== "size") {
@@ -245,8 +259,9 @@ export function facetBase(f: Filters, facet: FacetKey) {
   return PROPERTIES.filter((p) => matches(p, f, facet));
 }
 
+/** Ticking a prefecture replaces a drawn area, so counts ignore the area. */
 export function prefectureCounts(f: Filters) {
-  const base = PROPERTIES.filter((p) => matches(p, { ...f, pref: [] }));
+  const base = PROPERTIES.filter((p) => matches(p, { ...f, pref: [], area: null }));
   const out = Object.fromEntries(PREFECTURES.map((p) => [p.id, 0])) as Record<PrefectureId, number>;
   for (const p of base) out[p.prefecture]++;
   return out;
@@ -304,7 +319,8 @@ export type Suggestion = {
 export function locationSuggestions(text: string, f: Filters, limit = 6): Suggestion[] {
   const n = norm(text);
   if (n.length < 2) return [];
-  const base = PROPERTIES.filter((p) => matches(p, { ...f, q: "", pref: [] }, undefined));
+  // Picking a suggestion replaces any drawn area, so counts ignore it.
+  const base = PROPERTIES.filter((p) => matches(p, { ...f, q: "", pref: [], area: null }));
   const out: Suggestion[] = [];
   const seen = new Set<string>();
   const push = (s: Omit<Suggestion, "count">) => {
@@ -363,11 +379,12 @@ export function appliedChips(f: Filters): Chip[] {
   for (const id of f.amen)
     chips.push({ key: `amen:${id}`, label: AMENITY_OPTIONS.find((t) => t.id === id)!.label, remove: (x) => ({ ...x, amen: x.amen.filter((t) => t !== id) }) });
   if (f.bbox) chips.push({ key: "bbox", label: "Map area", remove: (x) => ({ ...x, bbox: null }) });
+  if (f.area) chips.push({ key: "area", label: "Drawn area", remove: (x) => ({ ...x, area: null }) });
   return chips;
 }
 
 export const groupCounts = (f: Filters) => ({
-  location: f.pref.length + (f.q ? 1 : 0),
+  location: f.pref.length + (f.q ? 1 : 0) + (f.area ? 1 : 0),
   type: f.type.length,
   size: f.min != null || f.max != null ? 1 : 0,
   avail: (f.avail ? 1 : 0) + (f.pre ? 1 : 0),
@@ -384,6 +401,7 @@ export const hasAnyFilter = (f: Filters) => activeGroupCount(f) > 0;
 
 /** "in Kanagawa", "in Kanagawa and Tokyo", "in 3 prefectures", "in Japan" */
 export function scopeLabel(f: Filters) {
+  if (f.area) return "in your drawn area";
   if (f.pref.length === 1) return `in ${PREFECTURE_BY_ID[f.pref[0]].name}`;
   if (f.pref.length === 2) return `in ${PREFECTURE_BY_ID[f.pref[0]].name} and ${PREFECTURE_BY_ID[f.pref[1]].name}`;
   if (f.pref.length > 2) return `in ${f.pref.length} ${MARKET.regionLabelPlural}`;
@@ -404,11 +422,13 @@ export function filterSummary(f: Filters) {
   for (const id of f.sus) parts.push(SUSTAINABILITY_OPTIONS.find((t) => t.id === id)!.label.toLowerCase());
   for (const id of f.amen) parts.push(AMENITY_OPTIONS.find((t) => t.id === id)!.label.toLowerCase());
   if (f.bbox) parts.push("this map area");
+  if (f.area) parts.push("your drawn area");
   return parts.join(", ");
 }
 
 /** Where the user was looking: the searched place, or the centre of the chosen prefectures. */
 function referencePoint(f: Filters): [number, number] | null {
+  if (f.area) return centroid(f.area);
   if (f.bbox) return [(f.bbox[0] + f.bbox[2]) / 2, (f.bbox[1] + f.bbox[3]) / 2];
   const pts: [number, number][] = [];
   if (f.q) {

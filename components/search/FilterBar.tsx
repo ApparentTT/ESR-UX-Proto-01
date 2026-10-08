@@ -17,6 +17,7 @@ import {
   countMatching,
   displayQuery,
   groupCounts,
+  searchHref,
   type Filters,
 } from "@/lib/filters";
 import { SHEET_QUERY, useMediaQuery } from "@/lib/useMediaQuery";
@@ -32,6 +33,8 @@ type Props = {
   /** Mobile and tablet list/map toggle */
   view: "list" | "map";
   onToggleView: () => void;
+  /** Put the map into Draw your own area mode */
+  onStartDraw: () => void;
 };
 
 const TITLES: Record<PanelId, string> = { location: "Location", type: "Property type", size: "Size", avail: "Availability", all: "All filters" };
@@ -40,7 +43,7 @@ const TITLES: Record<PanelId, string> = { location: "Location", type: "Property 
 function resetGroup(f: Filters, p: PanelId): Filters {
   switch (p) {
     case "location":
-      return { ...f, q: "", pref: [] };
+      return { ...f, q: "", pref: [], area: null };
     case "type":
       return { ...f, type: [] };
     case "size":
@@ -53,11 +56,11 @@ function resetGroup(f: Filters, p: PanelId): Filters {
 }
 
 export function locationSummary(f: Filters) {
-  const names = [...(f.q ? [displayQuery(f.q)] : []), ...f.pref.map((p) => PREFECTURE_BY_ID[p].name)];
+  const names = [...(f.area ? ["Drawn area"] : []), ...(f.q ? [displayQuery(f.q)] : []), ...f.pref.map((p) => PREFECTURE_BY_ID[p].name)];
   return { text: names[0] ?? "", extra: Math.max(0, names.length - 1) };
 }
 
-export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onToggleView }: Props) {
+export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onToggleView, onStartDraw }: Props) {
   const isSheet = useMediaQuery(SHEET_QUERY);
   const barRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState<Filters>(filters);
@@ -77,6 +80,15 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
     onApply(draft);
     onOpenPanel(null);
   }, [draft, onApply, onOpenPanel]);
+
+  // Draw your own area from a panel: keep the panel's other choices (location is about to be
+  // replaced by the drawing), close it and hand over to the map.
+  const startDrawFromPanel = useCallback(() => {
+    const next = { ...draft, q: filters.q, pref: filters.pref, area: filters.area, bbox: filters.bbox };
+    if (searchHref(next) !== searchHref(filters)) onApply(next);
+    onOpenPanel(null);
+    onStartDraw();
+  }, [draft, filters, onApply, onOpenPanel, onStartDraw]);
 
   // When a panel is opened from outside (prototype links), seed the draft.
   const lastOpen = useRef<PanelId | null>(null);
@@ -138,6 +150,7 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
         onText={setText}
         showSearchInput={isSheet}
         inputRef={isSheet ? sheetInput : locationInput}
+        onStartDraw={startDrawFromPanel}
       />
     </PanelFrame>
   );
@@ -193,7 +206,7 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
     </button>
   );
 
-  const clearLocation = () => onApply({ ...filters, q: "", pref: [] });
+  const clearLocation = () => onApply({ ...filters, q: "", pref: [], area: null });
 
   return (
     <div ref={barRef} className="sticky top-0 z-30 border-b border-line bg-white">
@@ -232,7 +245,8 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
                   onChange={(e) => {
                     if (openPanel !== "location") open("location");
                     setText(e.target.value);
-                    setDraft((d) => ({ ...d, q: e.target.value.trim() }));
+                    // Typing a place replaces a drawn area.
+                    setDraft((d) => ({ ...d, q: e.target.value.trim(), area: e.target.value.trim() ? null : d.area }));
                   }}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -253,7 +267,7 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
                     onClick={() => {
                       if (openPanel === "location") {
                         setText("");
-                        setDraft((d) => ({ ...d, q: "", pref: [] }));
+                        setDraft((d) => ({ ...d, q: "", pref: [], area: null }));
                         locationInput.current?.focus();
                       } else clearLocation();
                     }}
@@ -286,18 +300,7 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
                 {availPill}
               </div>
               <div className="hidden flex-1 lg:block" />
-              <div className="flex items-center gap-2.5">
-                <button
-              type="button"
-              aria-disabled="true"
-              title="Saved searches are not part of this prototype"
-              className="hidden h-11 items-center gap-2 rounded-btn border border-line bg-white px-3.5 text-sm lg:inline-flex"
-            >
-              <Icon name="bookmark_add" />
-              Save search
-                </button>
-                {filtersButton}
-              </div>
+              {filtersButton}
             </>
           )}
         </div>
@@ -324,6 +327,7 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
         onText={setText}
         onClose={close}
         footer={footer("all")}
+        onStartDraw={startDrawFromPanel}
       />
     </div>
   );
