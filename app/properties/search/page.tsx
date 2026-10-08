@@ -1,14 +1,18 @@
+import { Suspense } from "react";
+import type { Metadata } from "next";
 import { PageShell } from "@/components/layout/PageShell";
-import { Container } from "@/components/layout/Container";
+import { SearchExperience } from "@/components/search/SearchExperience";
+
+export const metadata: Metadata = {
+  title: "Property search | ESR Japan — search prototype",
+};
 
 export default function SearchPage() {
   return (
     <PageShell>
-      <section className="bg-surface">
-        <Container className="py-10">
-          <h1 className="text-2xl font-semibold">Search results</h1>
-        </Container>
-      </section>
+      <Suspense fallback={<div className="min-h-[60vh] bg-surface" />}>
+        <SearchExperience />
+      </Suspense>
     </PageShell>
   );
 }
