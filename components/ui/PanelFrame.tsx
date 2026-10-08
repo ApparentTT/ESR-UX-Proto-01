@@ -70,6 +70,7 @@ export function PanelFrame({ open, variant, title, onClose, anchorRef, initialFo
   useEffect(() => {
     if (!open) return;
     returnFocus.current = (document.activeElement as HTMLElement) ?? null;
+    const panel = panelRef.current;
     const t = requestAnimationFrame(() => {
       const target = initialFocusRef?.current ?? panelRef.current?.querySelector<HTMLElement>(FOCUSABLE);
       target?.focus({ preventScroll: true });
@@ -80,7 +81,7 @@ export function PanelFrame({ open, variant, title, onClose, anchorRef, initialFo
       // (tabbing out of a popover closes it; focus must stay where they tabbed to).
       const el = returnFocus.current;
       const active = document.activeElement;
-      const lost = !active || active === document.body || !!panelRef.current?.contains(active);
+      const lost = !active || active === document.body || !!panel?.contains(active);
       if (el && lost && document.contains(el) && el.tagName !== "INPUT") el.focus({ preventScroll: true });
     };
   }, [open, initialFocusRef]);
