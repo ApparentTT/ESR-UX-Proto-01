@@ -64,6 +64,15 @@ body {
   outline: 2px solid var(--color-ink);
   outline-offset: 2px;
 }
+/* Inputs draw their own focus ring with border + ring utilities. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.field:focus-visible {
+  outline: none;
+}
 .focus-inset:focus-visible {
   outline-offset: -2px;
 }

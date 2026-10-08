@@ -89,14 +89,25 @@ for (const r of REAL.slice(1)) {
     indicative: { sizeSqm: size("logistics"), availability: availBag.pop(), preLease: false, listed: listed(), ...features("logistics") },
   });
 }
-// Repeats of the four, spread across prefectures.
+// Repeats of the four, spread across prefectures. Avoid repeating the same name, city and type
+// combination so neighbouring cards never look like duplicates.
+const used = new Set<string>(rows.map((r) => `${r.name}|${r.city}|${r.type}`));
 while (rows.length < TOTAL) {
   const prefecture = prefBag.pop() as PrefectureId;
-  const loc = pick(LOCALITIES.filter((l) => l.prefecture === prefecture));
   const type = typeBag.pop()!;
   const availability = availBag.pop()!;
+  let loc = pick(LOCALITIES.filter((l) => l.prefecture === prefecture));
+  let name = pick(REPEAT_NAMES);
+  for (let tries = 0; tries < 40 && used.has(`${name}|${loc.city}|${type}`); tries++) {
+    loc = pick(LOCALITIES.filter((l) => l.prefecture === prefecture));
+    name = pick(REPEAT_NAMES);
+  }
+  // In its own prefecture a repeated name keeps its real city, so "Yokohama Sachiura" never shows in Kawasaki.
+  const home = REAL.find((r) => r.name === name)!;
+  if (home.prefecture === prefecture) loc = LOCALITIES.find((l) => l.city === home.city && (l.ward ?? "") === ("ward" in home ? home.ward : ""))!;
+  used.add(`${name}|${loc.city}|${type}`);
   rows.push({
-    name: pick(REPEAT_NAMES), type, city: loc.city, ...(loc.ward ? { ward: loc.ward } : {}), prefecture,
+    name, type, city: loc.city, ...(loc.ward ? { ward: loc.ward } : {}), prefecture,
     lat: jitter(loc.lat, 0.08), lng: jitter(loc.lng, 0.1),
     gfaSqm: null, siteAreaSqm: null, status: null,
     indicative: {

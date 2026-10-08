@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Container } from "@/components/layout/Container";
+import { FilterBar, type PanelId } from "./FilterBar";
 import { ResultsHeader } from "./ResultsHeader";
 import { ResultsList } from "./ResultsList";
 import { filterProperties, scopeLabel, sortProperties } from "@/lib/filters";
@@ -10,8 +12,34 @@ import { useInfiniteBatches } from "@/lib/useInfiniteBatches";
 import { DESKTOP_QUERY, useMediaQuery } from "@/lib/useMediaQuery";
 
 export function SearchExperience() {
-  const { filters, sort, setSort, queryKey } = useSearchState();
+  const { filters, sort, setFilters, setSort, params } = useSearchState();
+  const router = useRouter();
   const isDesktop = useMediaQuery(DESKTOP_QUERY, true);
+
+  // Prototype deep links: ?panel=all|location|type|size|avail opens a panel, ?view=map opens the mobile map.
+  // Both are read once and stripped so the URL only ever carries the search itself.
+  const [openPanel, setOpenPanel] = useState<PanelId | null>(null);
+  const [view, setView] = useState<"list" | "map">("list");
+  const panelParam = params.get("panel");
+  const viewParam = params.get("view");
+  useEffect(() => {
+    if (!panelParam && !viewParam) return;
+    if (panelParam && ["all", "location", "type", "size", "avail"].includes(panelParam)) setOpenPanel(panelParam as PanelId);
+    if (viewParam === "map") setView("map");
+    const next = new URLSearchParams(params.toString());
+    next.delete("panel");
+    next.delete("view");
+    const qs = next.toString();
+    router.replace(`/properties/search${qs ? `?${qs}` : ""}`, { scroll: false });
+  }, [panelParam, viewParam, params, router]);
+
+  // Panel and view params never change the search, so they are left out of the reset key.
+  const queryKey = useMemo(() => {
+    const k = new URLSearchParams(params.toString());
+    k.delete("panel");
+    k.delete("view");
+    return k.toString();
+  }, [params]);
 
   const results = useMemo(() => sortProperties(filterProperties(filters), sort), [filters, sort]);
   const total = results.length;
@@ -28,6 +56,15 @@ export function SearchExperience() {
   const subtitle = `Showing ${shown} of ${total}${hasMore ? " · scroll for more" : ""}`;
 
   return (
+    <>
+    <FilterBar
+      filters={filters}
+      onApply={setFilters}
+      openPanel={openPanel}
+      onOpenPanel={setOpenPanel}
+      view={view}
+      onToggleView={() => setView((v) => (v === "list" ? "map" : "list"))}
+    />
     <section className="bg-surface" aria-label="Search results">
       <Container>
         <ResultsHeader title={title} subtitle={subtitle} sort={sort} onSort={setSort} />
@@ -55,5 +92,6 @@ export function SearchExperience() {
         </div>
       </Container>
     </section>
+    </>
   );
 }

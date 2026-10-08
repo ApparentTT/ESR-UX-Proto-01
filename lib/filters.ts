@@ -121,7 +121,8 @@ export function filtersToParams(f: Filters, extra: Record<string, string | null 
 }
 
 export function searchHref(f: Filters, extra: Record<string, string | null | undefined> = {}) {
-  const qs = filtersToParams(f, extra).toString();
+  // Commas are legal in a query string; keep them literal so shared links stay readable.
+  const qs = filtersToParams(f, extra).toString().replace(/%2C/gi, ",");
   return `/properties/search${qs ? `?${qs}` : ""}`;
 }
 
@@ -135,14 +136,55 @@ const haystack = new Map<string, string>(
 
 const AVAIL_RANK = { now: 0, "6m": 1, "12m": 2, later: 3 } as const;
 
-export function matchesQuery(p: Property, q: string) {
+/** A query that names a known place or estate matches that field exactly; anything else is free text. */
+type ResolvedQuery =
+  | { kind: "prefecture"; id: PrefectureId }
+  | { kind: "city"; city: string }
+  | { kind: "ward"; ward: string; city: string }
+  | { kind: "estate"; name: string }
+  | { kind: "text"; tokens: string[] };
+
+const resolved = new Map<string, ResolvedQuery>();
+function resolveQuery(q: string): ResolvedQuery {
   const n = norm(q);
-  if (!n) return true;
-  const h = haystack.get(p.id)!;
-  return n.split(" ").every((tok) => h.includes(tok));
+  const hit = resolved.get(n);
+  if (hit) return hit;
+  let r: ResolvedQuery;
+  const pref = PREFECTURES.find((p) => norm(p.name) === n);
+  const city = LOCALITIES.find((l) => norm(l.city) === n);
+  const ward = LOCALITIES.find((l) => l.ward && (norm(`${l.ward} ${l.city}`) === n || norm(l.ward) === n));
+  const estate = PROPERTIES.find((p) => norm(p.name) === n);
+  if (pref) r = { kind: "prefecture", id: pref.id };
+  else if (city) r = { kind: "city", city: city.city };
+  else if (ward) r = { kind: "ward", ward: ward.ward!, city: ward.city };
+  else if (estate) r = { kind: "estate", name: estate.name };
+  else r = { kind: "text", tokens: n.split(" ") };
+  resolved.set(n, r);
+  return r;
 }
 
-/** Windows are cumulative (within 12 months includes available now). Pre-lease and build to suit are added on top when included. */
+/** True when q names a known prefecture, city, ward or estate exactly. */
+export const isKnownPlace = (q: string) => !!norm(q) && resolveQuery(q).kind !== "text";
+
+export function matchesQuery(p: Property, q: string) {
+  if (!norm(q)) return true;
+  const r = resolveQuery(q);
+  switch (r.kind) {
+    case "prefecture":
+      return p.prefecture === r.id;
+    case "city":
+      return p.city === r.city;
+    case "ward":
+      return p.city === r.city && p.ward === r.ward;
+    case "estate":
+      return p.name === r.name;
+    case "text": {
+      const h = haystack.get(p.id)!;
+      return r.tokens.every((tok) => h.includes(tok));
+    }
+  }
+}
+
 function matchesAvail(p: Property, avail: AvailFilter | null, pre: boolean) {
   if (!avail) return true;
   if (p.indicative.preLease && pre) return true;
