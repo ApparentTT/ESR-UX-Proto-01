@@ -61,6 +61,7 @@ export function ResultsList({ items, hasMore, loading, onLoadMore, scrollMode, p
 
   return (
     <>
+      <h2 className="sr-only">Results</h2>
       <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5" aria-label="Properties">
         {items.map((p) => (
           <li key={p.id} className="flex flex-col [&>article]:flex-1">

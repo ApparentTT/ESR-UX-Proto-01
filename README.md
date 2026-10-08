@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ESR property search — wireframe prototype
 
-## Getting Started
+Clickable greyscale prototype of the ESR Japan property search, built from the Figma wireframes for client review. Search only; every other nav link is inert.
 
-First, run the development server:
+Content and imagery are placeholder, figures are indicative and the map is simulated. Only Higashi-Ogishima Distribution Centre 2 carries published figures; every other card shows `[GFA TBC]` / `[Status TBC]`.
+
+## States
+
+Use the **Prototype** badge (bottom right) to jump to any of these:
+
+| State | URL |
+| --- | --- |
+| 1. First visit | `/properties` |
+| 2. All filters panel | `/properties/search?…&panel=all` |
+| 3. Results | `/properties/search` |
+| 4. Results with filters applied | `/properties/search?pref=kanagawa,tokyo&type=logistics,business-park&min=5000&max=20000&avail=12m` |
+| 5. Results scrolled | `/properties/search?pref=kanagawa&demo=scrolled` |
+| 6. No results | `/properties/search?q=aomori&type=cold-storage&min=20000` |
+
+Filter panels open with `panel=location|type|size|avail`; the mobile map with `view=map`. These helper params are stripped after opening, so the URL only ever carries the search.
+
+## URL parameters
+
+`q` place or estate text · `pref` prefectures · `type` property types · `min` / `max` sqm · `avail` `now|6m|12m` · `pre=1` include pre-lease and build to suit · `sus` / `amen` sustainability and amenity · `bbox` map area · `sort` `size|availability`
+
+## Editing
+
+- **Properties:** `data/properties.ts`, one record per line. Regenerate with `node --experimental-strip-types scripts/generate-properties.ts` (this overwrites hand edits).
+- **Market and region label:** `config/market.ts`. Switch `MARKET` to change "prefecture" to state, province or district.
+- **Prototype switches:** `config/prototype.ts`. `SHOW_INDICATIVE_FIGURES` shows the indicative sizes behind the filters instead of `[GFA TBC]`. `PAGE_SIZE` sets the batch size (12), and `LOAD_DELAY_MS` the simulated loading delay.
+- **Design tokens:** `app/globals.css`.
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000/properties.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Import this repository at https://vercel.com/new. Vercel detects Next.js, so leave every setting at its default and press **Deploy**. Every push to the default branch then redeploys automatically.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Stack: Next.js (App Router), TypeScript, Tailwind CSS. No backend, CMS, database or API keys.
