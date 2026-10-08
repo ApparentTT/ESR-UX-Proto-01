@@ -118,6 +118,14 @@ export function SearchExperience() {
   const subtitle = isEmpty ? filterSummary(filters) : `Showing ${shown} of ${total}${hasMore ? " · scroll for more" : ""}`;
   const pins = isEmpty ? nearby : visible;
   const showMobileMap = !isDesktop && view === "map";
+  // Lets the fixed Prototype badge lift clear of the mobile map carousel.
+  useEffect(() => {
+    if (!showMobileMap) return;
+    document.documentElement.dataset.mobileMap = "1";
+    return () => {
+      delete document.documentElement.dataset.mobileMap;
+    };
+  }, [showMobileMap]);
   const paneHeight = "h-[calc(100dvh-var(--bar-h,0px)-32px)] min-h-[520px]";
 
   const map = (
