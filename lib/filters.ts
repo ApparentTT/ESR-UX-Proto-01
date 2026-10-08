@@ -11,6 +11,7 @@ import {
   type SustainabilityId,
 } from "@/data/types";
 import { MARKET } from "@/config/market";
+import { PLACES } from "@/data/mapGeometry";
 
 export type AvailFilter = "now" | "6m" | "12m";
 export type SortId = "newest" | "size" | "availability";
@@ -406,18 +407,30 @@ export function filterSummary(f: Filters) {
   return parts.join(", ");
 }
 
-/** Nearest properties to the current search, for the empty state. Widens by dropping filters until something shows. */
-export function nearbyProperties(f: Filters, limit = 4): Property[] {
-  const attempts: Filters[] = [
-    { ...f, min: null, max: null },
-    { ...f, min: null, max: null, avail: null, sus: [], amen: [] },
-    { ...f, type: [], min: null, max: null, avail: null, sus: [], amen: [], bbox: null },
-    { ...EMPTY_FILTERS, pref: f.pref },
-    EMPTY_FILTERS,
-  ];
-  for (const a of attempts) {
-    const r = filterProperties(a);
-    if (r.length) return r.slice(0, limit);
+/** Where the user was looking: the searched place, or the centre of the chosen prefectures. */
+function referencePoint(f: Filters): [number, number] | null {
+  if (f.bbox) return [(f.bbox[0] + f.bbox[2]) / 2, (f.bbox[1] + f.bbox[3]) / 2];
+  const pts: [number, number][] = [];
+  if (f.q) {
+    const r = resolveQuery(f.q);
+    const known = PROPERTIES.filter((p) => r.kind !== "text" && matchesQuery(p, f.q));
+    if (known.length) pts.push(...known.map((p) => [p.lat, p.lng] as [number, number]));
+    else {
+      const place = (PLACES as Record<string, [number, number]>)[norm(f.q).replace(/ /g, "")];
+      if (place) pts.push(place);
+    }
   }
-  return [];
+  for (const id of f.pref) pts.push(...PROPERTIES.filter((p) => p.prefecture === id).map((p) => [p.lat, p.lng] as [number, number]));
+  if (!pts.length) return null;
+  return [pts.reduce((a, p) => a + p[0], 0) / pts.length, pts.reduce((a, p) => a + p[1], 0) / pts.length];
+}
+
+/** Nearest properties to the current search, for the empty state. Keeps the property type if it can. */
+export function nearbyProperties(f: Filters, limit = 4): Property[] {
+  const ref = referencePoint(f);
+  const sameType = f.type.length ? PROPERTIES.filter((p) => f.type.includes(p.type)) : [];
+  const pool = sameType.length >= limit ? sameType : PROPERTIES;
+  if (!ref) return pool.slice(0, limit);
+  const d = (p: Property) => (p.lat - ref[0]) ** 2 + ((p.lng - ref[1]) * 0.81) ** 2;
+  return [...pool].sort((a, b) => d(a) - d(b)).slice(0, limit);
 }
