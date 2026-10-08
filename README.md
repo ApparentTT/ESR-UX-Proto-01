@@ -17,11 +17,15 @@ Use the **Prototype** badge (bottom right) to jump to any of these:
 | 5. Results scrolled | `/properties/search?pref=kanagawa&demo=scrolled` |
 | 6. No results | `/properties/search?q=aomori&type=cold-storage&min=20000` |
 
-Filter panels open with `panel=location|type|size|avail`; the mobile map with `view=map`. These helper params are stripped after opening, so the URL only ever carries the search.
+Filter panels open with `panel=location|type|size|avail`; the mobile map with `view=map`; drawing an area with `draw=1`. These helper params are stripped after opening, so the URL only ever carries the search.
+
+## Draw your own area
+
+Press **Draw your own area** on the map (or the option in the Location and All filters panels). Press and drag to draw freehand, or click to place points and click the first point, double-click or press **Done** to finish. From the keyboard: arrow keys move the map, Enter places a point at the centre cross, Backspace removes it, Escape cancels. The drawn area replaces any typed place or prefecture, appears as a removable **Drawn area** chip and is written to the URL.
 
 ## URL parameters
 
-`q` place or estate text · `pref` prefectures · `type` property types · `min` / `max` sqm · `avail` `now|6m|12m` · `pre=1` include pre-lease and build to suit · `sus` / `amen` sustainability and amenity · `bbox` map area · `sort` `size|availability`
+`q` place or estate text · `pref` prefectures · `type` property types · `min` / `max` sqm · `avail` `now|6m|12m` · `pre=1` include pre-lease and build to suit · `sus` / `amen` sustainability and amenity · `bbox` map area from Search this area · `area` drawn area as `lat_lng` points, comma separated (e.g. `area=35.620_139.600,35.600_139.830,35.450_139.830,35.300_139.690,35.380_139.520`) · `sort` `size|availability`
 
 ## Editing
 

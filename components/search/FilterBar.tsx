@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Container } from "@/components/layout/Container";
 import { Icon } from "@/components/ui/Icon";
 import { PanelFrame } from "@/components/ui/PanelFrame";
@@ -100,11 +100,14 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
     lastOpen.current = openPanel;
   }, [openPanel, filters]);
 
-  // Publish the sticky bar height for the results pane.
-  useEffect(() => {
+  // Publish the sticky bar height for the results pane and scroll positioning. Published before
+  // first paint, so anything that scrolls on load (?draw=1, ?demo=scrolled) already has it.
+  useLayoutEffect(() => {
     const el = barRef.current;
     if (!el) return;
-    const ro = new ResizeObserver(() => document.documentElement.style.setProperty("--bar-h", `${el.offsetHeight}px`));
+    const publish = () => document.documentElement.style.setProperty("--bar-h", `${el.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
@@ -209,7 +212,7 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
   const clearLocation = () => onApply({ ...filters, q: "", pref: [], area: null });
 
   return (
-    <div ref={barRef} className="sticky top-0 z-30 border-b border-line bg-white">
+    <div ref={barRef} data-filter-bar className="sticky top-0 z-30 border-b border-line bg-white">
       <Container className="py-3 md:py-5">
         {/* Row 1 */}
         <div className="flex flex-wrap items-center gap-2.5">

@@ -151,7 +151,11 @@ export function FakeMap({
   const [hint, setHint] = useState<string | null>(null);
   const [announce, setAnnounce] = useState("");
   const [kbCursor, setKbCursor] = useState(false);
-  const stroke = useRef<{ sx: number; sy: number; lx: number; ly: number; dragged: boolean; base: LatLng[] } | null>(null);
+  const stroke = useRef<{ sx: number; sy: number; lx: number; ly: number; dragged: boolean; base: LatLng[]; touch: boolean } | null>(null);
+  /** Where and when the click that started drawing happened, to ignore the second half of a double click. */
+  const startClick = useRef<{ x: number; y: number; t: number } | null>(null);
+  /** Return focus to the map when the control that had it disappears. */
+  const focusMap = () => requestAnimationFrame(() => boxRef.current?.focus({ preventScroll: true }));
 
   const unproject = useCallback(
     (x: number, y: number): LatLng => [view.lat - (y - size.h / 2) / view.k, view.lng + (x - size.w / 2) / (view.k * COS)],
@@ -162,13 +166,16 @@ export function FakeMap({
     return { x: e.clientX - r.left, y: e.clientY - r.top };
   };
 
-  const startDrawing = useCallback(() => {
+  const startDrawing = useCallback((ev?: { clientX: number; clientY: number; detail?: number }) => {
     setDrawing(true);
     setPoints([]);
     setHint(null);
-    setMoved(false);
+    startClick.current = ev && ev.detail ? { x: ev.clientX, y: ev.clientY, t: performance.now() } : null;
     setAnnounce("Drawing mode on. Press and drag on the map, or click to place points.");
-    boxRef.current?.focus({ preventScroll: true });
+    const box = boxRef.current;
+    box?.focus({ preventScroll: true });
+    // Started from the keyboard: show the crosshair and keyboard instructions straight away.
+    setKbCursor(!!box?.matches(":focus-visible"));
     onDrawStart?.();
   }, [onDrawStart]);
 
@@ -178,6 +185,7 @@ export function FakeMap({
     setHint(null);
     setKbCursor(false);
     setAnnounce("Drawing cancelled.");
+    requestAnimationFrame(() => boxRef.current?.focus({ preventScroll: true }));
   }, []);
 
   const finishDrawing = (raw: LatLng[]) => {
@@ -200,6 +208,7 @@ export function FakeMap({
       setPoints([]);
       setHint("That area is too small. Try drawing a larger shape.");
       setAnnounce("That area is too small. Try drawing a larger shape.");
+      focusMap();
       return;
     }
     setDrawing(false);
@@ -208,6 +217,7 @@ export function FakeMap({
     setKbCursor(false);
     setAnnounce("Area drawn. Results now show properties inside it.");
     onDrawArea?.(shape);
+    focusMap();
   };
 
   // Requests from filter panels, the prototype panel or ?draw=1.
@@ -217,15 +227,13 @@ export function FakeMap({
     onDrawRequestHandled?.();
   }, [drawRequested, size.w, onDrawArea, startDrawing, onDrawRequestHandled]);
 
-  // Escape cancels drawing wherever focus is inside the page.
+  // Escape cancels drawing wherever focus is on the page, unless it is closing an open dialog.
   useEffect(() => {
     if (!drawing) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        cancelDrawing();
-        boxRef.current?.focus({ preventScroll: true });
-      }
+      if (e.key !== "Escape" || e.defaultPrevented || document.querySelector('[role="dialog"]')) return;
+      e.preventDefault();
+      cancelDrawing();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -241,16 +249,24 @@ export function FakeMap({
     const next = pointsRef.current.slice(0, -1);
     setPoints(next);
     setAnnounce(`${next.length} ${next.length === 1 ? "point" : "points"} placed.`);
+    // The undo button disappears with the last point; keep focus on the map.
+    if (!next.length) focusMap();
   };
 
+  /** Clicks on the map's own controls and cards never draw or pan. */
+  const isMapUi = (t: EventTarget) => !!(t as HTMLElement).closest?.("button, [data-map-ui]");
+
   const onPointerDown = (e: React.PointerEvent) => {
-    if ((e.target as HTMLElement).closest("button")) return;
+    if (isMapUi(e.target)) return;
     if (drawing) {
-      if (e.button !== 0) return;
+      // Ignore the second press of a double click on Draw your own area: same screen spot, moments later.
+      const sc = startClick.current;
+      if (e.button !== 0 || (sc && performance.now() - sc.t < 500 && Math.hypot(e.clientX - sc.x, e.clientY - sc.y) < 10)) return;
+      startClick.current = null;
       e.preventDefault();
       setKbCursor(false);
       const { x, y } = local(e);
-      stroke.current = { sx: x, sy: y, lx: x, ly: y, dragged: false, base: pointsRef.current };
+      stroke.current = { sx: x, sy: y, lx: x, ly: y, dragged: false, base: pointsRef.current, touch: e.pointerType !== "mouse" };
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       return;
     }
@@ -261,7 +277,9 @@ export function FakeMap({
     const st = stroke.current;
     if (drawing && st) {
       const { x, y } = local(e);
-      if (!st.dragged && Math.hypot(x - st.sx, y - st.sy) > 6) {
+      // Freehand only starts from an empty map; once points are placed, every press adds one point,
+      // so a tap that slides a little never closes the shape early. Touch gets a larger tap slop.
+      if (!st.dragged && st.base.length === 0 && Math.hypot(x - st.sx, y - st.sy) > (st.touch ? 12 : 6)) {
         st.dragged = true;
         setPoints([...st.base, unproject(st.sx, st.sy)]);
         setHint(null);
@@ -393,7 +411,10 @@ export function FakeMap({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
-      onDoubleClick={() => drawing && pointsRef.current.length >= 3 && finishDrawing(pointsRef.current)}
+      onDoubleClick={(e) => {
+        if (!drawing || isMapUi(e.target) || pointsRef.current.length < 3) return;
+        finishDrawing(pointsRef.current);
+      }}
       onKeyDown={onKeyDown}
       className={`focus-inset relative isolate touch-none select-none overflow-hidden bg-[#D7DADE] ${drawing ? "cursor-crosshair" : "cursor-grab active:cursor-grabbing"} ${className}`}
     >
@@ -447,9 +468,15 @@ export function FakeMap({
           })}
 
           {/* Applied drawn area: everything outside it is dimmed */}
+          {/* A mask (nonzero fill) rather than an even-odd cut-out, so looped freehand shapes stay
+              fully undimmed and match the filter, whichever way they were drawn. */}
           {area && !drawing && (
             <g>
-              <path d={`M0,0H${size.w}V${size.h}H0Z ${toPath(area, true)}`} fill="#111826" fillOpacity={0.12} fillRule="evenodd" />
+              <mask id="area-dim" maskUnits="userSpaceOnUse" x={0} y={0} width={size.w} height={size.h}>
+                <rect width={size.w} height={size.h} fill="white" />
+                <path d={toPath(area, true)} fill="black" />
+              </mask>
+              <rect width={size.w} height={size.h} fill="#111826" fillOpacity={0.12} mask="url(#area-dim)" />
               <path d={toPath(area, true)} fill="none" stroke="#111826" strokeWidth={2} strokeLinejoin="round" />
             </g>
           )}
@@ -471,6 +498,66 @@ export function FakeMap({
           )}
         </svg>
       )}
+
+      {/* Map controls come first in the DOM so Tab reaches them before the pins. */}
+      {/* Draw your own area */}
+      {drawing ? (
+        <div data-map-ui className="anim-pop absolute left-3 right-[60px] top-3 z-30 max-w-[340px] cursor-default rounded-card border border-ink bg-white p-3 shadow-panel">
+          <p className="text-sm font-medium">Draw around the area you want to search</p>
+          <p className="mt-0.5 text-[13px] text-muted">{hint ?? "Press and drag, or click to place points."}</p>
+          {kbCursor && <p className="mt-1 text-[13px] text-muted">Keyboard: arrows move the map, Enter adds a point at the cross, Backspace removes it.</p>}
+          <div className="mt-2.5 flex items-center gap-2">
+            <button type="button" onClick={cancelDrawing} className="inline-flex h-9 items-center rounded-btn border border-line bg-white px-3 text-sm hover:border-ink">
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => finishDrawing(pointsRef.current)}
+              disabled={points.length < 3}
+              className="inline-flex h-9 items-center rounded-btn bg-ink px-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Done
+            </button>
+            {points.length > 0 && (
+              <button type="button" onClick={undoPoint} aria-label="Remove last point" className="ml-auto inline-flex size-9 items-center justify-center rounded-btn hover:bg-surface">
+                <Icon name="undo" />
+              </button>
+            )}
+          </div>
+        </div>
+      ) : area && onDrawArea ? (
+        <div data-map-ui className="absolute left-3 right-[60px] top-3 z-30 flex flex-wrap gap-2">
+          <button type="button" onClick={(e) => startDrawing(e)} className="inline-flex h-10 items-center gap-2 rounded-btn border border-ink bg-white px-3 text-sm">
+            <Icon name="gesture" />
+            Redraw area
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              onDrawArea(null);
+              focusMap();
+            }}
+            className="inline-flex h-10 items-center gap-2 rounded-btn border border-line bg-white px-3 text-sm hover:border-ink"
+          >
+            <Icon name="close" />
+            Clear area
+          </button>
+        </div>
+      ) : onDrawArea ? (
+        <button type="button" onClick={(e) => startDrawing(e)} className="absolute left-3 top-3 z-30 inline-flex h-10 items-center gap-2 rounded-btn border border-ink bg-white px-3 text-sm hover:bg-surface">
+          <Icon name="gesture" />
+          Draw your own area
+        </button>
+      ) : null}
+      <div data-map-ui className="absolute right-3 top-3 z-30 flex flex-col overflow-hidden rounded-btn border border-line bg-white">
+        <button type="button" aria-label="Zoom in" onClick={() => zoom(1.5)} className="focus-inset inline-flex size-10 items-center justify-center hover:bg-surface">
+          <Icon name="add" />
+        </button>
+        <span className="h-px bg-line" />
+        <button type="button" aria-label="Zoom out" onClick={() => zoom(1 / 1.5)} className="focus-inset inline-flex size-10 items-center justify-center hover:bg-surface">
+          <Icon name="remove" />
+        </button>
+      </div>
 
       {/* Keyboard drawing: points land under this crosshair */}
       {drawing && kbCursor && (
@@ -497,8 +584,7 @@ export function FakeMap({
               onMouseLeave={() => onPinHover(null)}
               aria-label={`${p.name}, ${p.city}. ${pinText(p)}. Show in list`}
               aria-pressed={selectedId === p.id}
-              tabIndex={drawing ? -1 : undefined}
-              aria-hidden={drawing || undefined}
+              inert={drawing}
               className={`absolute left-0 top-0 inline-flex h-8 ${drawing ? "pointer-events-none opacity-50" : ""} items-center whitespace-nowrap rounded-full border px-3 text-xs font-medium tabular-nums shadow-sm transition-colors duration-100 ${
                 on ? "border-ink bg-ink text-white" : "border-ink bg-white text-ink hover:bg-surface"
               }`}
@@ -527,60 +613,9 @@ export function FakeMap({
         </button>
       ))}
 
-      {/* Draw your own area */}
-      {drawing ? (
-        <div className="anim-pop absolute left-3 right-[60px] top-3 z-30 rounded-card border border-ink bg-white p-3 shadow-panel sm:right-auto sm:w-[340px]">
-          <p className="text-sm font-medium">Draw around the area you want to search</p>
-          <p className="mt-0.5 text-[13px] text-muted">{hint ?? "Press and drag, or click to place points."}</p>
-          <div className="mt-2.5 flex items-center gap-2">
-            <button type="button" onClick={cancelDrawing} className="inline-flex h-9 items-center rounded-btn border border-line bg-white px-3 text-sm hover:border-ink">
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => finishDrawing(pointsRef.current)}
-              disabled={points.length < 3}
-              className="inline-flex h-9 items-center rounded-btn bg-ink px-3 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Done
-            </button>
-            {points.length > 0 && (
-              <button type="button" onClick={undoPoint} aria-label="Remove last point" className="ml-auto inline-flex size-9 items-center justify-center rounded-btn hover:bg-surface">
-                <Icon name="undo" />
-              </button>
-            )}
-          </div>
-        </div>
-      ) : area && onDrawArea ? (
-        <div className="absolute left-3 top-3 z-30 flex gap-2">
-          <button type="button" onClick={startDrawing} className="inline-flex h-10 items-center gap-2 rounded-btn border border-ink bg-white px-3 text-sm">
-            <Icon name="gesture" />
-            Redraw area
-          </button>
-          <button type="button" onClick={() => onDrawArea(null)} className="inline-flex h-10 items-center gap-2 rounded-btn border border-line bg-white px-3 text-sm hover:border-ink">
-            <Icon name="close" />
-            Clear area
-          </button>
-        </div>
-      ) : onDrawArea ? (
-        <button type="button" onClick={startDrawing} className="absolute left-3 top-3 z-30 inline-flex h-10 items-center gap-2 rounded-btn border border-ink bg-white px-3 text-sm hover:bg-surface">
-          <Icon name="gesture" />
-          Draw your own area
-        </button>
-      ) : null}
       <p aria-live="polite" className="sr-only">
         {announce}
       </p>
-
-      <div className="absolute right-3 top-3 z-30 flex flex-col overflow-hidden rounded-btn border border-line bg-white">
-        <button type="button" aria-label="Zoom in" onClick={() => zoom(1.5)} className="focus-inset inline-flex size-10 items-center justify-center hover:bg-surface">
-          <Icon name="add" />
-        </button>
-        <span className="h-px bg-line" />
-        <button type="button" aria-label="Zoom out" onClick={() => zoom(1 / 1.5)} className="focus-inset inline-flex size-10 items-center justify-center hover:bg-surface">
-          <Icon name="remove" />
-        </button>
-      </div>
 
       {moved && !drawing && (
         <div className="pointer-events-none absolute inset-x-0 z-30 flex justify-center" style={{ bottom: bottomInset + 20 }}>

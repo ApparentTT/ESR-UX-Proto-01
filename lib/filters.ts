@@ -12,7 +12,7 @@ import {
 } from "@/data/types";
 import { MARKET } from "@/config/market";
 import { PLACES } from "@/data/mapGeometry";
-import { centroid, pointInPolygon, type LatLng } from "./geo";
+import { centroid, isDegenerate, pointInPolygon, type LatLng } from "./geo";
 
 export type AvailFilter = "now" | "6m" | "12m";
 export type SortId = "newest" | "size" | "availability";
@@ -86,11 +86,18 @@ const num = (v: string | null) => {
 
 type ParamsLike = { get(key: string): string | null };
 
-/** area=lat_lng,lat_lng,... (at least three points) */
+/**
+ * area=lat_lng,lat_lng,... with at least three distinct points enclosing some area.
+ * Anything malformed (a truncated link, an empty coordinate) is ignored rather than guessed at.
+ */
+const AREA_PAIR = /^-?\d{1,3}(\.\d+)?_-?\d{1,3}(\.\d+)?$/;
 function parseArea(v: string | null): LatLng[] | null {
-  const pts = list(v).map((pair) => pair.split("_").map(Number) as LatLng);
-  const ok = pts.length >= 3 && pts.every((p) => p.length === 2 && p.every(Number.isFinite) && Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180);
-  return ok ? pts : null;
+  const pairs = list(v);
+  if (pairs.length < 3 || pairs.length > 200 || !pairs.every((p) => AREA_PAIR.test(p))) return null;
+  const pts = pairs.map((pair) => pair.split("_").map(Number) as LatLng);
+  if (!pts.every(([lat, lng]) => Math.abs(lat) <= 90 && Math.abs(lng) <= 180)) return null;
+  if (isDegenerate(pts)) return null;
+  return pts;
 }
 
 export function parseFilters(sp: ParamsLike): Filters {

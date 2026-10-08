@@ -1,5 +1,6 @@
 "use client";
 
+import { forwardRef, useRef } from "react";
 import { PREFECTURES } from "@/data/locations";
 import { displayQuery, isKnownPlace, locationSuggestions, prefectureCounts, type Filters, type Suggestion } from "@/lib/filters";
 import { CheckboxRow, TogglePill } from "@/components/ui/Controls";
@@ -34,6 +35,12 @@ export function applySuggestion(draft: Filters, s: Suggestion): Filters {
 }
 
 export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, inputRef, layout = "list", listboxId = "location-suggestions", onStartDraw }: Props) {
+  const drawOptionRef = useRef<HTMLButtonElement>(null);
+  const removeArea = () => {
+    onDraft({ ...draft, area: null });
+    // The row (and its Remove button) disappears; keep focus inside the panel.
+    requestAnimationFrame(() => (drawOptionRef.current ?? inputRef?.current)?.focus());
+  };
   const suggestions = locationSuggestions(text, draft);
   // Once a known place is picked, the field shows its name; hide the suggestion list until the user types again.
   const picked = isKnownPlace(draft.q) && text.trim().toLowerCase() === displayQuery(draft.q).toLowerCase();
@@ -124,7 +131,7 @@ export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, i
         <div className="mb-3 flex min-h-11 items-center gap-3 rounded-btn bg-surface px-3 text-[15px]">
           <Icon name="gesture" />
           <span className="flex-1">Drawn area on the map</span>
-          <button type="button" onClick={() => onDraft({ ...draft, area: null })} className="rounded-btn px-1 py-1 text-sm text-muted-surface underline hover:text-ink">
+          <button type="button" onClick={removeArea} className="rounded-btn px-1 py-1 text-sm text-muted-surface underline hover:text-ink">
             Remove
           </button>
         </div>
@@ -155,7 +162,7 @@ export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, i
 
       {onStartDraw && (
         <div className="mt-3 border-t border-line pt-2">
-          <DrawAreaOption onClick={onStartDraw} redraw={!!draft.area} />
+          <DrawAreaOption ref={drawOptionRef} onClick={onStartDraw} redraw={!!draft.area} />
         </div>
       )}
     </div>
@@ -163,12 +170,12 @@ export function LocationPanel({ draft, onDraft, text, onText, showSearchInput, i
 }
 
 /** Closes the panel and puts the map into drawing mode. */
-export function DrawAreaOption({ onClick, redraw }: { onClick: () => void; redraw?: boolean }) {
+export const DrawAreaOption = forwardRef<HTMLButtonElement, { onClick: () => void; redraw?: boolean }>(function DrawAreaOption({ onClick, redraw }, ref) {
   return (
-    <button type="button" onClick={onClick} className="-mx-2 flex min-h-11 w-[calc(100%+16px)] items-center gap-3 rounded-btn px-2 text-left text-[15px] hover:bg-surface">
+    <button ref={ref} type="button" onClick={onClick} className="-mx-2 flex min-h-11 w-[calc(100%+16px)] items-center gap-3 rounded-btn px-2 text-left text-[15px] hover:bg-surface">
       <Icon name="gesture" />
       <span className="flex-1">{redraw ? "Redraw your area on the map" : "Draw your own area on the map"}</span>
       <Icon name="arrow_forward" className="text-muted" />
     </button>
   );
-}
+});

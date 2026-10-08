@@ -106,7 +106,10 @@ export function SearchExperience() {
   const parkResults = useCallback(() => {
     const pane = paneRef.current;
     if (window.matchMedia(DESKTOP_QUERY).matches && pane) {
-      const barH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar-h")) || 0;
+      const barH =
+        parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--bar-h")) ||
+        document.querySelector<HTMLElement>("[data-filter-bar]")?.offsetHeight ||
+        0;
       window.scrollTo({ top: pane.getBoundingClientRect().top + window.scrollY - barH - 16 });
     } else {
       const main = document.getElementById("main");
@@ -120,12 +123,6 @@ export function SearchExperience() {
     requestAnimationFrame(parkResults);
   }, [parkResults]);
 
-  // ?draw=1 also parks the map in view once the layout has settled.
-  useEffect(() => {
-    if (!drawPending) return;
-    const t = setTimeout(parkResults, 60);
-    return () => clearTimeout(t);
-  }, [drawPending, parkResults]);
 
   // ?demo=scrolled: park the filter bar at the top, load a second batch, then scroll the list to its end so
   // the next batch starts loading with skeletons and Back to top showing.

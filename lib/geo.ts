@@ -1,15 +1,43 @@
 /** Small geometry helpers for the drawn search area. Points are [lat, lng]. */
 export type LatLng = [number, number];
 
-/** Ray casting, with lng as x and lat as y. */
+/**
+ * Nonzero winding test, with lng as x and lat as y. Freehand shapes often cross themselves
+ * (overshooting the start, or circling twice); nonzero keeps every looped region inside,
+ * which matches how the shape looks while it is being drawn.
+ */
 export function pointInPolygon([lat, lng]: LatLng, poly: LatLng[]) {
-  let inside = false;
+  let wn = 0;
   for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
     const [yi, xi] = poly[i];
     const [yj, xj] = poly[j];
-    if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+    const cross = (xi - xj) * (lat - yj) - (lng - xj) * (yi - yj);
+    if (yj <= lat) {
+      if (yi > lat && cross > 0) wn++;
+    } else if (yi <= lat && cross < 0) wn--;
   }
-  return inside;
+  return wn !== 0;
+}
+
+/**
+ * True when the points cannot enclose anything: fewer than three distinct points, or all of
+ * them on (or within `tol` degrees of) one straight line. Signed area is no use here because a
+ * figure-of-eight encloses space yet nets to zero.
+ */
+export function isDegenerate(points: LatLng[], tol = 5e-4) {
+  if (points.length < 3) return true;
+  const a = points[0];
+  let b = a;
+  let far = 0;
+  for (const p of points) {
+    const d = Math.hypot(p[0] - a[0], p[1] - a[1]);
+    if (d > far) {
+      far = d;
+      b = p;
+    }
+  }
+  if (far <= tol) return true;
+  return points.every((p) => perpendicular(p, a, b) <= tol);
 }
 
 export function bounds(points: LatLng[]) {
