@@ -8,6 +8,8 @@
 @theme {
   --color-ink: #111826;
   --color-muted: #6b7280;
+  /* Body copy, form labels and the header Contact us fill in the R2 wireframes */
+  --color-body: #374151;
   --color-muted-surface: #626976;
   --color-line: #e5e7eb;
   --color-surface: #f5f6f8;
