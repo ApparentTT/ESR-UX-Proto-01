@@ -122,8 +122,10 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
           role="search"
           onSubmit={(e) => {
             e.preventDefault();
+            // An empty search keeps the panel open rather than landing on the wireframe's sample results.
+            if (!q.trim()) return inputRef.current?.focus();
             onClose();
-            router.push(`/news/search${q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ""}`);
+            router.push(`/news/search?q=${encodeURIComponent(q.trim())}`);
           }}
           className="flex items-center gap-3"
         >
