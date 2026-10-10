@@ -2,12 +2,13 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { PrototypeBadge } from "@/components/prototype/PrototypeBadge";
+import { InertNotice } from "@/components/prototype/InertNotice";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Find properties | ESR Japan — search prototype",
-  description: "Wireframe prototype of the ESR property search. Content and imagery are placeholder.",
+  title: "ESR — website prototype",
+  description: "Wireframe prototype of the ESR global website. Content and imagery are placeholder.",
   robots: { index: false, follow: false },
 };
 
@@ -37,6 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           Skip to content
         </a>
         {children}
+        <InertNotice />
         <PrototypeBadge />
       </body>
     </html>

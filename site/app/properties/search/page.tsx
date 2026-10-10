@@ -4,7 +4,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { SearchExperience } from "@/components/search/SearchExperience";
 
 export const metadata: Metadata = {
-  title: "Property search | ESR Japan — search prototype",
+  title: "Property search | ESR — website prototype",
 };
 
 export default function SearchPage() {
