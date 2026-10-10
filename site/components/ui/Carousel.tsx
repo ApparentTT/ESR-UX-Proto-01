@@ -81,7 +81,7 @@ export function CircleArrow({ dir, onClick, disabled, label }: { dir: "prev" | "
 }
 
 /** 8px dots, 16px gap. Each dot is a button. */
-export function PagerDots({ count, index, onGo, className = "", tone = "dark" }: { count: number; index: number; onGo: (i: number) => void; className?: string; tone?: "dark" | "light" }) {
+export function PagerDots({ count, index, onGo, className = "", tone = "dark", itemLabel = "slide" }: { count: number; index: number; onGo: (i: number) => void; className?: string; tone?: "dark" | "light"; itemLabel?: string }) {
   return (
     <div className={`flex items-center justify-center gap-1 ${className}`}>
       {Array.from({ length: count }, (_, i) => (
@@ -89,7 +89,7 @@ export function PagerDots({ count, index, onGo, className = "", tone = "dark" }:
           key={i}
           type="button"
           onClick={() => onGo(i)}
-          aria-label={`Go to slide ${i + 1}`}
+          aria-label={`Go to ${itemLabel} ${i + 1}`}
           aria-current={i === index ? "true" : undefined}
           className="inline-flex size-6 items-center justify-center rounded-full"
         >
@@ -101,11 +101,11 @@ export function PagerDots({ count, index, onGo, className = "", tone = "dark" }:
 }
 
 /** 30x10 bars, 12px gap (employee quote carousel). */
-export function PagerBars({ count, index, onGo, className = "" }: { count: number; index: number; onGo: (i: number) => void; className?: string }) {
+export function PagerBars({ count, index, onGo, className = "", itemLabel = "slide" }: { count: number; index: number; onGo: (i: number) => void; className?: string; itemLabel?: string }) {
   return (
     <div className={`flex items-center justify-center gap-3 ${className}`}>
       {Array.from({ length: count }, (_, i) => (
-        <button key={i} type="button" onClick={() => onGo(i)} aria-label={`Go to slide ${i + 1}`} aria-current={i === index ? "true" : undefined} className="inline-flex h-6 items-center">
+        <button key={i} type="button" onClick={() => onGo(i)} aria-label={`Go to ${itemLabel} ${i + 1}`} aria-current={i === index ? "true" : undefined} className="inline-flex h-6 items-center">
           <span className={`block h-2.5 w-[30px] transition-colors ${i === index ? "bg-white ring-1 ring-black/10" : "bg-[#D9D9D9]"}`} />
         </button>
       ))}

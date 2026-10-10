@@ -88,7 +88,7 @@ export function QuoteCarousel({ slides, pager = "dots", topStrip = false, label 
               <div className="md:hidden">
                 <LineArrow dir="prev" onClick={prev} label="Previous quote" />
               </div>
-              <Pager count={count} index={index} onGo={go} />
+              <Pager count={count} index={index} onGo={go} itemLabel="quote" />
               <div className="md:hidden">
                 <LineArrow dir="next" onClick={next} label="Next quote" />
               </div>
