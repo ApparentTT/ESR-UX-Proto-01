@@ -69,10 +69,10 @@ export function OverlayCaseCards({
 }) {
   return (
     <Section bg={bg} className={className}>
-      <ScrollRow className="thin-scrollbar -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 pb-2 pt-1 md:-mx-10 md:scroll-px-10 md:gap-6 md:px-10 lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0 lg:pt-0"
+      <ScrollRow className="thin-scrollbar -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 pb-2 pt-1 md:-mx-10 md:scroll-px-10 md:gap-6 md:px-10 lg:-mx-20 lg:scroll-px-20 lg:px-20 xl:mx-0 xl:grid xl:grid-cols-3 xl:overflow-visible xl:px-0 xl:pb-0 xl:pt-0"
       >
         {cards.map((c, i) => (
-          <li key={i} className="w-[80%] max-w-[360px] shrink-0 snap-start md:w-[46%] md:max-w-none lg:w-auto">
+          <li key={i} className="w-[80%] max-w-[360px] shrink-0 snap-start md:w-[46%] md:max-w-none xl:w-auto">
             <OverlayCaseCard {...c} headingLevel={headingLevel} />
           </li>
         ))}

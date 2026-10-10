@@ -25,7 +25,7 @@ export function SearchField({
         e.preventDefault();
         onSubmit(value.trim());
       }}
-      className={`relative flex h-14 items-center gap-3 rounded-control border bg-white pl-5 pr-2 transition-colors focus-within:border-[1.5px] focus-within:border-ink ${value ? "border-[1.5px] border-ink" : "border-line"}`}
+      className={`relative flex h-14 items-center gap-3 rounded-control border bg-white pl-5 pr-2 transition-colors focus-within:border-[1.5px] focus-within:border-ink has-[input:focus]:outline-2 has-[input:focus]:outline-offset-2 has-[input:focus]:outline-ink has-[input:focus]:outline-solid ${value ? "border-[1.5px] border-ink" : "border-line"}`}
     >
       <label htmlFor={id} className="sr-only">
         {label}

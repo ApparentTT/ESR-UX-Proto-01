@@ -52,7 +52,7 @@ export function DocumentList({ variant, title, sub, groups, format = "PDF", foot
                   <li key={d.name} className="flex items-center gap-2.5 text-[16px] leading-6 text-black">
                     <span className="min-w-0 lg:whitespace-nowrap">{d.name}</span>
                     <span aria-hidden="true" className="h-0 min-w-4 flex-1 border-b border-dotted border-[#9CA3AF]" />
-                    <SmartLink href={d.href} className="shrink-0 underline underline-offset-4 hover:no-underline">
+                    <SmartLink href={d.href} className="-my-2 inline-flex shrink-0 items-center py-2 underline underline-offset-4 hover:no-underline">
                       {format}
                       <span className="sr-only">{`, download ${d.name}`}</span>
                     </SmartLink>
@@ -74,14 +74,19 @@ export function DocumentList({ variant, title, sub, groups, format = "PDF", foot
         </h2>
         {sub && <p className={`text-[16px] leading-[1.45] lg:text-[18px] ${muted}`}>{sub}</p>}
       </div>
-      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-3 lg:gap-10">
+      {/* 768: balanced CSS columns so a short group does not leave a gap beside a tall one */}
+      <div className="grid grid-cols-1 items-start gap-8 md:block md:columns-2 md:gap-x-8 lg:grid lg:grid-cols-3 lg:gap-10">
         {groups.map((g) => (
-          <div key={g.label} className="flex flex-col">
+          <div key={g.label} className="flex flex-col md:mb-8 md:break-inside-avoid lg:mb-0">
             <h3 className={`pb-2.5 text-[14px] font-medium leading-[1.45] ${muted}`}>{g.label}</h3>
             <ul role="list" className="border-t border-line">
               {g.documents.map((d) => (
                 <li key={d.name} className="border-b border-line">
-                  <SmartLink href={d.href} className="group focus-inset flex min-h-14 items-center gap-3 py-4 transition-colors hover:bg-surface">
+                  <SmartLink
+                    href={d.href}
+                    aria-label={`Download ${d.name} (${format})`}
+                    className="group focus-inset flex min-h-14 items-center gap-3 py-4 transition-colors hover:bg-surface"
+                  >
                     <span className="flex-1 text-[16px] leading-[1.45] text-ink underline-offset-4 group-hover:underline">{d.name}</span>
                     <span className={`shrink-0 text-[13px] leading-[1.45] ${muted} group-hover:text-muted-surface`}>
                       <span className="sr-only"> </span>

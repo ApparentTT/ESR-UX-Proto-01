@@ -158,7 +158,7 @@ export function PowerPipeline({
 
         {/* Map frame */}
         <figure className="relative aspect-[646/571] w-full overflow-hidden rounded-card bg-white">
-          <ImagePlaceholder className="absolute inset-0 size-full" iconSize={48} />
+          <ImagePlaceholder className="absolute inset-0 size-full" icon={false} />
           {/* Lightens the placeholder like the wireframe's 60%-opacity map so the grey dots read */}
           <span aria-hidden="true" className="absolute inset-0 bg-white/55" />
           {dots.map((d, i) => {

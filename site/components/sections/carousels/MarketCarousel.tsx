@@ -139,7 +139,7 @@ export function MarketCarousel({ markets, cta, label = "Markets", headingLevel: 
                 <CircleArrow dir="next" onClick={() => step(1)} disabled={index === n - 1} label="Next market" />
               </span>
             </div>
-            <PagerFraction index={index} count={n} />
+            <PagerFraction index={index} count={n} live={false} />
           </div>
           <p className="sr-only" aria-live="polite" aria-atomic="true">
             {`Featured market: ${current.name}, ${current.region}`}

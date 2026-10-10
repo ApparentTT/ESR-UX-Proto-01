@@ -114,10 +114,10 @@ export function PagerBars({ count, index, onGo, className = "", itemLabel = "sli
 }
 
 /** "01/11" counter. */
-export function PagerFraction({ index, count, className = "" }: { index: number; count: number; className?: string }) {
+export function PagerFraction({ index, count, className = "", live = true }: { index: number; count: number; className?: string; /** false when the carousel announces its own richer status */ live?: boolean }) {
   const pad = (n: number) => String(n).padStart(2, "0");
   return (
-    <p aria-live="polite" className={`text-[17px] leading-8 tabular-nums text-ink lg:text-[20px] ${className}`}>
+    <p aria-live={live ? "polite" : undefined} className={`text-[17px] leading-8 tabular-nums text-ink lg:text-[20px] ${className}`}>
       <span className="sr-only">Slide </span>
       {pad(index + 1)}/{pad(count)}
     </p>

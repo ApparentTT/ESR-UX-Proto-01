@@ -1,5 +1,6 @@
 import { Section, type SectionBg } from "@/components/ui/Section";
 import { OutlineTextCard, type OutlineTextCardItem } from "./OutlineTextCard";
+import { ScrollRow } from "@/components/sections/cards/ScrollRow";
 
 /**
  * B23 OutlineTextCardRow (ABOUT §4b "Our purpose"). Follows a SectionHeading "title".
@@ -20,8 +21,7 @@ export type OutlineTextCardRowProps = {
 export function OutlineTextCardRow({ items, bg = "white", labelledBy, titleAs = "h3", className = "" }: OutlineTextCardRowProps) {
   return (
     <Section bg={bg} aria-labelledby={labelledBy} className={`pt-4 pb-12 md:pt-6 md:pb-16 lg:pt-[30px] lg:pb-[72px] ${className}`}>
-      <ul
-        role="list"
+      <ScrollRow
         className="flex flex-col gap-4 md:-mx-10 md:flex-row md:snap-x md:snap-mandatory md:overflow-x-auto md:scroll-px-10 md:px-10 md:pb-2 thin-scrollbar lg:mx-0 lg:grid lg:grid-cols-3 lg:overflow-visible lg:px-0 lg:pb-0"
       >
         {items.map((item) => (
@@ -33,7 +33,7 @@ export function OutlineTextCardRow({ items, bg = "white", labelledBy, titleAs = 
             />
           </li>
         ))}
-      </ul>
+      </ScrollRow>
     </Section>
   );
 }

@@ -7,7 +7,7 @@ export type DropdownOption = { id: string; label: string };
 
 /**
  * Filter trigger + single-select menu (inventory A7). Trigger 46px, radius 8, border line,
- * dark border when it owns an applied value. Closes on select, outside click, Esc and focus leaving.
+ * dark border and "Label: Value" when it owns an applied value (INV §6b). Closes on select, outside click, Esc and focus leaving.
  * `allLabel` adds a clear item at the top ("All markets", ...).
  */
 export function FilterDropdown({
@@ -93,7 +93,7 @@ export function FilterDropdown({
             {current && <span className="font-normal text-muted">{current.label}</span>}
           </>
         ) : (
-          <span>{current && value ? current.label : label}</span>
+          <span>{current && value ? `${label}: ${current.label}` : label}</span>
         )}
         <Icon name="keyboard_arrow_down" size={18} className={`text-muted transition-transform ${open ? "rotate-180" : ""}`} />
       </button>

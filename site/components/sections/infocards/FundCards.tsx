@@ -50,7 +50,7 @@ export function FundCards({ title, sub, funds, bg = "white", id = "flagship-fund
         </h2>
         {sub && <p className={`text-[16px] leading-[1.45] lg:text-[18px] ${mutedOn(bg)}`}>{sub}</p>}
       </div>
-      <ul role="list" className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+      <ul role="list" className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
         {funds.map((fund, i) => (
           <li
             key={`${fund.name}-${i}`}

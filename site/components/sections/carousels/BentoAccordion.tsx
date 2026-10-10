@@ -65,6 +65,8 @@ export function BentoAccordion({ heading, description, tiles, defaultOpenId, cur
 
   let side = 0;
   const slotOf = (id: string) => (id === openId ? 0 : ++side);
+  // Render in visual order (open tile first) so reading and focus order match what is on screen.
+  const ordered = [...tiles.filter((t) => t.id === openId), ...tiles.filter((t) => t.id !== openId)];
 
   return (
     <section aria-labelledby={headingId} className="bg-white py-12 md:py-16 lg:py-20">
@@ -73,21 +75,24 @@ export function BentoAccordion({ heading, description, tiles, defaultOpenId, cur
           {heading}
         </H>
         <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:relative lg:mt-7 lg:block lg:h-[520px]">
-          {tiles.map((tile) => {
+          {ordered.map((tile) => {
             const open = tile.id === openId;
             const slot = slotOf(tile.id);
             const isDefault = tile.id === fallback;
             const panelId = `${uid}-${tile.id}`;
-            const toggle = () => {
+            const toggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+              const btn = e.currentTarget;
               if (!open) setOpenId(tile.id);
               else if (!isDefault) setOpenId(fallback);
+              // Reordering can move this tile in the DOM, which drops focus; put it back on the toggle.
+              requestAnimationFrame(() => btn.isConnected && document.activeElement !== btn && btn.focus({ preventScroll: true }));
             };
             return (
               <div
                 key={tile.id}
                 style={SLOTS[Math.min(slot, SLOTS.length - 1)]}
                 className={`relative overflow-hidden rounded-card bg-line lg:absolute lg:left-[var(--l)] lg:top-[var(--t)] lg:h-[var(--h)] lg:w-[var(--w)] lg:transition-[left,top,width,height] lg:duration-300 lg:ease-out lg:motion-reduce:transition-none ${
-                  open ? "order-first md:col-span-2" : "min-h-[140px] md:min-h-[180px] lg:min-h-0"
+                  open ? "md:col-span-2" : "min-h-[140px] md:min-h-[180px] lg:min-h-0"
                 }`}
               >
                 <div className={`flex h-full flex-col p-5 md:p-6 lg:p-7 ${open ? "" : "justify-end"}`}>
