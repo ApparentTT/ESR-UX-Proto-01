@@ -42,8 +42,19 @@ export function FilterPills<T extends string>({
   onChange: (id: T) => void;
   label: string;
 }) {
+  // Radio group keyboard pattern: one Tab stop, arrow keys move and select.
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const i = options.findIndex((o) => o.id === value);
+    const last = options.length - 1;
+    const to = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: last }[e.key];
+    if (to === undefined) return;
+    e.preventDefault();
+    const n = to > last ? 0 : to < 0 ? last : to;
+    onChange(options[n].id);
+    (e.currentTarget.querySelectorAll<HTMLButtonElement>("[role=radio]")[n])?.focus();
+  };
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-2">
+    <div role="radiogroup" aria-label={label} onKeyDown={onKeyDown} className="flex flex-wrap gap-2">
       {options.map((o) => {
         const on = o.id === value;
         return (
@@ -52,6 +63,7 @@ export function FilterPills<T extends string>({
             type="button"
             role="radio"
             aria-checked={on}
+            tabIndex={on ? 0 : -1}
             onClick={() => onChange(o.id)}
             className={`inline-flex min-h-10 items-center rounded-full border px-4 py-2.5 text-[14px] font-medium leading-[1.5] transition-colors ${
               on ? "border-transparent bg-ink text-white" : "border-line bg-white text-ink hover:border-ink"

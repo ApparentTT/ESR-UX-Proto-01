@@ -640,9 +640,9 @@ export function FakeMap({
         })}
 
       {/* Pins with no room fold into "+n"; pressing it zooms in on that spot */}
-      {!drawing && placed.overflow.map((b) => (
+      {!drawing && placed.overflow.map((b, i) => (
         <button
-          key={`${Math.round(b.ax)}:${Math.round(b.ay)}`}
+          key={`${Math.round(b.ax)}:${Math.round(b.ay)}:${i}`}
           type="button"
           onClick={() => {
             touched.current = true;

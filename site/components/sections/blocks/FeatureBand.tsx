@@ -76,7 +76,7 @@ export function FeatureBand({
     >
       <div className="relative mx-auto max-w-[1440px]">
         <Container
-          className={`flex flex-col justify-center py-12 md:min-h-[440px] md:py-16 lg:min-h-[644px] lg:py-2.5 ${carousel ? "md:pb-24 lg:pb-2.5" : ""}`}
+          className={`flex flex-col justify-center py-12 lg:min-h-[644px] lg:py-2.5 ${carousel ? "md:min-h-[440px] md:py-16 md:pb-24 lg:pb-2.5" : "md:py-20"}`}
         >
           {carousel ? (
             <div className="-m-1 overflow-hidden p-1" style={{ touchAction: "pan-y" }} {...swipe}>
