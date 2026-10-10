@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef, useState } from "react";
+import { Suspense, useRef, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Section } from "@/components/ui/Section";
 import { SearchField } from "@/components/ui/SearchField";
@@ -65,13 +65,24 @@ function FiltersFromUrl({ mode, state: override, copy = NEWS_FILTER_COPY, search
   const navigate: Navigate = (next, removal) => {
     // Removing the last query or filter returns to /news (NSR "Controls").
     const href = removal && !hasSearch(next) ? basePath : newsSearchHref(next, searchPath);
+    // Moving between /news and /news/search remounts the bar; remember which control had focus so the new page restores it.
+    if (href.split("?")[0] !== window.location.pathname) {
+      const a = document.activeElement as HTMLElement | null;
+      const filter = a?.closest("[data-filter]")?.getAttribute("data-filter");
+      const sel = a?.matches('input[type="search"]') ? 'input[type="search"]' : filter ? `[data-filter="${filter}"] button` : a?.closest("[data-sort]") ? "[data-sort] button" : null;
+      try {
+        if (sel) sessionStorage.setItem(FOCUS_KEY, sel);
+      } catch {}
+    }
     router.push(href, { scroll: false });
   };
 
-  return <FiltersView state={state} copy={copy} onNavigate={navigate} />;
+  return <FiltersView state={state} copy={copy} onNavigate={navigate} restoreFocus />;
 }
 
-function FiltersView({ state, copy, onNavigate }: { state: NewsSearchState; copy: typeof NEWS_FILTER_COPY; onNavigate: Navigate }) {
+const FOCUS_KEY = "esr:news-focus";
+
+function FiltersView({ state, copy, onNavigate, restoreFocus = false }: { state: NewsSearchState; copy: typeof NEWS_FILTER_COPY; onNavigate: Navigate; restoreFocus?: boolean }) {
   const [draft, setDraft] = useState(state.q);
   // Show the new query when the URL changes (without remounting, so focus stays put).
   const [prevQ, setPrevQ] = useState(state.q);
@@ -82,6 +93,16 @@ function FiltersView({ state, copy, onNavigate }: { state: NewsSearchState; copy
   const rootRef = useRef<HTMLDivElement>(null);
   /** Keep keyboard focus on the page when the control that had it disappears (chip X, field X). */
   const refocus = (selector: string) => rootRef.current?.querySelector<HTMLElement>(selector)?.focus();
+
+  useEffect(() => {
+    if (!restoreFocus) return;
+    try {
+      const sel = sessionStorage.getItem(FOCUS_KEY);
+      if (!sel) return;
+      sessionStorage.removeItem(FOCUS_KEY);
+      rootRef.current?.querySelector<HTMLElement>(sel)?.focus({ preventScroll: true });
+    } catch {}
+  }, [restoreFocus]);
 
   /** Apply a change on top of the current state, carrying any typed (unsubmitted) query. */
   const apply = (patch: Partial<NewsSearchState>, removal = false) => onNavigate({ ...state, q: draft.trim(), ...patch }, removal);
@@ -135,7 +156,7 @@ function FiltersView({ state, copy, onNavigate }: { state: NewsSearchState; copy
               ))}
             </div>
           )}
-          <div className="ml-auto">
+          <div data-sort className="ml-auto">
             <NewsFilterMenu
               variant="sort"
               label="Sort"
