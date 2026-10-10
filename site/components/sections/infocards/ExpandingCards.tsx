@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { Section, type SectionBg } from "@/components/ui/Section";
 import { Icon } from "@/components/ui/Icon";
+import { HIT } from "@/components/ui/type";
 import { OUTLINE_CARD_LINK, OUTLINE_CARD_SHELL, OUTLINE_CARD_TITLE } from "./OutlineTextCard";
 
 /**
@@ -81,7 +82,8 @@ export function ExpandingCards({
                   aria-controls={panelId}
                   onClick={() => setOpenIdx(open ? null : i)}
                   className={`inline-flex cursor-pointer items-center gap-1 self-start ${OUTLINE_CARD_LINK} decoration-1 hover:text-ink hover:decoration-2 ${
-                    open ? "" : "group-hover:text-ink group-hover:decoration-2 after:absolute after:inset-0 after:content-['']"
+                    // Closed: a stretched link over the whole card. Open: "Close" gets a 40px-tall tap target.
+                    open ? HIT : "group-hover:text-ink group-hover:decoration-2 after:absolute after:inset-0 after:content-['']"
                   }`}
                 >
                   {open ? closeLabel : learnMoreLabel}

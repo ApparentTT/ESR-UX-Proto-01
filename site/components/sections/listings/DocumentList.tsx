@@ -84,15 +84,14 @@ export function DocumentList({ variant, title, sub, groups, format = "PDF", foot
                 <li key={d.name} className="border-b border-line">
                   <SmartLink
                     href={d.href}
-                    aria-label={`Download ${d.name} (${format})`}
+                    // "Download Board charter PDF": the action first, and the visible "Board charter PDF" kept whole and in
+                    // order (WCAG 2.5.3 label in name). The plain spaces between the flex items give the visible text its
+                    // word breaks (they take no room in the flex layout).
+                    aria-label={`Download ${d.name} ${format}`}
                     className="group focus-inset flex min-h-14 items-center gap-3 py-4 transition-colors hover:bg-surface"
                   >
-                    <span className="flex-1 text-[16px] leading-[1.45] text-ink underline-offset-4 group-hover:underline">{d.name}</span>
-                    <span className={`shrink-0 text-[13px] leading-[1.45] ${muted} group-hover:text-muted-surface`}>
-                      <span className="sr-only"> </span>
-                      {format}
-                      <span className="sr-only">, download</span>
-                    </span>
+                    <span className="flex-1 text-[16px] leading-[1.45] text-ink underline-offset-4 group-hover:underline">{d.name}</span>{" "}
+                    <span className={`shrink-0 text-[13px] leading-[1.45] ${muted} group-hover:text-muted-surface`}>{format}</span>{" "}
                     <Icon name="download" size={20} className="text-ink" />
                   </SmartLink>
                 </li>

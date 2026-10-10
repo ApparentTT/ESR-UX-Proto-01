@@ -84,6 +84,7 @@ export function FundList({ title, sub, filters, columns, rows, countText, countP
             <FilterDropdown
               key={f.key}
               label={f.label}
+              prefixLabel
               allLabel={f.pending ? undefined : f.allLabel}
               options={f.pending ? [{ id: PENDING, label: f.pending }] : (f.options ?? []).map((o) => ({ id: o, label: o }))}
               value={applied[f.key] ?? null}

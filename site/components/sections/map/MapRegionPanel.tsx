@@ -10,7 +10,8 @@ import type { MapRegion } from "./types";
  * 24px padding, a 1px white rule, white text, translucent black with a 2px blur. The fill is 55% black
  * (the wireframe draws 20%, and 60% for its "selected" panel) so the white text passes 4.5:1 on the
  * light map. Below 1280 it is a normal block under the map on the surface grey, with ink text, no rule,
- * a chevron on each region and the open region's markets in 2 (390) or 3 (768) columns.
+ * a chevron on each region and the open region's markets in 2 (390) or 3 (768) columns, every
+ * region and market button at least 40px tall for touch.
  */
 export function MapRegionPanel({
   regions,
@@ -61,7 +62,7 @@ export function MapRegionPanel({
                   aria-expanded={open}
                   aria-controls={listId}
                   onClick={() => onToggleRegion(region.id)}
-                  className={`group flex w-full items-center gap-2 text-left xl:focus-visible:outline-white! text-[20px] leading-8 xl:text-[24px] ${
+                  className={`group flex min-h-10 w-full items-center gap-2 text-left xl:min-h-0 xl:focus-visible:outline-white! text-[20px] leading-8 xl:text-[24px] ${
                     open ? "font-semibold" : "font-medium"
                   }`}
                 >
@@ -99,7 +100,7 @@ export function MapRegionPanel({
                         onMouseLeave={() => onHoverMarket?.(null)}
                         onFocus={() => onHoverMarket?.(m.id)}
                         onBlur={() => onHoverMarket?.(null)}
-                        className={`text-left text-[16px] leading-8 underline-offset-4 xl:focus-visible:outline-white! ${
+                        className={`min-h-10 text-left text-[16px] leading-8 underline-offset-4 xl:min-h-0 xl:focus-visible:outline-white! ${
                           on ? "font-bold underline" : "font-medium"
                         }`}
                       >

@@ -1,5 +1,6 @@
 import { SmartLink } from "@/components/ui/SmartLink";
 import { Icon } from "@/components/ui/Icon";
+import { HIT } from "@/components/ui/type";
 
 /** One fund row (INV §6c), verbatim. "View fund" goes to an external market site: href null = inert. */
 export type FundRow = {
@@ -109,7 +110,7 @@ function ViewFund({ row }: { row: FundRow }) {
     <SmartLink
       href={row.link.href}
       aria-label={`${row.link.label}: ${row.fund} (${row.strategy}, ${row.markets}, ${row.sector})`}
-      className="group inline-flex items-center gap-0.5 text-[15px] leading-[1.45] text-ink lg:text-[16px]"
+      className={`${HIT} group inline-flex items-center gap-0.5 text-[15px] leading-[1.45] text-ink lg:text-[16px]`}
     >
       <span className="underline underline-offset-4">{row.link.label}</span>
       <Icon name="chevron_right" size={18} className="text-black transition-transform duration-200 group-hover:translate-x-0.5" />

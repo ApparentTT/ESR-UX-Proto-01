@@ -93,8 +93,9 @@ export function MediaCard({
       text = (
         <div className="flex min-h-[42px] items-center justify-between gap-4">
           <H className={`${TITLE} ${hoverTitle}`}>{title}</H>
+          {/* ABOUT §7: a 24px bold arrow in a 40 x 42 box */}
           <span className="flex h-[42px] w-10 shrink-0 items-center justify-center text-[#1F1F1F]">
-            <Icon name="arrow_forward" size={28} className={NUDGE} />
+            <Icon name="arrow_forward" size={24} bold className={NUDGE} />
           </span>
         </div>
       );

@@ -38,14 +38,30 @@ function useDisclosure() {
 }
 
 /**
+ * Whether a nav child is the page being viewed. Links with a query (the News type filters) also need
+ * that param to match, so a free-text search does not mark every type; "Property search" covers its results.
+ * Only called from menus that render after an interaction, so reading window.location is hydration-safe.
+ */
+function isCurrentChild(href: string | null, pathname: string) {
+  if (!href) return false;
+  const [path, query] = href.split("?");
+  if (!query) return pathname === path || (path === "/properties" && pathname.startsWith("/properties/"));
+  if (pathname !== path || typeof window === "undefined") return false;
+  const have = new URLSearchParams(window.location.search);
+  return [...new URLSearchParams(query)].every(([k, v]) => have.get(k) === v);
+}
+
+/**
  * Top-level nav item: a plain link as in the wireframe (no chevron). The section's pages show in a
  * dropdown on hover or keyboard focus, so the client can reach every page from the header.
+ * Escape closes the dropdown and returns focus to the top link without reopening it.
  */
 function NavMenu({ group, active, dim }: { group: (typeof NAV)[number]; active: boolean; dim: boolean }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const id = useId();
+  /** Set while Escape hands focus back to the top link, so that focus does not reopen the menu. */
+  const suppressFocusOpen = useRef(false);
   const pathname = usePathname();
   const show = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -62,19 +78,26 @@ function NavMenu({ group, active, dim }: { group: (typeof NAV)[number]; active: 
       className="relative"
       onMouseEnter={show}
       onMouseLeave={() => hide()}
-      onFocus={show}
+      onFocus={() => {
+        if (suppressFocusOpen.current) suppressFocusOpen.current = false;
+        else show();
+      }}
       onBlur={(e) => !wrapRef.current?.contains(e.relatedTarget as Node) && hide(0)}
       onKeyDown={(e) => {
         if (e.key === "Escape" && open) {
+          if (closeTimer.current) clearTimeout(closeTimer.current);
           setOpen(false);
-          wrapRef.current?.querySelector<HTMLElement>("a")?.focus();
+          const top = wrapRef.current?.querySelector<HTMLElement>("a");
+          if (top && document.activeElement !== top) {
+            suppressFocusOpen.current = true;
+            top.focus();
+          }
         }
       }}
     >
       <SmartLink
         href={group.href}
         aria-current={active ? "true" : undefined}
-        aria-describedby={open ? id : undefined}
         className={`inline-flex h-10 items-center rounded-btn px-1 text-[14px] leading-5 hover:text-ink hover:underline hover:underline-offset-[6px] ${
           active ? "font-bold text-body underline underline-offset-[6px]" : dim ? "font-medium text-muted" : "font-medium text-body"
         }`}
@@ -82,14 +105,14 @@ function NavMenu({ group, active, dim }: { group: (typeof NAV)[number]; active: 
         {group.label}
       </SmartLink>
       {open && (
-        <div id={id} className="anim-pop absolute left-0 top-full z-50 w-64 pt-2">
+        <div className="anim-pop absolute left-0 top-full z-50 w-64 pt-2">
           <ul aria-label={`${group.label} pages`} className="rounded-card border border-line bg-white p-2 shadow-panel">
             {group.children.map((c) => (
               <li key={c.label}>
                 <SmartLink
                   href={c.href}
                   onClick={() => setOpen(false)}
-                  aria-current={c.href && pathname === c.href.split("?")[0] ? "page" : undefined}
+                  aria-current={isCurrentChild(c.href, pathname) ? "page" : undefined}
                   className="focus-inset flex min-h-10 items-center justify-between gap-2 rounded-btn px-3 text-sm hover:bg-surface aria-[current=page]:font-medium"
                 >
                   {c.label}
@@ -104,8 +127,11 @@ function NavMenu({ group, active, dim }: { group: (typeof NAV)[number]; active: 
   );
 }
 
-/** Header search: a panel under the bar; submitting goes to news search. */
-function SearchPanel({ onClose }: { onClose: () => void }) {
+/**
+ * Header search: a panel under the bar; submitting goes to news search.
+ * onClose (Escape, the X) hands focus back to the toggle; onSubmitted only closes, as the page changes.
+ */
+function SearchPanel({ onClose, onSubmitted }: { onClose: () => void; onSubmitted: () => void }) {
   const router = useRouter();
   const [q, setQ] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -124,7 +150,7 @@ function SearchPanel({ onClose }: { onClose: () => void }) {
             e.preventDefault();
             // An empty search keeps the panel open rather than landing on the wireframe's sample results.
             if (!q.trim()) return inputRef.current?.focus();
-            onClose();
+            onSubmitted();
             router.push(`/news/search?q=${encodeURIComponent(q.trim())}`);
           }}
           className="flex items-center gap-3"
@@ -191,17 +217,39 @@ function MarketMenu() {
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const closeSearch = useCallback(() => setSearchOpen(false), []);
+  // The search toggle that opened the panel (one per breakpoint) and the menu button get focus back on close.
+  const searchToggleRef = useRef<HTMLButtonElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false);
+    requestAnimationFrame(() => searchToggleRef.current?.focus());
+  }, []);
+  const dismissSearch = useCallback(() => setSearchOpen(false), []);
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    requestAnimationFrame(() => menuButtonRef.current?.focus());
+  }, []);
   const pathname = usePathname();
   const current = activeGroup(pathname);
   const searchButton = (cls: string) => (
-    <button type="button" aria-label="Search" aria-expanded={searchOpen} onClick={() => setSearchOpen((o) => !o)} className={`inline-flex items-center justify-center rounded-btn ${cls}`}>
+    <button
+      type="button"
+      aria-label="Search"
+      aria-expanded={searchOpen}
+      onClick={(e) => {
+        searchToggleRef.current = e.currentTarget;
+        setSearchOpen((o) => !o);
+      }}
+      className={`inline-flex items-center justify-center rounded-btn ${cls}`}
+    >
       <Icon name={searchOpen ? "close" : "search"} />
     </button>
   );
 
   return (
-    <header className="relative z-40 bg-white shadow-[inset_0_-1px_0_#E5E7EB]">
+    // While the menu is open the header (and so its drawer) sits above the fixed Prototype badge (z-40),
+    // and still under the inert-link notice (z-60).
+    <header className={`relative bg-white shadow-[inset_0_-1px_0_#E5E7EB] ${menuOpen ? "z-[55]" : "z-40"}`}>
       <Container className="flex h-16 items-center justify-between gap-6 lg:h-[72px]">
         <div className="flex items-center gap-6">
           <Link href="/" aria-label="ESR home" className="rounded-btn">
@@ -232,6 +280,7 @@ export function SiteHeader() {
             Contact us
           </Link>
           <button
+            ref={menuButtonRef}
             type="button"
             aria-label="Open menu"
             aria-expanded={menuOpen}
@@ -243,14 +292,32 @@ export function SiteHeader() {
         </div>
       </Container>
 
-      {searchOpen && <SearchPanel onClose={closeSearch} />}
-      {menuOpen && <MobileMenu current={current} onClose={() => setMenuOpen(false)} />}
+      {searchOpen && <SearchPanel onClose={closeSearch} onSubmitted={dismissSearch} />}
+      {menuOpen && <MobileMenu current={current} pathname={pathname} onClose={closeMenu} />}
     </header>
   );
 }
 
-function MobileMenu({ current, onClose }: { current: string | null; onClose: () => void }) {
+function MobileMenu({ current, pathname, onClose }: { current: string | null; pathname: string; onClose: () => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  /** aria-modal: Tab and Shift+Tab wrap inside the drawer instead of reaching the page behind the scrim. */
+  const trapTab = (e: React.KeyboardEvent) => {
+    if (e.key !== "Tab") return;
+    const items = Array.from(
+      panelRef.current?.querySelectorAll<HTMLElement>("a[href], button:not([disabled]), summary, [tabindex]:not([tabindex='-1'])") ?? [],
+    ).filter((el) => el.getClientRects().length > 0);
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !panelRef.current?.contains(document.activeElement))) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
   useEffect(() => {
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -263,9 +330,9 @@ function MobileMenu({ current, onClose }: { current: string | null; onClose: () 
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 min-[1180px]:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+    <div className="fixed inset-0 z-50 min-[1180px]:hidden" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown={trapTab}>
       <div className="anim-fade absolute inset-0 bg-scrim" onClick={onClose} />
-      <div className="anim-fade absolute inset-y-0 right-0 flex w-[min(360px,90vw)] flex-col bg-white">
+      <div ref={panelRef} className="anim-fade absolute inset-y-0 right-0 flex w-[min(360px,90vw)] flex-col bg-white">
         <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-line px-6">
           <span className="font-semibold">Menu</span>
           <button ref={closeRef} type="button" onClick={onClose} aria-label="Close menu" className="inline-flex size-11 items-center justify-center rounded-btn">
@@ -282,7 +349,12 @@ function MobileMenu({ current, onClose }: { current: string | null; onClose: () 
               <ul className="pb-3">
                 {g.children.map((c) => (
                   <li key={c.label}>
-                    <SmartLink href={c.href} onClick={onClose} className="flex min-h-11 items-center gap-2 text-[15px] text-muted hover:text-ink">
+                    <SmartLink
+                      href={c.href}
+                      onClick={onClose}
+                      aria-current={isCurrentChild(c.href, pathname) ? "page" : undefined}
+                      className="flex min-h-11 items-center gap-2 text-[15px] text-muted hover:text-ink aria-[current=page]:font-medium aria-[current=page]:text-ink"
+                    >
                       {c.label}
                       {c.external && <Icon name="open_in_new" size={16} />}
                     </SmartLink>

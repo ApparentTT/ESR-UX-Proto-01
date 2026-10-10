@@ -58,8 +58,9 @@ export function FeatureBand({
   const size = controls === "carousel-sm" ? "sm" : "lg";
   const name = label ?? title.split("\n")[0];
 
-  // 768-1023: keep the text clear of the side arrows (the gutter alone is too narrow there)
-  const inset = carousel ? "md:px-12 lg:px-0" : controls === "arrow-only" ? "md:pr-12 lg:pr-0" : "";
+  // Carousel arrows sit inside the 40px gutter at 768-1023, so the text keeps the page edge. The arrow-only
+  // band keeps a right inset at 768-1023 so its 60px arrow never meets the text.
+  const inset = controls === "arrow-only" ? "md:pr-12 lg:pr-0" : "";
   const content = <BandContent title={title} body={body} actions={actions} H={headingLevel} className={inset} />;
 
   const scrollToTarget = () => {
@@ -132,31 +133,34 @@ export function FeatureBand({
           )}
         </Container>
 
-        {/* 768+: arrows at the band edges, dots near the bottom. The wrapper owns the display toggle
-            because the primitives carry their own display classes. */}
+        {/* 768+: arrows at the band edges, dots near the bottom. The wrappers own the display toggles
+            because the primitives carry their own display classes. 768-1023: 40px arrows in the 40px gutter
+            (spec: "arrows at the sides", SUS "40px"), so the text lines up with the other sections; their focus
+            ring is drawn inside so the viewport edge does not clip it. */}
         {carousel && (
-          <div ref={(el) => void (el && (ctrlRefs.current[1] = el))} className="hidden md:block">
-            {index > 0 && (
+          <>
+            <div ref={(el) => void (el && (ctrlRefs.current[1] = el))} className="hidden md:block lg:hidden">
+              {index > 0 && <ChevronArrow dir="prev" size="sm" onClick={back} className="focus-inset absolute left-0 top-1/2 -translate-y-1/2" />}
+              <ChevronArrow dir="next" size="sm" onClick={next} className="focus-inset absolute right-0 top-1/2 -translate-y-1/2" />
+            </div>
+            <div ref={(el) => void (el && (ctrlRefs.current[2] = el))} className="hidden lg:block">
+              {index > 0 && <ChevronArrow dir="prev" size={size} onClick={back} className="absolute left-2 top-1/2 -translate-y-1/2" />}
               <ChevronArrow
-                dir="prev"
+                dir="next"
                 size={size}
-                onClick={back}
-                className="absolute left-2 top-1/2 -translate-y-1/2"
+                onClick={next}
+                className={`absolute top-1/2 -translate-y-1/2 ${size === "lg" ? "right-[43px]" : "right-2"}`}
               />
-            )}
-            <ChevronArrow
-              dir="next"
-              size={size}
-              onClick={next}
-              className={`absolute top-1/2 -translate-y-1/2 ${size === "lg" ? "right-2 lg:right-[43px]" : "right-2"}`}
-            />
-            <PagerDots
-              count={count}
-              index={index}
-              onGo={go}
-              className={`absolute inset-x-0 ${size === "lg" ? "bottom-8 lg:bottom-10" : "bottom-6 lg:bottom-[25px]"}`}
-            />
-          </div>
+            </div>
+            <div className="hidden md:block">
+              <PagerDots
+                count={count}
+                index={index}
+                onGo={go}
+                className={`absolute inset-x-0 ${size === "lg" ? "bottom-8 lg:bottom-10" : "bottom-6 lg:bottom-[25px]"}`}
+              />
+            </div>
+          </>
         )}
         {controls === "arrow-only" && (
           <div className="hidden md:block">

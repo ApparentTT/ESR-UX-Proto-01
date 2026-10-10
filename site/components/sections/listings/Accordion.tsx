@@ -34,7 +34,7 @@ export type AccordionProps = {
 
 /**
  * B17 Accordion ("Blocks - Features": PROP §10 / DEV §10 FAQ, SGOV §6 "Past disclosures by year").
- * Band 64/64. Inner block padding 32 / 30 (the 30px sides drop below 768), gap 30. Title Medium 24, -0.48,
+ * Band 64/64. Inner block padding 32 / 30 (the 30px sides only from 1024: full width within the gutter below, PROP §10), gap 30. Title Medium 24, -0.48,
  * centred (20 on mobile). Items stacked with no gap: a 56px header button (padding 16, gap 16, surface
  * fill, 1px ink bottom border), label Medium 14/20 ink, then a 24px circle-plus (closed) or circle-minus
  * (open) in muted grey. Panel: white, padding 16, Medium 14/20 muted.
@@ -64,7 +64,7 @@ export function Accordion({ title, items, defaultOpen = 0, multiple = false, bg 
 
   return (
     <Section bg={bg} id={id} aria-labelledby={titleId} className={PAD.mid}>
-      <div className="flex flex-col gap-6 md:gap-[30px] md:px-[30px] md:py-8">
+      <div className="flex flex-col gap-6 md:gap-[30px] md:py-8 lg:px-[30px]">
         <H id={titleId} className={`text-center ${T.h24m}`}>
           {title}
         </H>

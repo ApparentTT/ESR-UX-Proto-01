@@ -6,7 +6,7 @@ import { useCarousel, LineArrow, PagerDots, PagerBars } from "@/components/ui/Ca
 import { Icon } from "@/components/ui/Icon";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { SmartLink } from "@/components/ui/SmartLink";
-import { T } from "@/components/ui/type";
+import { HIT, T } from "@/components/ui/type";
 
 export type QuoteSlide = {
   /** The quote, verbatim with its curly quotes */
@@ -121,7 +121,7 @@ function QuoteBox({ slide }: { slide: QuoteSlide }) {
             </span>
             <SmartLink
               href={attributionLink.href}
-              className="group inline-flex items-center gap-1 whitespace-nowrap underline-offset-4 hover:underline"
+              className={`${HIT} group inline-flex items-center gap-1 whitespace-nowrap underline-offset-4 hover:underline`}
             >
               {attributionLink.label}
               <Icon name="arrow_forward" size={16} className="transition-transform group-hover:translate-x-0.5" />

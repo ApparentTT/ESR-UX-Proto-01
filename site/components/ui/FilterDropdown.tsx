@@ -6,8 +6,10 @@ import { Icon } from "./Icon";
 export type DropdownOption = { id: string; label: string };
 
 /**
- * Filter trigger + single-select menu (inventory A7). Trigger 46px, radius 8, border line,
- * dark border and "Label: Value" when it owns an applied value (INV §6b). Closes on select, outside click, Esc and focus leaving.
+ * Filter trigger + single-select menu (inventory A7). Trigger 46px, radius 8, border line, dark border when
+ * it owns an applied value. The trigger then shows the value ("Japan", SCS) or, with `prefixLabel`, "Label: Value"
+ * ("Strategy: Development", INV §6b); either way its accessible name keeps the filter ("Country: Japan").
+ * Closes on select, outside click, Esc and focus leaving.
  * `allLabel` adds a clear item at the top ("All markets", ...).
  */
 export function FilterDropdown({
@@ -17,6 +19,7 @@ export function FilterDropdown({
   onChange,
   allLabel,
   sortLabel,
+  prefixLabel = false,
   align = "left",
 }: {
   label: string;
@@ -26,6 +29,8 @@ export function FilterDropdown({
   allLabel?: string;
   /** Sort variant: shows "Sort" plus the current value (e.g. "Sort · Newest first") */
   sortLabel?: boolean;
+  /** Show "Label: Value" once a value is applied (INV); otherwise the trigger shows the value alone */
+  prefixLabel?: boolean;
   align?: "left" | "right";
 }) {
   const [open, setOpen] = useState(false);
@@ -34,6 +39,7 @@ export function FilterDropdown({
   const listRef = useRef<HTMLUListElement>(null);
   const id = useId();
   const current = options.find((o) => o.id === value);
+  const applied = !sortLabel && value && current ? `${label}: ${current.label}` : null;
 
   useEffect(() => {
     if (!open) return;
@@ -82,6 +88,7 @@ export function FilterDropdown({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={id}
+        aria-label={applied && !prefixLabel ? applied : undefined}
         onClick={() => setOpen((o) => !o)}
         className={`inline-flex h-[46px] items-center gap-2 rounded-control border bg-white pl-[18px] pr-3.5 text-[14px] font-medium leading-[1.45] text-ink transition-colors ${
           value && !sortLabel ? "border-ink" : "border-line hover:border-[#9CA3AF]"
@@ -93,7 +100,7 @@ export function FilterDropdown({
             {current && <span className="font-normal text-muted">{current.label}</span>}
           </>
         ) : (
-          <span>{current && value ? `${label}: ${current.label}` : label}</span>
+          <span>{applied ? (prefixLabel ? applied : current?.label) : label}</span>
         )}
         <Icon name="keyboard_arrow_down" size={18} className={`text-muted transition-transform ${open ? "rotate-180" : ""}`} />
       </button>

@@ -80,10 +80,13 @@ export function CircleArrow({ dir, onClick, disabled, label }: { dir: "prev" | "
   );
 }
 
-/** 8px dots, 16px gap. Each dot is a button. */
+/**
+ * 8px dots, 20px apart. Each dot is a button with a 28 x 40 tap target; the -8px vertical margin keeps
+ * the row's layout height at 24 so the dots sit where they always have.
+ */
 export function PagerDots({ count, index, onGo, className = "", tone = "dark", itemLabel = "slide" }: { count: number; index: number; onGo: (i: number) => void; className?: string; tone?: "dark" | "light"; itemLabel?: string }) {
   return (
-    <div className={`flex items-center justify-center gap-1 ${className}`}>
+    <div className={`flex items-center justify-center ${className}`}>
       {Array.from({ length: count }, (_, i) => (
         <button
           key={i}
@@ -91,7 +94,7 @@ export function PagerDots({ count, index, onGo, className = "", tone = "dark", i
           onClick={() => onGo(i)}
           aria-label={`Go to ${itemLabel} ${i + 1}`}
           aria-current={i === index ? "true" : undefined}
-          className="inline-flex size-6 items-center justify-center rounded-full"
+          className="-my-2 inline-flex h-10 w-7 items-center justify-center rounded-btn"
         >
           <span className={`block size-2 rounded-full transition-colors ${i === index ? (tone === "dark" ? "bg-[#756F6F]" : "bg-white") : "bg-[#C0C0C0]"}`} />
         </button>
@@ -100,12 +103,12 @@ export function PagerDots({ count, index, onGo, className = "", tone = "dark", i
   );
 }
 
-/** 30x10 bars, 12px gap (employee quote carousel). */
+/** 30x10 bars, 12px gap (employee quote carousel). Each bar has a 40px-tall tap target that does not change the row height. */
 export function PagerBars({ count, index, onGo, className = "", itemLabel = "slide" }: { count: number; index: number; onGo: (i: number) => void; className?: string; itemLabel?: string }) {
   return (
     <div className={`flex items-center justify-center gap-3 ${className}`}>
       {Array.from({ length: count }, (_, i) => (
-        <button key={i} type="button" onClick={() => onGo(i)} aria-label={`Go to ${itemLabel} ${i + 1}`} aria-current={i === index ? "true" : undefined} className="inline-flex h-6 items-center">
+        <button key={i} type="button" onClick={() => onGo(i)} aria-label={`Go to ${itemLabel} ${i + 1}`} aria-current={i === index ? "true" : undefined} className="-my-2 inline-flex h-10 items-center">
           <span className={`block h-2.5 w-[30px] transition-colors ${i === index ? "bg-white ring-1 ring-black/10" : "bg-[#D9D9D9]"}`} />
         </button>
       ))}

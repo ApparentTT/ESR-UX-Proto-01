@@ -5,7 +5,7 @@ import { Section, type SectionBg } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { FilterDropdown, type DropdownOption } from "@/components/ui/FilterDropdown";
 import { AppliedChip } from "@/components/ui/Tag";
-import { PAD, T } from "@/components/ui/type";
+import { HIT, PAD, T } from "@/components/ui/type";
 import { MediaCardList } from "@/components/sections/cards/MediaCardGrid";
 import { CaseStudyCard, type CaseStudyCardData } from "./CaseStudyCard";
 import { MultiFilterDropdown } from "./MultiFilterDropdown";
@@ -214,16 +214,27 @@ function CapListing({ title, cards, filters, sort, initial, countText, clearAllL
       </h2>
 
       <div ref={rootRef} className="flex flex-col gap-4">
-        <div role="group" aria-label="Filter and sort case studies" className="flex flex-wrap items-center gap-2 md:gap-3">
-          {filters.map((f) => (
-            <div key={f.key} data-filter={f.key}>
-              <MultiFilterDropdown label={f.label} options={f.options} values={applied[f.key]} onToggle={(o) => toggle(f.key, o)} />
+        {/* 768+: one wrapping row of dropdowns and chips, with Sort pinned right on the first line.
+            390: the dropdowns on one row, the chips on the next (wrapping), then Sort on its own row, right-aligned.
+            The dropdown row wraps rather than scrolls so the menus are never clipped. */}
+        <div role="group" aria-label="Filter and sort case studies" className="flex flex-col gap-3 md:flex-row md:items-start">
+          <div className="flex min-w-0 flex-col gap-2 md:flex-1 md:flex-row md:flex-wrap md:items-center md:gap-3">
+            <div className="flex flex-wrap items-center gap-2 md:contents">
+              {filters.map((f) => (
+                <div key={f.key} data-filter={f.key}>
+                  <MultiFilterDropdown label={f.label} options={f.options} values={applied[f.key]} onToggle={(o) => toggle(f.key, o)} />
+                </div>
+              ))}
             </div>
-          ))}
-          {chips.map((c) => (
-            <AppliedChip key={`${c.key}-${c.id}`} shape="pill" label={c.label} onRemove={() => remove(c.key, c.id)} />
-          ))}
-          <div className="ml-auto">
+            {chips.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 md:contents">
+                {chips.map((c) => (
+                  <AppliedChip key={`${c.key}-${c.id}`} shape="pill" label={c.label} onRemove={() => remove(c.key, c.id)} />
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="self-end md:self-start">
             <FilterDropdown
               sortLabel
               align="right"
@@ -247,7 +258,7 @@ function CapListing({ title, cards, filters, sort, initial, countText, clearAllL
           <button
             type="button"
             onClick={clearAll}
-            className="text-[14px] leading-[1.45] text-muted-surface underline-offset-4 transition-colors hover:text-ink hover:underline"
+            className={`${HIT} text-[14px] leading-[1.45] text-muted-surface underline-offset-4 transition-colors hover:text-ink hover:underline`}
           >
             {clearAllLabel}
           </button>

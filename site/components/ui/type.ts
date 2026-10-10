@@ -42,6 +42,12 @@ export const T = {
   tag12: "text-[12px] leading-[1.45] font-medium text-muted",
 } as const;
 
+/**
+ * Gives a small inline control a tap target at least 40px tall (centred, full width) through an
+ * ::after box, so neither the layout nor the focus ring changes. Do not combine with another ::after.
+ */
+export const HIT = "relative after:absolute after:inset-x-0 after:top-1/2 after:h-[max(100%,40px)] after:-translate-y-1/2 after:content-['']";
+
 /** Section vertical rhythm (inventory §3.3), ~0.6x on mobile. */
 export const PAD = {
   /** "Blocks - Structure" text/media blocks: 72 / 72 */

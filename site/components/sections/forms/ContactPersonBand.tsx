@@ -33,8 +33,19 @@ export function ContactPersonBand({ title, sub, contact, headingLevel: H = "h2" 
         <div className="flex min-w-0 flex-col gap-1 leading-[1.45] lg:pt-3">
           <p className="text-[18px] font-medium text-ink lg:text-[20px]">{contact.name}</p>
           <p className="text-[15px] text-muted">{contact.role}</p>
-          {/* pre-wrap keeps the drawn double spaces either side of the "·" */}
-          <p className="whitespace-pre-wrap text-[15px] text-muted">{contact.details}</p>
+          {/* pre-wrap keeps the drawn double spaces either side of the "·"; each item stays whole, so a
+              narrow card breaks the line at the dot rather than inside "Phone number" */}
+          <p className="whitespace-pre-wrap text-[15px] text-muted">
+            {contact.details.split(/(\s*·\s*)/).map((part, i) =>
+              i % 2 ? (
+                part
+              ) : (
+                <span key={i} className="whitespace-nowrap">
+                  {part}
+                </span>
+              ),
+            )}
+          </p>
         </div>
       </div>
     </Section>

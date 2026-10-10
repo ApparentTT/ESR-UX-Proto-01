@@ -78,7 +78,7 @@ export function MultiFilterDropdown({
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((o) => !o)}
-        className="inline-flex h-[46px] items-center gap-2 rounded-control border border-line bg-white pl-[18px] pr-3.5 text-[14px] font-medium leading-[1.45] text-ink transition-colors hover:border-[#9CA3AF]"
+        className="inline-flex h-[46px] items-center gap-2 rounded-control border border-line bg-white pl-3.5 pr-2.5 text-[14px] font-medium leading-[1.45] text-ink transition-colors hover:border-[#9CA3AF] md:pl-[18px] md:pr-3.5"
       >
         <span>{label}</span>
         {count > 0 && <span className="sr-only">{`, ${count} selected`}</span>}

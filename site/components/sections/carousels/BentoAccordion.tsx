@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { Icon } from "@/components/ui/Icon";
 import { SmartLink } from "@/components/ui/SmartLink";
-import { T } from "@/components/ui/type";
+import { HIT, T } from "@/components/ui/type";
 
 export type BentoLink = { label: string; href: string | null };
 
@@ -146,7 +146,7 @@ function TileTitle({ tile, current }: { tile: BentoTile; current?: string | null
     <SmartLink
       href={tile.href}
       aria-current={here ? "page" : undefined}
-      className={`underline-offset-4 hover:underline ${here ? "underline decoration-2" : ""}`}
+      className={`${HIT} underline-offset-4 hover:underline ${here ? "underline decoration-2" : ""}`}
     >
       {tile.title}
     </SmartLink>
