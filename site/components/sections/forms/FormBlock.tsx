@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
+import { useId, useMemo, useState, useEffect, useRef } from "react";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { T, PAD } from "@/components/ui/type";
@@ -131,10 +131,23 @@ function FormBlockForm({
 
   const { errors, onSubmit, onChange } = useValidatedForm(rules, () => setSent(true));
 
-  if (sent) return <FormConfirmation message={successMessage} onReset={() => setSent(false)} />;
+  // "Start again" brings the form back with focus on its first field, so keyboard users keep their place.
+  const formRef = useRef<HTMLFormElement>(null);
+  const refocus = useRef(false);
+  useEffect(() => {
+    if (sent || !refocus.current) return;
+    refocus.current = false;
+    formRef.current?.querySelector<HTMLElement>("input, select, textarea")?.focus();
+  }, [sent]);
+  const startAgain = () => {
+    refocus.current = true;
+    setSent(false);
+  };
+
+  if (sent) return <FormConfirmation message={successMessage} onReset={startAgain} />;
 
   return (
-    <form noValidate aria-labelledby={labelledBy} onSubmit={onSubmit} onChange={onChange} className="flex min-w-0 flex-col gap-8">
+    <form ref={formRef} noValidate aria-labelledby={labelledBy} onSubmit={onSubmit} onChange={onChange} className="flex min-w-0 flex-col gap-8">
       {has("name") && (
         <div className="grid gap-8 md:grid-cols-2 md:gap-x-6">
           <InputField

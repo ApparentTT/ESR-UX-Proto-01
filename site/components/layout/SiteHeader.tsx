@@ -207,14 +207,14 @@ export function SiteHeader() {
           <Link href="/" aria-label="ESR home" className="rounded-btn">
             <Logo />
           </Link>
-          <nav aria-label="Primary" className="hidden items-center gap-4 lg:flex xl:gap-5">
+          <nav aria-label="Primary" className="hidden items-center gap-4 whitespace-nowrap min-[1180px]:flex xl:gap-5">
             {NAV.map((g) => (
               <NavMenu key={g.label} group={g} active={current === g.label} dim={!!current && current !== g.label} />
             ))}
           </nav>
         </div>
 
-        <div className="hidden items-center gap-2 lg:flex xl:gap-4">
+        <div className="hidden items-center gap-2 whitespace-nowrap min-[1180px]:flex xl:gap-4">
           <MarketMenu />
           {searchButton("h-10 w-[52px]")}
           <Link
@@ -226,7 +226,7 @@ export function SiteHeader() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-1 lg:hidden">
+        <div className="flex items-center gap-1 min-[1180px]:hidden">
           {searchButton("size-11")}
           <Link href="/contact" className="mr-1 hidden h-10 items-center rounded-btn bg-body px-4 text-[15px] font-medium text-white md:inline-flex">
             Contact us
@@ -263,7 +263,7 @@ function MobileMenu({ current, onClose }: { current: string | null; onClose: () 
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+    <div className="fixed inset-0 z-50 min-[1180px]:hidden" role="dialog" aria-modal="true" aria-label="Menu">
       <div className="anim-fade absolute inset-0 bg-scrim" onClick={onClose} />
       <div className="anim-fade absolute inset-y-0 right-0 flex w-[min(360px,90vw)] flex-col bg-white">
         <div className="flex h-[72px] shrink-0 items-center justify-between border-b border-line px-6">

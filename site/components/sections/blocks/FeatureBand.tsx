@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { useCarousel, ChevronArrow, PagerDots } from "@/components/ui/Carousel";
@@ -62,9 +63,20 @@ export function FeatureBand({
   const content = <BandContent title={title} body={body} actions={actions} H={headingLevel} className={inset} />;
 
   const scrollToTarget = () => {
-    if (!arrowTargetId) return;
+    const target = arrowTargetId ? document.getElementById(arrowTargetId) : null;
+    if (!target) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    document.getElementById(arrowTargetId)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    // Take keyboard focus along to where the arrow led, not leave it on an off-screen button.
+    target.querySelector<HTMLElement>("a[href], button:not([disabled]), [tabindex]:not([tabindex='-1'])")?.focus({ preventScroll: true });
+  };
+
+  // The prev arrow is hidden on slide 1 (as drawn), so going back to slide 1 hands focus to Next rather than dropping it.
+  const ctrlRefs = useRef<HTMLDivElement[]>([]);
+  const back = () => {
+    const wrap = ctrlRefs.current.find((w) => w?.contains(document.activeElement));
+    prev();
+    if (index === 1 && wrap) requestAnimationFrame(() => wrap.querySelector<HTMLButtonElement>('button[aria-label="Next slide"]')?.focus());
   };
 
   return (
@@ -107,8 +119,8 @@ export function FeatureBand({
 
           {/* Mobile: prev, dots, next in one row under the content */}
           {carousel && (
-            <div className="mt-8 flex items-center justify-center gap-2 md:hidden">
-              <ChevronArrow dir="prev" size="sm" onClick={prev} className={index === 0 ? "invisible" : ""} />
+            <div ref={(el) => void (el && (ctrlRefs.current[0] = el))} className="mt-8 flex items-center justify-center gap-2 md:hidden">
+              <ChevronArrow dir="prev" size="sm" onClick={back} className={index === 0 ? "invisible" : ""} />
               <PagerDots count={count} index={index} onGo={go} />
               <ChevronArrow dir="next" size="sm" onClick={next} />
             </div>
@@ -123,12 +135,12 @@ export function FeatureBand({
         {/* 768+: arrows at the band edges, dots near the bottom. The wrapper owns the display toggle
             because the primitives carry their own display classes. */}
         {carousel && (
-          <div className="hidden md:block">
+          <div ref={(el) => void (el && (ctrlRefs.current[1] = el))} className="hidden md:block">
             {index > 0 && (
               <ChevronArrow
                 dir="prev"
                 size={size}
-                onClick={prev}
+                onClick={back}
                 className="absolute left-2 top-1/2 -translate-y-1/2"
               />
             )}

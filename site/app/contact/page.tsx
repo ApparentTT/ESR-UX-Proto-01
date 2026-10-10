@@ -16,10 +16,14 @@ export const metadata: Metadata = { title: "Contact us | ESR — website prototy
 export default function ContactPage() {
   return (
     <PageShell>
-      {/* §1 display intro: Bold 48 H1 + 19px muted sub (max 760), 48 bottom (routes have no top padding) */}
-      <PageIntro variant="display" subSize={19} pb="md" title={CONTACT_INTRO.title} body={CONTACT_INTRO.body} />
-      {/* §2 five enquiry route cards (emails and jobs.esr.com are inert) */}
-      <EnquiryRoutes routes={ENQUIRY_ROUTES} />
+      {/* §1 display intro: Bold 48 H1 + 19px muted sub (max 760) */}
+      <PageIntro variant="display" subSize={19} title={CONTACT_INTRO.title} body={CONTACT_INTRO.body} />
+      {/* §2 five enquiry route cards (emails and jobs.esr.com are inert). The routes band has no top
+          padding, so the hero's 48px bottom padding (32 at 390, per the responsive notes) sits here:
+          the PageIntro pb steps are 40 or 56, neither of which matches. Both bands are white. */}
+      <div className="bg-white pt-8 md:pt-10 lg:pt-12">
+        <EnquiryRoutes routes={ENQUIRY_ROUTES} />
+      </div>
       {/* §3 "Send us a message": prototype-only submit, validates Email, inline confirmation */}
       <ContactEnquiryForm {...CONTACT_ENQUIRY_FORM} id="send-us-a-message" />
       {/* §4 "Office locations": region pills filter the six drawn offices; Show all offices is inert */}

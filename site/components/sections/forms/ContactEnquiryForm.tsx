@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, useEffect, useRef } from "react";
 import { Section } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { T, PAD } from "@/components/ui/type";
@@ -51,6 +51,19 @@ export function ContactEnquiryForm({
   const [sent, setSent] = useState(false);
   const { errors, onSubmit, onChange } = useValidatedForm(RULES, () => setSent(true));
 
+  // "Start again" brings the form back with focus on its first field, so keyboard users keep their place.
+  const formRef = useRef<HTMLFormElement>(null);
+  const refocus = useRef(false);
+  useEffect(() => {
+    if (sent || !refocus.current) return;
+    refocus.current = false;
+    formRef.current?.querySelector<HTMLElement>("input, select, textarea")?.focus();
+  }, [sent]);
+  const startAgain = () => {
+    refocus.current = true;
+    setSent(false);
+  };
+
   return (
     <Section
       id={id}
@@ -65,9 +78,9 @@ export function ContactEnquiryForm({
         <p className="text-[16px] leading-[1.5] text-muted-surface lg:text-[17px]">{body}</p>
       </div>
       {sent ? (
-        <FormConfirmation message={successMessage} onReset={() => setSent(false)} />
+        <FormConfirmation message={successMessage} onReset={startAgain} />
       ) : (
-        <form noValidate aria-labelledby={headingId} onSubmit={onSubmit} onChange={onChange} className="flex min-w-0 flex-col gap-4">
+        <form ref={formRef} noValidate aria-labelledby={headingId} onSubmit={onSubmit} onChange={onChange} className="flex min-w-0 flex-col gap-4">
           <SelectField family="contact" name="enquiryType" label="Enquiry type" placeholder="Select an enquiry type" options={enquiryTypes} />
           <div className="grid gap-4 md:grid-cols-2">
             <InputField family="contact" name="firstName" label="First name" autoComplete="given-name" />

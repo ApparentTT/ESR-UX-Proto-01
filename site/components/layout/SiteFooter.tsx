@@ -95,7 +95,8 @@ function Accordion({ group, defaultOpen }: { group: Group; defaultOpen?: boolean
 export function SiteFooter() {
   return (
     <footer className="border-t border-line bg-white">
-      <Container className="pt-10 pb-10 md:pt-16">
+      {/* Bottom padding keeps the last row clear of the fixed Prototype badge. */}
+      <Container className="pt-10 pb-20 md:pt-16">
         {/* Tablet and desktop: columns */}
         <div className="hidden gap-10 md:grid md:grid-cols-4 lg:grid-cols-[1.6fr_1fr_1fr_1fr_1fr]">
           <div className="md:col-span-4 lg:col-span-1">
@@ -135,7 +136,8 @@ export function SiteFooter() {
             <Accordion group={SUSTAINABILITY} />
             <Accordion group={NEWS} />
           </div>
-          <ul className="mt-6 flex flex-wrap gap-3" aria-label="Connect with us">
+          <h2 className="mt-6 text-sm font-semibold">Connect with us</h2>
+          <ul className="mt-3 flex flex-wrap gap-3">
             {SOCIAL.map((s) => (
               <li key={s}>
                 <InertLink className="inline-flex h-11 items-center rounded-full bg-surface px-4 text-sm">{s}</InertLink>
@@ -146,7 +148,7 @@ export function SiteFooter() {
 
         <div className="mt-10 flex flex-col gap-4 border-t border-line pt-8 text-sm text-muted md:mt-16 md:flex-row md:items-center md:justify-between">
           <p>© 2026 ESR. All Rights Reserved.</p>
-          <ul className="hidden gap-6 md:flex">
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
             {LEGAL.map((l) => (
               <li key={l}>
                 <InertLink className="hover:text-ink hover:underline">{l}</InertLink>
