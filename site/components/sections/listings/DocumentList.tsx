@@ -29,7 +29,8 @@ export type DocumentListProps = {
 /**
  * B36 DocumentList. Band 80/80. Columns stack below 768 (gap 32); downloadRows uses 2 columns at 768 and
  * 3 from 1024. Rows stay horizontal at every width: names wrap, and the dotted leader shrinks to 16px.
- * Every link is announced as "Download {name} ({format})".
+ * The link text carries the name: "PDF, download {name}" (dottedLeader) / "{name} PDF, download" (downloadRows),
+ * so the accessible name always contains the visible label (WCAG 2.5.3).
  */
 export function DocumentList({ variant, title, sub, groups, format = "PDF", footnote, bg = "white", id = variant === "dottedLeader" ? "policies" : "documents" }: DocumentListProps) {
   const headingId = `${id}-heading`;
@@ -51,12 +52,9 @@ export function DocumentList({ variant, title, sub, groups, format = "PDF", foot
                   <li key={d.name} className="flex items-center gap-2.5 text-[16px] leading-6 text-black">
                     <span className="min-w-0 lg:whitespace-nowrap">{d.name}</span>
                     <span aria-hidden="true" className="h-0 min-w-4 flex-1 border-b border-dotted border-[#9CA3AF]" />
-                    <SmartLink
-                      href={d.href}
-                      aria-label={`Download ${d.name} (${format})`}
-                      className="shrink-0 underline underline-offset-4 hover:no-underline"
-                    >
+                    <SmartLink href={d.href} className="shrink-0 underline underline-offset-4 hover:no-underline">
                       {format}
+                      <span className="sr-only">{`, download ${d.name}`}</span>
                     </SmartLink>
                   </li>
                 ))}
@@ -83,13 +81,13 @@ export function DocumentList({ variant, title, sub, groups, format = "PDF", foot
             <ul role="list" className="border-t border-line">
               {g.documents.map((d) => (
                 <li key={d.name} className="border-b border-line">
-                  <SmartLink
-                    href={d.href}
-                    aria-label={`Download ${d.name} (${format})`}
-                    className="group focus-inset flex min-h-14 items-center gap-3 py-4 transition-colors hover:bg-surface"
-                  >
+                  <SmartLink href={d.href} className="group focus-inset flex min-h-14 items-center gap-3 py-4 transition-colors hover:bg-surface">
                     <span className="flex-1 text-[16px] leading-[1.45] text-ink underline-offset-4 group-hover:underline">{d.name}</span>
-                    <span className={`shrink-0 text-[13px] leading-[1.45] ${muted} group-hover:text-muted-surface`}>{format}</span>
+                    <span className={`shrink-0 text-[13px] leading-[1.45] ${muted} group-hover:text-muted-surface`}>
+                      <span className="sr-only"> </span>
+                      {format}
+                      <span className="sr-only">, download</span>
+                    </span>
                     <Icon name="download" size={20} className="text-ink" />
                   </SmartLink>
                 </li>
