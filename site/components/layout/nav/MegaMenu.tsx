@@ -21,7 +21,7 @@ import {
 } from "@/config/nav";
 import { CurrentLink, ExploreLink, LatestCardLink, NavMap } from "./parts";
 
-const px = (n: number) => `${n}px`;
+const px = (n: number | string) => (typeof n === "number" ? `${n}px` : n);
 const HEADING = "text-[14px] font-bold leading-5 text-body";
 const MARKET_LINK = "hover:text-ink hover:underline";
 
@@ -29,14 +29,18 @@ const MARKET_LINK = "hover:text-ink hover:underline";
  * Desktop mega menu (Figma Group_Portfolio / Investor / ESG / News / About): a full-bleed white panel
  * under the 72px header, laid out from the section's data as a grid of cells (columns in the 1440
  * ratios, paddings in px), with an optional grey link strip. Rendered right after its trigger button,
- * so it follows the trigger in tab order.
+ * so it follows the trigger in tab order; a region named by that button.
+ * Above 1440 the grid stays centred and the cells on its outer edges carry their grey and their bottom
+ * line on to the window edge (clipped by the panel).
  */
-export function MegaMenu({ section, id, animate }: { section: NavSection; id: string; animate: boolean }) {
+export function MegaMenu({ section, id, labelledBy, animate }: { section: NavSection; id: string; labelledBy: string; animate: boolean }) {
   const { panel } = section;
   return (
     <div
       id={id}
-      className={`absolute inset-x-0 top-full max-h-[calc(100dvh-72px)] overflow-y-auto overscroll-contain bg-white ${panel.bottomLine ? "border-b border-line" : ""} ${animate ? "anim-pop" : ""}`}
+      role="region"
+      aria-labelledby={labelledBy}
+      className={`sb-pad absolute inset-x-0 top-full max-h-[calc(100dvh-72px)] overflow-y-auto overflow-x-hidden overscroll-contain bg-white ${panel.bottomLine ? "border-b border-line" : ""} ${animate ? "anim-pop" : ""}`}
     >
       <div
         className="mx-auto grid max-w-[1440px]"
@@ -46,7 +50,7 @@ export function MegaMenu({ section, id, animate }: { section: NavSection; id: st
         }}
       >
         {panel.cells.map((cell, i) => (
-          <Cell key={i} cell={cell} />
+          <Cell key={i} cell={cell} lastCol={panel.cols.length} />
         ))}
       </div>
       {panel.strip && <Strip strip={panel.strip} />}
@@ -54,19 +58,51 @@ export function MegaMenu({ section, id, animate }: { section: NavSection; id: st
   );
 }
 
-function Cell({ cell }: { cell: MegaCell }) {
+function Cell({ cell, lastCol }: { cell: MegaCell; lastCol: number }) {
   const { col, span = 1, row, rowSpan = 1, pad, line = "", surface, eyebrow, flow = "column", gap = 0, blocks } = cell;
+  const uid = useId();
+  const lineB = line.includes("b");
+  /** Sides that touch the panel edge and carry the grey or the bottom line on to the window edge */
+  const bleed: string[] = [];
+  if (surface || lineB) {
+    if (col === 1) bleed.push("right-full");
+    if (col + span - 1 === lastCol) bleed.push("left-full");
+  }
+  const layout = `flex ${flow === "row" ? "items-start" : "flex-col items-start"}`;
   return (
     <div
-      className={`min-w-0 ${line.includes("r") ? "border-r border-line" : ""} ${line.includes("b") ? "border-b border-line" : ""} ${surface ? "bg-surface" : ""}`}
+      // The column divider is the cell's first pixel column (x 295, 590 ... as drawn), so it takes no space
+      className={`relative min-w-0 ${line.includes("l") ? "shadow-[inset_1px_0_0_var(--color-line)]" : ""} ${lineB ? "border-b border-line" : ""} ${surface ? "bg-surface" : ""}`}
       style={{ gridColumn: `${col} / span ${span}`, gridRow: `${row ?? 1} / span ${rowSpan}`, padding: pad.map(px).join(" ") }}
     >
-      {eyebrow && <p className="mb-[41px] text-[12px] font-medium leading-5 text-body">{eyebrow}</p>}
-      <div className={`flex ${flow === "row" ? "items-start" : "flex-col items-start"}`} style={{ gap: px(gap) }}>
-        {blocks.map((b, i) => (
-          <Block key={i} block={b} />
-        ))}
-      </div>
+      {bleed.map((side) => (
+        <span
+          key={side}
+          aria-hidden="true"
+          className={`pointer-events-none absolute top-0 w-[50vw] ${side} ${surface ? "bg-surface" : ""} ${lineB ? "-bottom-px border-b border-line" : "bottom-0"}`}
+        />
+      ))}
+      {eyebrow ? (
+        // About: each eyebrow names the list of its pages
+        <>
+          <p id={uid} className="mb-[41px] text-[12px] font-medium leading-5 text-body">
+            {eyebrow}
+          </p>
+          <ul aria-labelledby={uid} className={layout} style={{ gap: px(gap) }}>
+            {blocks.map((b, i) => (
+              <li key={i} className="max-w-full">
+                <Block block={b} />
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <div className={layout} style={{ gap: px(gap) }}>
+          {blocks.map((b, i) => (
+            <Block key={i} block={b} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -94,7 +130,7 @@ function Block({ block }: { block: MegaBlock }) {
 function Item({ block: { item, reserve } }: { block: ItemBlock }) {
   return (
     <div className="flex w-[202px] max-w-full flex-col items-start">
-      {item.icon && <Icon name={item.icon} size={24} className="mb-5 text-ink" />}
+      {item.icon && <Icon name={item.icon} size={24} opsz={24} className="mb-5 text-ink" />}
       <p className={HEADING}>{item.title}</p>
       <p className={`text-[14px] leading-5 text-body ${reserve ? "min-h-10" : ""}`}>{item.text}</p>
       <ExploreLink href={item.href} context={item.title} className="mt-3" />
@@ -154,7 +190,9 @@ function Stats({ stats, className, valueClass, labelClass, gapClass }: { stats: 
       {stats.map((s) => (
         <div key={s.label} className={`flex flex-col-reverse justify-end ${gapClass}`}>
           <dt className={labelClass}>{s.label}</dt>
-          <dd className={valueClass}>{s.value}</dd>
+          <dd className={valueClass} style={s.size ? { fontSize: s.size } : undefined}>
+            {s.value}
+          </dd>
         </div>
       ))}
     </dl>
@@ -167,27 +205,28 @@ function Glance({ block }: { block: GlanceBlock }) {
     return (
       <div className="mt-1 flex h-[244px] min-w-0 max-w-[760px] flex-1 overflow-hidden rounded-[4px]">
         <NavMap variant="panel" />
-        <div className="w-[clamp(250px,20.85vw,300px)] shrink-0 bg-surface pl-[22px] pt-[18px]">
+        <div className="w-[clamp(250px,20.85vw,300px)] shrink-0 bg-surface pl-[22px] pr-4 pt-[18px]">
           <p className="text-[11px] font-bold leading-5 text-body">{block.heading}</p>
+          {/* Values on a 20px line, labels 2px under (Figma 98 / 120, 163 / 185); column 1 gives way first when narrow */}
           <Stats
             stats={block.stats}
-            className="mt-[60px] grid grid-cols-[minmax(0,153px)_minmax(0,1fr)] gap-y-[21px]"
-            gapClass=""
-            valueClass="text-[22px] font-bold leading-6 text-body"
-            labelClass="text-[11px] leading-5 text-body"
+            className="mt-[60px] grid grid-cols-[minmax(0,153px)_auto] gap-y-[23px]"
+            gapClass="gap-0.5"
+            valueClass="whitespace-nowrap text-[22px] font-bold leading-5 text-body"
+            labelClass="whitespace-nowrap text-[11px] leading-5 text-body"
           />
         </div>
       </div>
     );
   return (
-    <div className="mt-[7px] h-[358px] min-w-0 max-w-[465px] flex-1 rounded-[4px] bg-surface pl-9 pt-[18px]">
+    <div className="mt-[7px] h-[358px] min-w-0 max-w-[465px] flex-1 rounded-[4px] bg-surface pl-9 pr-4 pt-[18px]">
       <p className="text-[11px] font-bold leading-5 text-body">{block.heading}</p>
       <Stats
         stats={block.stats}
-        className="ml-[7px] mt-[42px] grid grid-cols-[218fr_204fr] gap-y-[42px]"
+        className="ml-[7px] mt-[42px] grid grid-cols-[minmax(0,218px)_auto] gap-y-[42px]"
         gapClass="gap-[5px]"
-        valueClass="text-[clamp(20px,1.875vw,27px)] font-bold leading-[26px] text-body"
-        labelClass="text-[14px] leading-[26px] text-body"
+        valueClass="whitespace-nowrap text-[clamp(20px,1.875vw,27px)] font-bold leading-[26px] text-body"
+        labelClass="whitespace-nowrap text-[14px] leading-[26px] text-body"
       />
     </div>
   );
@@ -204,10 +243,10 @@ function MarketList({ block }: { block: MarketListBlock }) {
           <div key={ci} style={{ width: px(block.widths[ci]) }}>
             {regions.map((region, gi) => (
               <div key={region} className={gi > 0 ? "mt-12" : ""}>
-                <p id={`${uid}-${region}`} className="text-[14px] font-bold leading-5 text-ink">
+                <p id={`${uid}-${ci}-${gi}`} className="text-[14px] font-bold leading-5 text-ink">
                   {region}
                 </p>
-                <ul aria-labelledby={`${uid}-${region}`} className="mt-[14px] flex flex-col gap-[14px] text-[14px] font-medium leading-5 text-ink">
+                <ul aria-labelledby={`${uid}-${ci}-${gi}`} className="mt-[14px] flex flex-col gap-[14px] text-[14px] font-medium leading-5 text-ink">
                   {marketsIn(region).map((m) => (
                     <li key={m}>
                       <InertLink className={MARKET_LINK}>{m}</InertLink>
@@ -228,11 +267,12 @@ function Downloads({ block }: { block: DownloadsBlock }) {
   return (
     <div className="w-full">
       <p className={HEADING}>{block.heading}</p>
-      <ul className="mt-[22px] grid grid-flow-col grid-cols-[minmax(0,226px)_minmax(0,1fr)] grid-rows-2 gap-y-[23px]">
+      {/* Column 2 starts 226px in at 1440; when narrower, column 1 gives way so no label wraps */}
+      <ul className="mt-[22px] grid grid-flow-col grid-cols-[minmax(0,226px)_max-content] grid-rows-2 gap-y-[23px]">
         {block.items.map((d) => (
           <li key={d.label}>
-            <SmartLink href={d.href} className="flex w-fit items-center gap-[11px] text-[14px] font-medium leading-5 text-ink hover:underline">
-              <Icon name="docs" size={24} className="text-body" />
+            <SmartLink href={d.href} className="flex w-fit items-center gap-[11px] whitespace-nowrap text-[14px] font-medium leading-5 text-ink hover:underline">
+              <Icon name="docs" size={24} opsz={24} className="text-ink" />
               {d.label}
             </SmartLink>
           </li>
@@ -250,7 +290,7 @@ function Latest({ block }: { block: LatestBlock }) {
   const uid = useId();
   return (
     <div className="w-full">
-      <p id={uid} className={HEADING}>
+      <p id={uid} className={`ml-0.5 ${HEADING}`}>
         {block.heading}
       </p>
       <ul aria-labelledby={uid} className="mt-7 grid grid-cols-3 gap-5">
@@ -291,7 +331,7 @@ function People({ block }: { block: PeopleBlock }) {
 /** Grey 59px link strip along the bottom of the News and About menus. */
 function Strip({ strip }: { strip: MegaStrip }) {
   return (
-    <div className={`bg-surface ${strip.line ? "border-t border-line" : ""}`}>
+    <div className={`sb-bleed bg-surface ${strip.line ? "border-t border-line" : ""}`}>
       <div
         className={`mx-auto flex h-[59px] max-w-[1440px] items-center ${strip.align === "end" ? "justify-end" : ""}`}
         style={{ paddingLeft: px(strip.pad[0]), paddingRight: px(strip.pad[1]), gap: px(strip.gap ?? 24) }}

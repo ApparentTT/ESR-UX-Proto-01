@@ -62,7 +62,12 @@ export function PrototypeBadge() {
   const link = "flex min-h-10 items-center gap-3 rounded-btn px-2 text-sm hover:bg-surface focus-inset";
 
   return (
-    <div ref={wrapRef} className="fixed bottom-4 right-4 z-40 flex flex-col items-end [[data-mobile-map]_&]:bottom-[132px]">
+    <div
+      ref={wrapRef}
+      data-prototype-badge
+      // mr: stays put while a nav layer hides a classic scrollbar (--sb, see useScrollLock)
+      className="fixed bottom-4 right-4 z-40 mr-[var(--sb,0px)] flex flex-col items-end [[data-mobile-map]_&]:bottom-[132px]"
+    >
       {open && (
         <div
           id="prototype-panel"

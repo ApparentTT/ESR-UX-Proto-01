@@ -28,17 +28,37 @@ export function isCurrentChild(href: string | null, pathname: string) {
   return [...new URLSearchParams(query)].every(([k, v]) => have.get(k) === v);
 }
 
-/** Locks page scroll while a nav layer is open (the scrollbar gutter is kept, see globals.css). */
+/**
+ * Locks page scroll while a nav layer is open. A classic (space-taking) scrollbar disappears with the lock,
+ * so body is padded by its width and --sb is set for the nav surfaces that run on to the window edge
+ * (sb-bleed / sb-pad in globals.css): nothing shifts, and the overlay covers the whole window.
+ */
 export function useScrollLock(active: boolean) {
   useEffect(() => {
     if (!active) return;
     const root = document.documentElement;
-    const prev = root.style.overflow;
+    const body = document.body;
+    // Overlay scrollbars measure 0; the upper bound ignores pinch-zoom differences on touch screens.
+    const sb = window.innerWidth - root.clientWidth;
+    const gutter = sb > 0 && sb <= 30 ? `${sb}px` : null;
+    const prev = { overflow: root.style.overflow, padding: body.style.paddingRight };
     root.style.overflow = "hidden";
+    if (gutter) {
+      root.style.setProperty("--sb", gutter);
+      body.style.paddingRight = gutter;
+    }
     return () => {
-      root.style.overflow = prev;
+      root.style.overflow = prev.overflow;
+      root.style.removeProperty("--sb");
+      body.style.paddingRight = prev.padding;
     };
   }, [active]);
+}
+
+/** A link click that stays on the page being viewed (same path, no in-page anchor), where focus would otherwise be lost. */
+export function isSamePageLink(a: HTMLAnchorElement) {
+  const url = new URL(a.href, window.location.href);
+  return url.pathname === window.location.pathname && !url.hash;
 }
 
 const subscribeDesktop = (cb: () => void) => {
@@ -113,7 +133,7 @@ export function LatestCardLink({ card, className = "" }: { card: LatestCard; cla
       href={card.href}
       className={`group flex min-h-[280px] flex-col overflow-clip rounded-[4px] border border-line bg-white shadow-[0_2px_13.4px_rgba(0,0,0,0.10)] hover:border-ink/30 ${className}`}
     >
-      <ImagePlaceholder iconSize={24} className="ml-[10px] mr-[13px] mt-[11px] h-[140px] shrink-0 rounded-[4px]" />
+      <ImagePlaceholder iconSize={24} className="ml-[10px] mr-[11px] mt-[11px] h-[140px] shrink-0 rounded-[4px]" />
       <span className="mt-[15px] block pl-3 pr-5">
         <span className="block text-[14px] font-bold leading-5 text-body group-hover:underline">{card.title}</span>
         <span className="block text-[10px] leading-5 text-body">{card.text}</span>

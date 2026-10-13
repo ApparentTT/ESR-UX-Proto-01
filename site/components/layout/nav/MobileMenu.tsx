@@ -47,7 +47,8 @@ export function MobileMenu({
 }: {
   current: string | null;
   onClose: () => void;
-  onNavigate: () => void;
+  /** A real link was followed (inert links show their notice and leave the menu open) */
+  onNavigate: (a: HTMLAnchorElement) => void;
   onSearch: () => void;
   closeRef: React.RefObject<HTMLButtonElement | null>;
 }) {
@@ -99,6 +100,7 @@ export function MobileMenu({
   };
 
   const section = view.level === "section" ? NAV_SECTIONS.find((s) => s.id === view.id) : undefined;
+  const pathname = usePathname();
 
   return (
     <div
@@ -108,10 +110,14 @@ export function MobileMenu({
       aria-label="Menu"
       onKeyDown={trapTab}
       // Any real link closes the menu (inert links show the notice and leave it open).
-      onClick={(e) => (e.target as Element).closest("a[href]:not([href='#'])") && onNavigate()}
+      onClick={(e) => {
+        const a = (e.target as Element).closest<HTMLAnchorElement>("a[href]:not([href='#'])");
+        if (a) onNavigate(a);
+      }}
       className="fixed inset-0 z-50 flex flex-col nav:hidden"
     >
-      <div className="shrink-0 bg-white shadow-[inset_0_-1px_0_#E5E7EB]">
+      {/* sb-pad: with a classic scrollbar hidden by the scroll lock, the logo and close stay where the page header has them */}
+      <div className="sb-pad shrink-0 bg-white shadow-[inset_0_-1px_0_#E5E7EB]">
         <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-6 md:px-10">
           <Link href="/" aria-label="ESR home" className="rounded-btn">
             <Logo />
@@ -121,7 +127,7 @@ export function MobileMenu({
               <Icon name="search" className="text-ink" />
             </button>
             <button ref={closeRef} type="button" onClick={onClose} aria-label="Close menu" className="-mr-1.5 inline-flex h-11 w-9 items-center justify-center rounded-btn">
-              <Icon name="close" size={24} className="text-ink" />
+              <Icon name="close" size={24} opsz={24} className="text-ink" />
             </button>
           </div>
         </div>
@@ -148,6 +154,7 @@ export function MobileMenu({
             <div className="flex shrink-0 gap-3 bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
               <Link
                 href="/contact"
+                aria-current={pathname === "/contact" ? "page" : undefined}
                 className="inline-flex h-10 flex-1 items-center justify-center rounded-btn border border-body bg-body text-[16px] font-medium leading-5 text-white hover:bg-ink"
               >
                 {NAV_COPY.contact}
@@ -219,7 +226,7 @@ function LinkRow({ item, className }: { item: NavItem; className: string }) {
       aria-current={current ? "page" : undefined}
       className={`focus-inset group flex items-center pl-4 pr-[30px] hover:bg-surface ${className}`}
     >
-      {item.icon && <Icon name={item.icon} size={24} className="mr-5 text-ink" />}
+      {item.icon && <Icon name={item.icon} size={24} opsz={24} className="mr-5 text-ink" />}
       <span className="mr-1 min-w-0 flex-1">
         <span className={`block ${ROW_TITLE} ${current ? "underline underline-offset-[3px]" : ""}`}>{item.title}</span>
         <span className={`block ${ROW_TEXT}`}>{item.text}</span>
@@ -286,13 +293,24 @@ function MobileBlockView({ block }: { block: MobileBlock }) {
   }
 }
 
+/**
+ * Stats as drawn at 390 (2 columns: 147 + 57 gap; 3 columns of 114, gap 12). On narrower screens the
+ * 2-column gap closes to 24 (it is 57 from a 358px content width) and the 3-column values step down to
+ * 16px, so nothing runs out of its cell or makes the menu scroll sideways.
+ */
 function StatGrid({ stats, cols }: { stats: NavStat[]; cols: 2 | 3 }) {
   return (
-    <dl className={`grid ${cols === 3 ? "grid-cols-[repeat(3,minmax(0,114px))] gap-x-3 pl-4 pr-2" : "grid-cols-[147px_minmax(0,1fr)] gap-x-[57px] gap-y-[30px] px-4"}`}>
+    <dl
+      className={`grid ${
+        cols === 3
+          ? "grid-cols-[repeat(3,minmax(0,114px))] gap-x-3 pl-4 pr-2"
+          : "grid-cols-[minmax(0,147px)_minmax(0,1fr)] gap-x-[clamp(24px,calc(100%-301px),57px)] gap-y-[30px] px-4"
+      }`}
+    >
       {stats.map((s) => (
         <div key={s.label} className={`flex flex-col-reverse justify-end ${cols === 3 ? "gap-0.5" : "gap-1"}`}>
           <dt className="text-[11px] leading-5 text-body">{s.label}</dt>
-          <dd className={`font-bold text-body ${cols === 3 ? "text-[18px] leading-5" : "text-[24px] leading-6"}`}>{s.value}</dd>
+          <dd className={`whitespace-nowrap font-bold text-body ${cols === 3 ? "text-[clamp(16px,5vw,18px)] leading-5" : "text-[24px] leading-6"}`}>{s.value}</dd>
         </div>
       ))}
     </dl>
@@ -339,7 +357,7 @@ function DownloadsPanel({ block }: { block: DownloadsBlock }) {
         {block.items.map((d) => (
           <li key={d.label}>
             <SmartLink href={d.href} className="flex items-center gap-[11px] text-[14px] font-medium leading-5 text-ink hover:underline">
-              <Icon name="docs" size={24} className="text-body" />
+              <Icon name="docs" size={24} opsz={24} className="text-ink" />
               {d.label}
             </SmartLink>
           </li>
@@ -363,16 +381,26 @@ function LatestPanel({ block }: { block: MobileLatestBlock }) {
       </p>
       <ul
         aria-labelledby={uid}
-        onScroll={(e) => setIndex(Math.min(block.cards.length - 1, Math.round(e.currentTarget.scrollLeft / 256)))}
+        onScroll={(e) => {
+          // Cards are 256 apart; when the row is too wide to scroll a whole card, the end of the scroll is the last card
+          const el = e.currentTarget;
+          const last = block.cards.length - 1;
+          setIndex(el.scrollLeft >= el.scrollWidth - el.clientWidth - 2 ? last : Math.min(last, Math.round(el.scrollLeft / 256)));
+        }}
         className="no-scrollbar mt-1 flex snap-x snap-mandatory scroll-px-4 gap-5 overflow-x-auto px-4 py-3"
       >
         {block.cards.map((c) => (
-          <li key={c.title} className="w-[236px] shrink-0 snap-start">
+          <li
+            key={c.title}
+            // Keyboard focus brings the card to the start of the row (the browser's own scroll is undone by the snapping)
+            onFocus={(e) => (e.target as Element).matches(":focus-visible") && e.currentTarget.scrollIntoView({ block: "nearest", inline: "start" })}
+            className="w-[236px] shrink-0 snap-start"
+          >
             <LatestCardLink card={c} className="h-full" />
           </li>
         ))}
       </ul>
-      {/* Position indicator only: the cards scroll by swipe and come into view as they take focus */}
+      {/* Position indicator only: the cards scroll by swipe and come into view as they take keyboard focus */}
       <div aria-hidden="true" className="mt-3 flex justify-center gap-1">
         {block.cards.map((c, i) => (
           <span key={c.title} className={`size-1 rounded-full ${i === index ? "bg-black" : "bg-[#D9D9D9]"}`} />
@@ -426,9 +454,9 @@ function MarketList() {
   return (
     <div className="px-4 pb-[33px] pt-4">
       <div className="text-[14px] leading-5 text-body">
-        <p id={uid} className="font-bold">
+        <h2 id={uid} className="font-bold">
           {MARKET_PANEL.title}
-        </p>
+        </h2>
         <p>{MARKET_PANEL.body}</p>
       </div>
       <CurrentMarket className="mt-[21px]" />

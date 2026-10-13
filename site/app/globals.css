@@ -31,8 +31,20 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  /* The nav locks page scroll while a menu is open; keep the scrollbar's space so nothing shifts. */
-  scrollbar-gutter: stable;
+}
+
+/*
+  Nav scroll lock (useScrollLock in components/layout/nav/parts.tsx). While a nav layer is open the page
+  scrollbar is hidden and body is padded by its width (--sb), so the page does not shift and the fixed
+  overlay runs to the window edge. sb-bleed carries a nav surface on over that space with its content
+  where it was; sb-pad keeps a full-width layer's content in line with the header.
+*/
+@utility sb-bleed {
+  margin-right: calc(-1 * var(--sb, 0px));
+  padding-right: var(--sb, 0px);
+}
+@utility sb-pad {
+  padding-right: var(--sb, 0px);
 }
 
 /*

@@ -12,7 +12,7 @@
 
 export type NavItem = { icon?: string; title: string; text: string; href: string | null };
 export type NavLinkItem = { label: string; href: string | null };
-export type NavStat = { value: string; label: string };
+export type NavStat = { value: string; label: string; /** Value size in px where one stat is drawn at its own size */ size?: number };
 /** A language name; lang is set for non-English scripts so screen readers pronounce them. */
 export type LangPart = { text: string; lang?: string };
 export type NavRegion = "Asia" | "Oceania" | "Middle East";
@@ -36,13 +36,13 @@ export type MegaCell = {
   rowSpan?: number;
   /** Padding in px at 1440: top, right, bottom, left */
   pad: [number, number, number, number];
-  /** Divider lines on the cell's right and/or bottom edge */
-  line?: "r" | "b" | "rb";
+  /** Divider lines on the cell's left edge (the column divider, drawn on the column to its right as in Figma) and/or bottom edge */
+  line?: "l" | "b" | "lb";
   surface?: boolean;
   eyebrow?: string;
-  /** Blocks side by side (row) or stacked (column, default), with a px gap */
+  /** Blocks side by side (row) or stacked (column, default), with a gap (px, or a CSS length) */
   flow?: "row" | "column";
-  gap?: number;
+  gap?: number | string;
   blocks: MegaBlock[];
 };
 
@@ -68,6 +68,8 @@ export type NavSection = {
   id: string;
   /** Header label; matches activeGroup() in config/site.ts */
   label: string;
+  /** Width of the header label's text box in the 1440 frame: Medium (closed) and Bold (its menu open) */
+  labelWidth: [number, number];
   groups: { eyebrow?: string; items: NavItem[] }[];
   panel: MegaPanel;
   mobile: MobileBlock[];
@@ -112,9 +114,16 @@ export const NAV_COPY = {
   searchPlaceholderMobile: "Search by market, region, property",
 };
 
+/** Search results as drawn (672:25754 / 705:29172): the same four placeholder rows whatever is typed. Rows are inert. */
+export const SEARCH_RESULTS = {
+  count: "4 Results",
+  rows: Array.from({ length: 4 }, () => ({ title: "Page title", url: "https://www.esr.com/" })),
+};
+
 const GLANCE = "ESR at a glance";
 const AUM: NavStat = { value: "US$77.3bn", label: "Total AUM" };
-const PORTFOLIO_STATS: NavStat[] = [AUM, { value: "11", label: "APAC markets" }, { value: "50Mil m²", label: "gross floor area" }];
+/** Figma draws the Portfolio AUM value at 21px, the other two at 22 */
+const PORTFOLIO_STATS: NavStat[] = [{ ...AUM, size: 21 }, { value: "11", label: "APAC markets" }, { value: "50Mil m²", label: "gross floor area" }];
 const INVESTOR_STATS: NavStat[] = [AUM, { value: "US$1.9B", label: "Capital Raised" }, { value: "1900+", label: "Employees" }, { value: "140", label: "funds and mandates" }];
 /** Mobile market chips: the first is the current scope ("ERS Group" as drawn, flagged to the client). */
 const CHIP_SELECTED = "ERS Group";
@@ -132,17 +141,18 @@ const P = {
 const PORTFOLIO: NavSection = {
   id: "portfolio",
   label: "Our portfolio",
+  labelWidth: [85, 88],
   groups: [{ items: [P.global, P.properties, P.developments, P.dataCentres, P.infrastructure] }],
   panel: {
     cols: [295, 295, 305, 284, 261],
     rows: [200, 337],
     cells: [
       // Card 1's description is padded to two lines in Figma; Properties' is one line, so its Explore sits higher (as drawn)
-      { col: 1, pad: [33, 0, 0, 30], line: "rb", blocks: [{ type: "item", item: P.global, reserve: true }] },
-      { col: 2, pad: [33, 0, 0, 39], line: "rb", blocks: [{ type: "item", item: P.properties }] },
-      { col: 3, pad: [33, 0, 0, 63], line: "rb", blocks: [{ type: "item", item: P.developments }] },
-      { col: 4, pad: [33, 0, 0, 62], line: "rb", blocks: [{ type: "item", item: P.dataCentres }] },
-      { col: 5, pad: [33, 0, 0, 39], line: "b", blocks: [{ type: "item", item: P.infrastructure }] },
+      { col: 1, pad: [33, 16, 0, 30], line: "b", blocks: [{ type: "item", item: P.global, reserve: true }] },
+      { col: 2, pad: [33, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.properties }] },
+      { col: 3, pad: [33, 16, 0, 63], line: "lb", blocks: [{ type: "item", item: P.developments }] },
+      { col: 4, pad: [33, 16, 0, 62], line: "lb", blocks: [{ type: "item", item: P.dataCentres }] },
+      { col: 5, pad: [33, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.infrastructure }] },
       {
         col: 1,
         span: 5,
@@ -177,23 +187,26 @@ const I = {
 const INVESTOR: NavSection = {
   id: "investor",
   label: "Investor",
+  labelWidth: [55, 57],
   groups: [{ items: [I.investing, I.track, I.funds, I.governance] }],
   panel: {
     cols: [295, 295, 850],
     rows: [215, 241],
     bottomLine: true,
     cells: [
-      { col: 1, row: 1, pad: [37, 0, 0, 30], line: "rb", blocks: [{ type: "item", item: I.investing }] },
-      { col: 2, row: 1, pad: [37, 0, 0, 38], line: "rb", blocks: [{ type: "item", item: I.track }] },
-      { col: 1, row: 2, pad: [53, 0, 0, 30], line: "r", blocks: [{ type: "item", item: I.funds }] },
-      { col: 2, row: 2, pad: [53, 0, 0, 38], line: "r", blocks: [{ type: "item", item: I.governance }] },
+      { col: 1, row: 1, pad: [37, 16, 0, 30], line: "b", blocks: [{ type: "item", item: I.investing }] },
+      { col: 2, row: 1, pad: [37, 16, 0, 38], line: "lb", blocks: [{ type: "item", item: I.track }] },
+      { col: 1, row: 2, pad: [53, 16, 0, 30], blocks: [{ type: "item", item: I.funds }] },
+      { col: 2, row: 2, pad: [53, 16, 0, 38], line: "l", blocks: [{ type: "item", item: I.governance }] },
       {
         col: 3,
         row: 1,
         rowSpan: 2,
         pad: [37, 32, 0, 42],
+        line: "l",
         flow: "row",
-        gap: 56,
+        // 56 at 1440, closing to 24 at 1180 so the glance card keeps its width
+        gap: "clamp(24px, 12.31vw - 121.2px, 56px)",
         blocks: [
           { type: "markets", heading: "Invest by Market", columns: [["Asia"], ["Oceania", "Middle East"]], widths: [155, 100] },
           { type: "glance", variant: "card", heading: GLANCE, stats: INVESTOR_STATS },
@@ -208,7 +221,8 @@ const INVESTOR: NavSection = {
 
 const S = {
   approach: { icon: "nest_eco_leaf", title: "Our ESG approach", text: "Strategy, targets and progress", href: "/sustainability" },
-  cases: { icon: "video_template", title: "Sustainability case studies", text: "How it works in practice", href: "/sustainability/case-studies" },
+  // Figma draws video_template as an outline only; view_day is that outline (video_template adds a play mark)
+  cases: { icon: "view_day", title: "Sustainability case studies", text: "How it works in practice", href: "/sustainability/case-studies" },
   governance: { icon: "policy", title: "Sustainability governance", text: "Reports, data packs and policies", href: "/sustainability/governance" },
 } satisfies Record<string, NavItem>;
 
@@ -228,14 +242,15 @@ const DOWNLOADS: DownloadsBlock = {
 const SUSTAINABILITY: NavSection = {
   id: "sustainability",
   label: "Sustainability",
+  labelWidth: [91, 94],
   groups: [{ items: [S.approach, S.cases, S.governance] }],
   panel: {
     cols: [295, 295, 295, 555],
     rows: [288],
     cells: [
-      { col: 1, pad: [55, 0, 0, 30], line: "r", blocks: [{ type: "item", item: S.approach, reserve: true }] },
-      { col: 2, pad: [55, 0, 0, 38], line: "r", blocks: [{ type: "item", item: S.cases, reserve: true }] },
-      { col: 3, pad: [55, 0, 0, 38], blocks: [{ type: "item", item: S.governance, reserve: true }] },
+      { col: 1, pad: [55, 16, 0, 30], blocks: [{ type: "item", item: S.approach, reserve: true }] },
+      { col: 2, pad: [55, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.cases, reserve: true }] },
+      { col: 3, pad: [55, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.governance, reserve: true }] },
       { col: 4, pad: [54, 24, 0, 31], surface: true, blocks: [DOWNLOADS] },
     ],
   },
@@ -269,16 +284,18 @@ const MEDIA_LINKS: NavLinkItem[] = [
 const NEWS: NavSection = {
   id: "news",
   label: "News and insights",
+  labelWidth: [123, 126],
   groups: [{ items: [N.all, N.thought, N.press, N.cases] }],
   panel: {
     cols: [295, 295, 850],
     rows: [196, 217],
     cells: [
-      { col: 1, row: 1, pad: [35, 0, 0, 30], line: "rb", blocks: [{ type: "item", item: N.all }] },
-      { col: 2, row: 1, pad: [35, 0, 0, 38], line: "rb", blocks: [{ type: "item", item: N.thought }] },
-      { col: 1, row: 2, pad: [52, 0, 0, 30], line: "r", blocks: [{ type: "item", item: N.press }] },
-      { col: 2, row: 2, pad: [52, 0, 0, 38], line: "r", blocks: [{ type: "item", item: N.cases }] },
-      { col: 3, row: 1, rowSpan: 2, pad: [34, 62, 24, 42], blocks: [LATEST] },
+      { col: 1, row: 1, pad: [35, 16, 0, 30], line: "b", blocks: [{ type: "item", item: N.all }] },
+      { col: 2, row: 1, pad: [35, 16, 0, 38], line: "lb", blocks: [{ type: "item", item: N.thought }] },
+      { col: 1, row: 2, pad: [52, 16, 0, 30], blocks: [{ type: "item", item: N.press }] },
+      { col: 2, row: 2, pad: [52, 16, 0, 38], line: "l", blocks: [{ type: "item", item: N.cases }] },
+      // Cards run 630 to 1378 at 236 each; the "Latest" heading sits 2px further in (632)
+      { col: 3, row: 1, rowSpan: 2, pad: [34, 62, 24, 40], line: "l", blocks: [LATEST] },
     ],
     strip: { line: true, align: "start", pad: [30, 30], gap: 70, links: MEDIA_LINKS },
   },
@@ -311,6 +328,7 @@ const ABOUT_STRIP_LINKS: NavLinkItem[] = [{ label: "Corporate governance", href:
 const ABOUT: NavSection = {
   id: "about",
   label: "About",
+  labelWidth: [41, 43],
   groups: [
     { eyebrow: "The company", items: [A.about, A.leadership] },
     { eyebrow: "Our capability", items: [A.capability, A.customers] },
@@ -322,8 +340,7 @@ const ABOUT: NavSection = {
     cells: [
       {
         col: 1,
-        pad: [32, 0, 24, 30],
-        line: "r",
+        pad: [32, 16, 24, 30],
         eyebrow: "The company",
         gap: 74,
         blocks: [
@@ -333,8 +350,8 @@ const ABOUT: NavSection = {
       },
       {
         col: 2,
-        pad: [32, 0, 24, 43],
-        line: "r",
+        pad: [32, 16, 24, 43],
+        line: "l",
         eyebrow: "Our capability",
         gap: 74,
         blocks: [
@@ -342,8 +359,8 @@ const ABOUT: NavSection = {
           { type: "item", item: A.customers, reserve: true },
         ],
       },
-      { col: 3, pad: [32, 0, 24, 55], line: "r", eyebrow: "Governance", blocks: [{ type: "item", item: A.governance, reserve: true }] },
-      { col: 4, pad: [32, 32, 24, 43], blocks: [PEOPLE] },
+      { col: 3, pad: [32, 16, 24, 55], line: "l", eyebrow: "Governance", blocks: [{ type: "item", item: A.governance, reserve: true }] },
+      { col: 4, pad: [32, 32, 24, 43], line: "l", blocks: [PEOPLE] },
     ],
     strip: { line: false, align: "end", pad: [30, 62], links: ABOUT_STRIP_LINKS },
   },

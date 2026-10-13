@@ -36,7 +36,7 @@ Use the **Prototype** badge (bottom right) to jump to any page, or to any state 
 - Links to pages that are not wireframed yet (Infrastructure, Our customers, fund pages, articles, case study and property details, market sites, social links, PDFs) are inert. Clicking one shows a short "This page is not part of the prototype" notice.
 - Filters on news, case studies and the fund table work over the sample records. Forms validate required fields and show a confirmation without sending anything.
 - The header menus open on click (Enter or Space) and close on Escape, the overlay, or another menu. While one is open, resting the pointer on another section switches to it.
-- Typing in the header search lists the matching prototype pages; Enter goes to the news search results page.
+- Typing in the header search shows the results block as designed (four placeholder rows, not filtered and not linked); Enter goes to the news search results page.
 
 ## Editing
 

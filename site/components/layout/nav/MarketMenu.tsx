@@ -17,16 +17,21 @@ export function CurrentMarket({ className = "" }: { className?: string }) {
  * Desktop market selector (Figma Group_Find your market 672:25832): white full-bleed panel under the
  * header, intro and "Currently viewing" over a 4-column grid of the 11 market cards (gap 12).
  */
-export function MarketMenu({ id, animate }: { id: string; animate: boolean }) {
+export function MarketMenu({ id, labelledBy, animate }: { id: string; labelledBy: string; animate: boolean }) {
   const titleId = useId();
   return (
-    <div id={id} className={`absolute inset-x-0 top-full max-h-[calc(100dvh-72px)] overflow-y-auto overscroll-contain bg-white ${animate ? "anim-pop" : ""}`}>
+    <div
+      id={id}
+      role="region"
+      aria-labelledby={labelledBy}
+      className={`sb-pad absolute inset-x-0 top-full max-h-[calc(100dvh-72px)] overflow-y-auto overscroll-contain bg-white ${animate ? "anim-pop" : ""}`}
+    >
       <div className="mx-auto max-w-[1440px] px-[67px] pb-[81px] pt-[26px]">
         <div className="flex items-start justify-between gap-6">
           <div className="text-[14px] leading-5 text-body">
-            <p id={titleId} className="font-bold">
+            <h2 id={titleId} className="font-bold">
               {MARKET_PANEL.title}
-            </p>
+            </h2>
             <p>{MARKET_PANEL.body}</p>
           </div>
           <CurrentMarket className="text-right" />
