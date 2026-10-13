@@ -1,10 +1,11 @@
 "use client";
 
-import { useId } from "react";
+import { createContext, useContext, useId, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { InertLink } from "@/components/ui/InertLink";
 import { SmartLink } from "@/components/ui/SmartLink";
 import {
+  ALL_MARKETS,
   marketsIn,
   type DownloadsBlock,
   type GlanceBlock,
@@ -19,11 +20,25 @@ import {
   type PeopleBlock,
   type RegionsBlock,
 } from "@/config/nav";
-import { CurrentLink, ExploreLink, LatestCardLink, NavMap } from "./parts";
+import { CurrentLink, ExploreLink, LatestCardLink, NavMap, marketFocusMessage } from "./parts";
 
 const px = (n: number | string) => (typeof n === "number" ? `${n}px` : n);
 const HEADING = "text-[14px] font-bold leading-5 text-body";
 const MARKET_LINK = "hover:text-ink hover:underline";
+
+/**
+ * The market chosen in "Browse properties by region" (Our portfolio), shared by the region list and the
+ * "ESR at a glance" map card beside it. null is the drawn APAC view.
+ */
+type MarketFocus = {
+  market: string | null;
+  choose: (market: string | null) => void;
+  /** Back to all markets, focus on the market button that was chosen (the control that did it goes away) */
+  reset: () => void;
+  buttons: React.RefObject<Record<string, HTMLButtonElement | null>>;
+  glanceId: string;
+};
+const MarketFocusContext = createContext<MarketFocus | null>(null);
 
 /**
  * Desktop mega menu (Figma Group_Portfolio / Investor / ESG / News / About): a full-bleed white panel
@@ -35,26 +50,53 @@ const MARKET_LINK = "hover:text-ink hover:underline";
  */
 export function MegaMenu({ section, id, labelledBy, animate }: { section: NavSection; id: string; labelledBy: string; animate: boolean }) {
   const { panel } = section;
+  const hasRegions = panel.cells.some((c) => c.blocks.some((b) => b.type === "regions"));
+  const [market, setMarket] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const buttons = useRef<Record<string, HTMLButtonElement | null>>({});
+  const glanceId = useId();
+  const choose = (m: string | null) => {
+    setMarket(m);
+    setMessage(marketFocusMessage(m));
+  };
+  const focus: MarketFocus = {
+    market,
+    choose,
+    reset: () => {
+      const was = market;
+      choose(null);
+      if (was) requestAnimationFrame(() => buttons.current[was]?.focus());
+    },
+    buttons,
+    glanceId,
+  };
   return (
-    <div
-      id={id}
-      role="region"
-      aria-labelledby={labelledBy}
-      className={`sb-pad absolute inset-x-0 top-full max-h-[calc(100dvh-72px)] overflow-y-auto overflow-x-hidden overscroll-contain bg-white ${panel.bottomLine ? "border-b border-line" : ""} ${animate ? "anim-pop" : ""}`}
-    >
+    <MarketFocusContext.Provider value={focus}>
       <div
-        className="mx-auto grid max-w-[1440px]"
-        style={{
-          gridTemplateColumns: panel.cols.map((c) => `minmax(0, ${c}fr)`).join(" "),
-          gridTemplateRows: panel.rows.map((r) => `minmax(${r}px, auto)`).join(" "),
-        }}
+        id={id}
+        role="region"
+        aria-labelledby={labelledBy}
+        className={`sb-pad absolute inset-x-0 top-full max-h-[calc(100dvh-72px)] overflow-y-auto overflow-x-hidden overscroll-contain bg-white ${panel.bottomLine ? "border-b border-line" : ""} ${animate ? "anim-pop" : ""}`}
       >
-        {panel.cells.map((cell, i) => (
-          <Cell key={i} cell={cell} lastCol={panel.cols.length} />
-        ))}
+        <div
+          className="mx-auto grid max-w-[1440px]"
+          style={{
+            gridTemplateColumns: panel.cols.map((c) => `minmax(0, ${c}fr)`).join(" "),
+            gridTemplateRows: panel.rows.map((r) => `minmax(${r}px, auto)`).join(" "),
+          }}
+        >
+          {panel.cells.map((cell, i) => (
+            <Cell key={i} cell={cell} lastCol={panel.cols.length} />
+          ))}
+        </div>
+        {panel.strip && <Strip strip={panel.strip} />}
+        {hasRegions && (
+          <p role="status" className="sr-only">
+            {message}
+          </p>
+        )}
       </div>
-      {panel.strip && <Strip strip={panel.strip} />}
-    </div>
+    </MarketFocusContext.Provider>
   );
 }
 
@@ -107,7 +149,8 @@ function Cell({ cell, lastCol }: { cell: MegaCell; lastCol: number }) {
   );
 }
 
-function Block({ block }: { block: MegaBlock }) {
+/** One block of a mega menu cell (exported for the local menus, components/layout/local). */
+export function Block({ block }: { block: MegaBlock }) {
   switch (block.type) {
     case "item":
       return <Item block={block} />;
@@ -138,9 +181,14 @@ function Item({ block: { item, reserve } }: { block: ItemBlock }) {
   );
 }
 
-/** "Browse properties by region": 4 columns of 144 (gap 10), Asia spanning two; Regular 14/18 links, 32px pitch. */
+/**
+ * "Browse properties by region": 4 columns of 144 (gap 10), Asia spanning two; Regular 14/18 markets, 32px pitch.
+ * Each market is a toggle button: it zooms the map beside it to that market and shows its "ESR at a glance"
+ * (Bold and underlined while chosen); choosing it again returns to all markets.
+ */
 function Regions({ block }: { block: RegionsBlock }) {
   const uid = useId();
+  const focus = useContext(MarketFocusContext);
   let start = 1;
   return (
     <div className="w-[606px] min-w-0 shrink">
@@ -168,7 +216,22 @@ function Regions({ block }: { block: RegionsBlock }) {
               >
                 {markets.map((m) => (
                   <li key={m}>
-                    <InertLink className={MARKET_LINK}>{m}</InertLink>
+                    {focus ? (
+                      <button
+                        ref={(el) => {
+                          focus.buttons.current[m] = el;
+                        }}
+                        type="button"
+                        aria-pressed={focus.market === m}
+                        aria-controls={focus.glanceId}
+                        onClick={() => focus.choose(focus.market === m ? null : m)}
+                        className={`rounded-[2px] text-left decoration-1 underline-offset-2 ${MARKET_LINK} aria-pressed:font-bold aria-pressed:text-ink aria-pressed:underline`}
+                      >
+                        {m}
+                      </button>
+                    ) : (
+                      <InertLink className={MARKET_LINK}>{m}</InertLink>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -199,17 +262,35 @@ function Stats({ stats, className, valueClass, labelClass, gapClass }: { stats: 
   );
 }
 
-/** "ESR at a glance": with the map (Our portfolio, 760 x 244) or as a grey card (Investor, 465 x 358). */
+/**
+ * "ESR at a glance": with the map (Our portfolio, 760 x 244) or as a grey card (Investor, 465 x 358).
+ * Map variant, with a market chosen in the region list: the map zooms to it, the heading reads
+ * "ESR at a glance: {market}" over that market's stats, and "All markets" (top left of the map) goes back.
+ */
 function Glance({ block }: { block: GlanceBlock }) {
+  const focus = useContext(MarketFocusContext);
+  const market = block.variant === "map" ? (focus?.market ?? null) : null;
   if (block.variant === "map")
     return (
-      <div className="mt-1 flex h-[244px] min-w-0 max-w-[760px] flex-1 overflow-hidden rounded-[4px]">
-        <NavMap variant="panel" />
+      <div id={focus?.glanceId} className="mt-1 flex h-[244px] min-w-0 max-w-[760px] flex-1 overflow-hidden rounded-[4px]">
+        <div className="relative flex min-w-0 flex-1">
+          <NavMap variant="panel" focus={market} />
+          {market && focus && (
+            <button
+              type="button"
+              onClick={focus.reset}
+              className="anim-pop absolute left-3 top-3 inline-flex h-8 items-center gap-1.5 rounded-full border border-line bg-white pl-2.5 pr-3 text-[12px] font-medium leading-[18px] text-ink shadow-[0_1px_3px_rgba(0,0,0,0.12)] hover:border-ink"
+            >
+              <Icon name="zoom_out_map" size={16} />
+              {ALL_MARKETS}
+            </button>
+          )}
+        </div>
         <div className="w-[clamp(250px,20.85vw,300px)] shrink-0 bg-surface pl-[22px] pr-4 pt-[18px]">
-          <p className="text-[11px] font-bold leading-5 text-body">{block.heading}</p>
+          <p className="text-[11px] font-bold leading-5 text-body">{market ? `${block.heading}: ${market}` : block.heading}</p>
           {/* Values on a 20px line, labels 2px under (Figma 98 / 120, 163 / 185); column 1 gives way first when narrow */}
           <Stats
-            stats={block.stats}
+            stats={(market && block.marketStats) || block.stats}
             className="mt-[60px] grid grid-cols-[minmax(0,153px)_auto] gap-y-[23px]"
             gapClass="gap-0.5"
             valueClass="whitespace-nowrap text-[22px] font-bold leading-5 text-body"
@@ -328,8 +409,8 @@ function People({ block }: { block: PeopleBlock }) {
   );
 }
 
-/** Grey 59px link strip along the bottom of the News and About menus. */
-function Strip({ strip }: { strip: MegaStrip }) {
+/** Grey 59px link strip along the bottom of the News and About menus (exported for the local menus). */
+export function Strip({ strip }: { strip: MegaStrip }) {
   return (
     <div className={`sb-bleed bg-surface ${strip.line ? "border-t border-line" : ""}`}>
       <div

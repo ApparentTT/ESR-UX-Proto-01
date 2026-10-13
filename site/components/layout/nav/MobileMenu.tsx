@@ -23,7 +23,7 @@ import {
   type PeopleBlock,
 } from "@/config/nav";
 import { CurrentMarket } from "./MarketMenu";
-import { CurrentLink, ExploreLink, LatestCardLink, MarketCard, NavMap, isCurrentChild } from "./parts";
+import { CurrentLink, ExploreLink, LatestCardLink, MarketCard, NavMap, isCurrentChild, marketFocusMessage } from "./parts";
 
 type View = { level: "root" } | { level: "section"; id: string } | { level: "market"; back: View };
 
@@ -199,7 +199,8 @@ function RootList({ current, onOpen }: { current: string | null; onOpen: (id: st
   );
 }
 
-function BackRow({ label, onBack }: { label: string; onBack: () => void }) {
+/** Exported for the local mobile menu (components/layout/local). */
+export function BackRow({ label, onBack }: { label: string; onBack: () => void }) {
   return (
     <button
       type="button"
@@ -278,7 +279,8 @@ function SectionView({ section }: { section: NavSection }) {
   );
 }
 
-function MobileBlockView({ block }: { block: MobileBlock }) {
+/** Exported for the local mobile menu (components/layout/local). */
+export function MobileBlockView({ block }: { block: MobileBlock }) {
   switch (block.type) {
     case "chips":
       return <ChipsPanel block={block} />;
@@ -317,10 +319,22 @@ function StatGrid({ stats, cols }: { stats: NavStat[]; cols: 2 | 3 }) {
   );
 }
 
-/** Grey panel: heading, a scrolling row of market chips (first = current scope), stats, and the map (Our portfolio). */
+/**
+ * Grey panel: heading, a scrolling row of market chips (first = current scope), stats, and the map (Our portfolio).
+ * With the map, the chips are toggle buttons: a market zooms the map to it and shows its stats; choosing it
+ * again, or the first chip, returns to all markets. Investor's chips stay inert links.
+ */
 function ChipsPanel({ block }: { block: ChipsBlock }) {
   const uid = useId();
+  const [market, setMarket] = useState<string | null>(null);
+  const [message, setMessage] = useState("");
+  const choose = (m: string | null) => {
+    setMarket(m);
+    setMessage(marketFocusMessage(m));
+  };
   const chip = "flex h-7 items-center whitespace-nowrap rounded-full border px-3 text-[12px] leading-[18px]";
+  const chipButton = `focus-inset ${chip} border-line text-body hover:border-ink aria-pressed:border-muted-surface aria-pressed:bg-muted-surface aria-pressed:text-white`;
+  const interactive = Boolean(block.map);
   return (
     <div className="flex grow flex-col bg-surface">
       <div className={`pt-[15px] ${block.map ? "pb-[21px]" : "pb-6"}`}>
@@ -329,22 +343,47 @@ function ChipsPanel({ block }: { block: ChipsBlock }) {
         </p>
         <ul aria-labelledby={uid} className="no-scrollbar mt-2.5 flex scroll-px-4 gap-2 overflow-x-auto px-4">
           <li className="shrink-0">
-            <span aria-current="true" className={`${chip} border-muted-surface bg-muted-surface text-white`}>
-              {block.selected}
-            </span>
+            {interactive ? (
+              <button type="button" aria-pressed={market === null} onClick={() => choose(null)} className={chipButton}>
+                {block.selected}
+              </button>
+            ) : (
+              <span aria-current="true" className={`${chip} border-muted-surface bg-muted-surface text-white`}>
+                {block.selected}
+              </span>
+            )}
           </li>
           {NAV_MARKETS.map((m) => (
             <li key={m.name} className="shrink-0">
-              <InertLink className={`focus-inset ${chip} border-line text-body hover:border-ink`}>{m.name}</InertLink>
+              {interactive ? (
+                <button
+                  type="button"
+                  aria-pressed={market === m.name}
+                  onClick={(e) => {
+                    choose(market === m.name ? null : m.name);
+                    e.currentTarget.scrollIntoView({ block: "nearest", inline: "nearest" });
+                  }}
+                  className={chipButton}
+                >
+                  {m.name}
+                </button>
+              ) : (
+                <InertLink className={`focus-inset ${chip} border-line text-body hover:border-ink`}>{m.name}</InertLink>
+              )}
             </li>
           ))}
         </ul>
         <div className={block.statCols === 3 ? "mt-[26px]" : "mt-7"}>
-          <StatGrid stats={block.stats} cols={block.statCols} />
+          <StatGrid stats={(market && block.marketStats) || block.stats} cols={block.statCols} />
         </div>
       </div>
       {/* On screens taller than the drawn frame the sea colour continues below the map */}
-      {block.map && <NavMap variant="sheet" />}
+      {block.map && <NavMap variant="sheet" focus={market} />}
+      {interactive && (
+        <p role="status" className="sr-only">
+          {message}
+        </p>
+      )}
     </div>
   );
 }

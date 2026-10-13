@@ -1,15 +1,14 @@
 "use client";
 
-import { Fragment, useEffect, useSyncExternalStore } from "react";
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
-import { InertLink } from "@/components/ui/InertLink";
 import { SmartLink } from "@/components/ui/SmartLink";
 import { Tag } from "@/components/ui/Tag";
 import { TextLink } from "@/components/ui/TextLink";
-import { NAV_COPY, type LangPart, type LatestCard, type NavMarket } from "@/config/nav";
-import { NAV_MAP_DOTS, NAV_MAP_H, NAV_MAP_LAND, NAV_MAP_W } from "./mapArt";
+import { MARKET_SITE_HREF, NAV_COPY, type LangPart, type LatestCard, type NavMarket } from "@/config/nav";
+import { NAV_MAP_DOTS, NAV_MAP_FOCUS, NAV_MAP_H, NAV_MAP_LAND, NAV_MAP_W, navMapPoint } from "./mapArt";
 
 /** Desktop nav (header items, mega menus, market panel) from this width. */
 export const DESKTOP_QUERY = "(min-width: 1180px)";
@@ -106,10 +105,11 @@ export function Languages({ parts }: { parts: LangPart[] }) {
   );
 }
 
-/** A market site card (desktop 4-column grid and mobile list). Market sites are not built, so cards are inert. */
+/** A market site card (desktop 4-column grid and mobile list). Every market goes to the Japan local site (MARKET_SITE_HREF). */
 export function MarketCard({ market, compact = false }: { market: NavMarket; compact?: boolean }) {
   return (
-    <InertLink
+    <SmartLink
+      href={MARKET_SITE_HREF}
       className={`group flex h-full items-start gap-6 rounded-card border border-line bg-white hover:border-ink/30 ${
         compact ? "py-2 pl-3 pr-6" : "min-h-24 px-3 py-6"
       }`}
@@ -122,7 +122,7 @@ export function MarketCard({ market, compact = false }: { market: NavMarket; com
           <Languages parts={(compact && market.mobileLanguages) || market.languages} />
         </span>
       </span>
-    </InertLink>
+    </SmartLink>
   );
 }
 
@@ -145,37 +145,78 @@ export function LatestCardLink({ card, className = "" }: { card: LatestCard; cla
   );
 }
 
-function MapArt() {
-  const sx = NAV_MAP_W / 100;
-  const sy = NAV_MAP_H / 100;
-  return (
-    <svg viewBox={`0 0 ${NAV_MAP_W} ${NAV_MAP_H}`} aria-hidden="true" focusable="false" className="block size-full">
-      <path d={NAV_MAP_LAND} className="fill-[#F7F7F7]" />
-      {NAV_MAP_DOTS.map(([x, y]) => (
-        <circle key={`${x}-${y}`} cx={x * sx} cy={y * sy} r={3.27} className="fill-black" />
-      ))}
-    </svg>
-  );
-}
+/** Status text read out (politely) when a market is chosen for the Our portfolio map, or all markets again. */
+export const marketFocusMessage = (market: string | null) => (market ? `Map zoomed to ${market}. ESR at a glance: ${market}.` : "Map showing all APAC markets.");
+
+/** The map's art frame in each variant: size, its left edge for a container W wide, and the dot radius. */
+const MAP_FRAMES = {
+  // Fills the space left of the stats; when narrower than 460 it crops from the left (up to 190) so the dots stay in view
+  panel: { w: NAV_MAP_W, h: NAV_MAP_H, css: "clamp(-190px, calc(100% - 460px), 0px)", left: (W: number) => Math.min(0, Math.max(-190, W - NAV_MAP_W)) },
+  // The mobile frame (390 x 214): the same art at 0.918 scale, centred as drawn
+  sheet: { w: 422.3, h: 224, css: "calc(50% - 220.3px)", left: (W: number) => W / 2 - 220.3 },
+} as const;
+
+/** Zoom moves: the land and every dot travel together (instant with reduced motion). */
+const MOVE = "transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none";
+
+/** Keeps v within [lo, hi]; centres it when the range is empty (the art is smaller than the view). */
+const within = (v: number, lo: number, hi: number) => (lo > hi ? (lo + hi) / 2 : Math.min(hi, Math.max(lo, v)));
 
 /**
  * The "Our portfolio" map: faint land and 29 market dots on a #EEE sea, drawn at the 460 x 244 Figma frame.
- * panel: fills the space left of the stats; when narrower than 460 it crops from the left so the dots stay in view.
- * sheet: the mobile frame (390 x 214), the same art at 0.918 scale, centred as drawn.
+ * panel: fills the space left of the stats. sheet: the mobile frame.
+ * focus (a market name): the land zooms in on that market (a scale and move on the art) and the dots move
+ * with it at their own size, as far as the art allows without showing its edge. null is the drawn APAC view.
  */
-export function NavMap({ variant }: { variant: "panel" | "sheet" }) {
-  if (variant === "panel")
-    return (
-      <div aria-hidden="true" className="relative min-w-0 flex-1 overflow-hidden bg-[#EEEEEE]">
-        <div className="absolute top-0 h-[244px] w-[460px]" style={{ left: "clamp(-190px, calc(100% - 460px), 0px)" }}>
-          <MapArt />
-        </div>
-      </div>
-    );
+export function NavMap({ variant, focus = null }: { variant: "panel" | "sheet"; focus?: string | null }) {
+  const frame = MAP_FRAMES[variant];
+  const ref = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState<{ w: number; h: number } | null>(null);
+
+  // The zoom is worked out against the map's size; the APAC view needs no measuring (the frame sits by CSS).
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setBox((b) => (b && b.w === el.clientWidth && b.h === el.clientHeight ? b : { w: el.clientWidth, h: el.clientHeight }));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const k = frame.w / NAV_MAP_W;
+  const target = focus ? NAV_MAP_FOCUS[focus] : undefined;
+  let tx = 0;
+  let ty = 0;
+  let s = 1;
+  if (target && box) {
+    const [x, y] = navMapPoint(target.lon, target.lat);
+    const left = frame.left(box.w);
+    s = target.zoom;
+    // Bring the market to the middle of the view, keeping the art's edges outside it
+    tx = within(box.w / 2 - left - s * x * k, box.w - left - s * frame.w, -left);
+    ty = within(box.h / 2 - s * y * k, box.h - s * frame.h, 0);
+  }
+  const r = 3.27 * k;
+
   return (
-    <div aria-hidden="true" className="relative min-h-[214px] grow overflow-hidden bg-[#EEEEEE]">
-      <div className="absolute top-0 h-[224px] w-[422.3px]" style={{ left: "calc(50% - 220.3px)" }}>
-        <MapArt />
+    <div ref={ref} aria-hidden="true" className={`relative overflow-hidden bg-[#EEEEEE] ${variant === "panel" ? "min-w-0 flex-1" : "min-h-[214px] grow"}`}>
+      <div className="absolute top-0" style={{ left: frame.css, width: frame.w, height: frame.h }}>
+        <svg
+          viewBox={`0 0 ${NAV_MAP_W} ${NAV_MAP_H}`}
+          focusable="false"
+          className={`absolute inset-0 block size-full origin-top-left ${MOVE}`}
+          style={{ transform: `translate(${tx}px, ${ty}px) scale(${s})` }}
+        >
+          <path d={NAV_MAP_LAND} className="fill-[#F7F7F7]" />
+        </svg>
+        {NAV_MAP_DOTS.map(([x, y]) => (
+          <span
+            key={`${x}-${y}`}
+            className={`absolute left-0 top-0 rounded-full bg-black ${MOVE}`}
+            style={{ width: r * 2, height: r * 2, transform: `translate(${tx + s * (x / 100) * frame.w - r}px, ${ty + s * (y / 100) * frame.h - r}px)` }}
+          />
+        ))}
       </div>
     </div>
   );

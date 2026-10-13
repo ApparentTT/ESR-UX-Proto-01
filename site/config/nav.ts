@@ -20,7 +20,14 @@ export type NavMarket = { region: NavRegion; name: string; languages: LangPart[]
 
 export type ItemBlock = { type: "item"; item: NavItem; /** Reserve two lines for the description, so Explore links line up */ reserve?: boolean };
 export type RegionsBlock = { type: "regions"; heading: string; regions: { name: NavRegion; span?: number }[]; link: NavLinkItem };
-export type GlanceBlock = { type: "glance"; variant: "map" | "card"; heading: string; stats: NavStat[] };
+export type GlanceBlock = {
+  type: "glance";
+  variant: "map" | "card";
+  heading: string;
+  stats: NavStat[];
+  /** Map variant: the stats shown while one market is chosen in "Browse properties by region" (heading becomes "{heading}: {market}") */
+  marketStats?: NavStat[];
+};
 export type MarketListBlock = { type: "markets"; heading: string; columns: NavRegion[][]; /** Column widths in px */ widths: number[] };
 export type DownloadsBlock = { type: "downloads"; heading: string; items: NavLinkItem[]; link: NavLinkItem };
 export type LatestCard = { title: string; text: string; href: string | null };
@@ -59,7 +66,16 @@ export type MegaPanel = {
   bottomLine?: boolean;
 };
 
-export type ChipsBlock = { type: "chips"; heading: string; selected: string; stats: NavStat[]; statCols: 2 | 3; map?: boolean };
+export type ChipsBlock = {
+  type: "chips";
+  heading: string;
+  selected: string;
+  stats: NavStat[];
+  statCols: 2 | 3;
+  /** With the map (Our portfolio): the chips are buttons that zoom the map to a market and show marketStats; the first chip returns to all markets */
+  map?: boolean;
+  marketStats?: NavStat[];
+};
 export type MobileStripBlock = { type: "strip"; links: NavLinkItem[] };
 export type MobileLatestBlock = LatestBlock & { links: NavLinkItem[] };
 export type MobileBlock = ChipsBlock | DownloadsBlock | MobileLatestBlock | PeopleBlock | MobileStripBlock;
@@ -97,6 +113,9 @@ export const NAV_MARKETS: NavMarket[] = [
 
 export const marketsIn = (region: NavRegion) => NAV_MARKETS.filter((m) => m.region === region).map((m) => m.name);
 
+/** Every market in Find your market goes to the Japan local site, the one local site in the prototype. */
+export const MARKET_SITE_HREF = "/jp";
+
 export const MARKET_PANEL = {
   title: "Choose your market",
   body: "You'll be taken to that market's website.",
@@ -114,10 +133,22 @@ export const NAV_COPY = {
   searchPlaceholderMobile: "Search by market, region, property",
 };
 
-/** Search results as drawn (672:25754 / 705:29172): the same four placeholder rows whatever is typed. Rows are inert. */
-export const SEARCH_RESULTS = {
-  count: "4 Results",
-  rows: Array.from({ length: 4 }, () => ({ title: "Page title", url: "https://www.esr.com/" })),
+/**
+ * Header search results (672:25754 / 705:29172): "4 Results" over rows of page title and URL, as drawn.
+ * Rows are the top matches from the site search index (data/site/searchIndex.ts); the count is every match.
+ * "See all results" and the no-match line are not drawn: the no-match line is the News search heading (1064:46008).
+ */
+export const SEARCH_COPY = {
+  count: "{n} Results",
+  countSingular: "{n} Result",
+  noResults: "No results for “{q}”",
+  seeAll: "See all results",
+  /** Rows shown under the field (four, as drawn) */
+  rows: 4,
+  /** URL prefix on the result rows, as drawn */
+  site: "https://www.esr.com",
+  /** The results page */
+  path: "/search",
 };
 
 const GLANCE = "ESR at a glance";
@@ -125,6 +156,17 @@ const AUM: NavStat = { value: "US$77.3bn", label: "Total AUM" };
 /** Figma draws the Portfolio AUM value at 21px, the other two at 22 */
 const PORTFOLIO_STATS: NavStat[] = [{ ...AUM, size: 21 }, { value: "11", label: "APAC markets" }, { value: "50Mil m²", label: "gross floor area" }];
 const INVESTOR_STATS: NavStat[] = [AUM, { value: "US$1.9B", label: "Capital Raised" }, { value: "1900+", label: "Employees" }, { value: "140", label: "funds and mandates" }];
+/**
+ * "ESR at a glance" for one market (Our portfolio, desktop and mobile): the drawn labels with placeholder
+ * values until ESR supplies each market's figures.
+ */
+const MARKET_GLANCE_STATS: NavStat[] = [
+  { value: "US$XXbn", label: "Total AUM", size: 21 },
+  { value: "XX", label: "APAC markets" },
+  { value: "XXMil m²", label: "gross floor area" },
+];
+/** Choosing a market again, or this control, returns the Our portfolio map to all markets. */
+export const ALL_MARKETS = "All markets";
 /** Mobile market chips: the first is the current scope ("ERS Group" as drawn, flagged to the client). */
 const CHIP_SELECTED = "ERS Group";
 
@@ -167,12 +209,12 @@ const PORTFOLIO: NavSection = {
             regions: [{ name: "Asia", span: 2 }, { name: "Oceania" }, { name: "Middle East" }],
             link: { label: "Stay up to date on vacancies", href: null },
           },
-          { type: "glance", variant: "map", heading: GLANCE, stats: PORTFOLIO_STATS },
+          { type: "glance", variant: "map", heading: GLANCE, stats: PORTFOLIO_STATS, marketStats: MARKET_GLANCE_STATS },
         ],
       },
     ],
   },
-  mobile: [{ type: "chips", heading: "Browse properties by region", selected: CHIP_SELECTED, stats: PORTFOLIO_STATS, statCols: 3, map: true }],
+  mobile: [{ type: "chips", heading: "Browse properties by region", selected: CHIP_SELECTED, stats: PORTFOLIO_STATS, statCols: 3, map: true, marketStats: MARKET_GLANCE_STATS }],
 };
 
 /* --------------------------------------------------------------- investor */

@@ -18,3 +18,32 @@ export const NAV_MAP_DOTS: [number, number][] = [
   // Australia and New Zealand
   [65.8, 68.0], [67.1, 71.0], [66.5, 75.1], [64.8, 76.7], [65.7, 78.8], [63.3, 81.1], [75.8, 85.1], [74.7, 88.2],
 ];
+
+/** Web Mercator, as fitted above: 1.99 px per degree of longitude, 2.9W at the left edge, the equator 116px down. */
+const PX_PER_DEG = 1.99;
+const R = (PX_PER_DEG * 180) / Math.PI;
+
+/** A longitude and latitude as a point in the 460 x 244 frame. */
+export function navMapPoint(lon: number, lat: number): [number, number] {
+  const phi = (lat * Math.PI) / 180;
+  return [(lon + 2.9) * PX_PER_DEG, 116 - R * Math.log(Math.tan(Math.PI / 4 + phi / 2))];
+}
+
+/**
+ * Where the map zooms when a market is chosen in "Browse properties by region": the market's centre
+ * (approximate, longitude and latitude) and the zoom against the APAC view, sized so the market fills
+ * the map. Keyed by the market names in config/nav.ts.
+ */
+export const NAV_MAP_FOCUS: Record<string, { lon: number; lat: number; zoom: number }> = {
+  "Greater China": { lon: 112, lat: 31, zoom: 1.9 },
+  India: { lon: 80, lat: 22, zoom: 2.6 },
+  Indonesia: { lon: 117, lat: -2.5, zoom: 2.3 },
+  Japan: { lon: 137.5, lat: 37, zoom: 3.6 },
+  Malaysia: { lon: 109, lat: 3.8, zoom: 3.4 },
+  Singapore: { lon: 103.8, lat: 1.35, zoom: 5 },
+  "South Korea": { lon: 127.8, lat: 36.3, zoom: 5 },
+  Thailand: { lon: 101, lat: 13.5, zoom: 3.8 },
+  Vietnam: { lon: 106.5, lat: 16, zoom: 3.8 },
+  "Australia & New Zealand": { lon: 152, lat: -32, zoom: 1.75 },
+  "Saudi Arabia": { lon: 45, lat: 24, zoom: 3.4 },
+};
