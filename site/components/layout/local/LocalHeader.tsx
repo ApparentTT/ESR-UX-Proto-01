@@ -95,7 +95,9 @@ export function LocalHeader() {
       const cur = openRef.current;
       close();
       requestAnimationFrame(() => {
-        if (document.activeElement && document.activeElement !== document.body) return;
+        // The change event can come before the trigger is hidden, so a focused element that has just gone counts as lost
+        const a = document.activeElement;
+        if (a && a !== document.body && a.getClientRects().length > 0) return;
         const t = triggers.current;
         const fallback = mq.matches ? t[`mega:${routeId ?? LOCAL_SECTIONS[0].id}`] : t.menu;
         const target = [cur && t[keyOf(cur)], fallback].find((el) => el && el.getClientRects().length > 0);

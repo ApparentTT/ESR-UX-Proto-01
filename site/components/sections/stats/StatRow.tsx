@@ -6,7 +6,9 @@ import { T } from "@/components/ui/type";
  * StatRow family (inventory B6). One component, nine variants.
  *
  * Section variants (render their own full-bleed band, white by default):
- * - home:   HOME §3b. 64/64, 64px gap to the footnotes (with rule).
+ * - home:   HOME §3b. Tightened after the client walkthrough (60% less space than drawn): 17px from the
+ *           intro to the stats (47 with the heading's 30) and 35px to the footnote rule at 1440; 8/16 at 768,
+ *           2/16 at 390. Bottom 64 as drawn.
  * - dev:    DEV §3. 32/32, labels reserve 2 lines, 1 footnote with rule.
  * - dc:     DC §5. 0/64, 32px gap, 1 footnote with rule.
  * - sus:    SUS §5b. 0/64, 64px gap, centre-aligned row, 1 footnote with rule.
@@ -41,7 +43,7 @@ const SECTION_VARIANTS: SectionVariant[] = ["home", "dev", "dc", "sus", "people"
 
 /** Section padding per variant (desktop values from inventory B6, ~0.6x on mobile). */
 const SECTION_PAD: Record<SectionVariant, string> = {
-  home: "py-10 md:py-14 lg:py-16",
+  home: "pt-0.5 pb-10 md:pt-2 md:pb-14 lg:pt-[17px] lg:pb-16",
   dev: "py-6 md:py-8",
   dc: "pt-6 pb-10 md:pb-14 lg:pt-0 lg:pb-16",
   sus: "pt-6 pb-10 md:pb-14 lg:pt-0 lg:pb-16",
@@ -51,7 +53,7 @@ const SECTION_PAD: Record<SectionVariant, string> = {
 
 /** Gap between the stats block and the footnotes. */
 const FOOT_GAP: Record<SectionVariant, string> = {
-  home: "mt-10 lg:mt-16",
+  home: "mt-4 lg:mt-[35px]",
   dev: "mt-6 lg:mt-0",
   dc: "mt-8",
   sus: "mt-10 lg:mt-16",
@@ -66,6 +68,15 @@ const DEFAULT_RULE: Record<SectionVariant, boolean> = {
   sus: true,
   people: true,
   about: false,
+};
+
+/** Vertical padding on each stat at desktop: 24 as drawn, none on the tightened home row. */
+const ITEM_PAD: Record<Stat48Variant, string> = {
+  home: "",
+  dev: "lg:py-6",
+  dc: "lg:py-6",
+  sus: "lg:py-6",
+  people: "lg:py-6",
 };
 
 /** Vertical alignment of the stats within the row at desktop (as drawn). */
@@ -208,7 +219,7 @@ export function StatList({
       className={`grid grid-cols-2 items-start gap-x-4 gap-y-6 md:gap-x-[30px] md:gap-y-8 lg:grid-cols-4 lg:gap-y-0 ${ALIGN[variant]} ${className}`}
     >
       {stats.map((s, i) => (
-        <li key={`${s.label}-${i}`} className={`flex min-w-0 flex-col gap-2 lg:gap-3 lg:py-6 ${i > 0 ? insetCls : ""}`}>
+        <li key={`${s.label}-${i}`} className={`flex min-w-0 flex-col gap-2 lg:gap-3 ${ITEM_PAD[variant]} ${i > 0 ? insetCls : ""}`}>
           <span className={VALUE_48}>{s.value}</span>
           <span className={`${LABEL_16} ${muted} ${variant === "dev" ? "lg:min-h-12" : ""}`}>
             <Label stat={s} />

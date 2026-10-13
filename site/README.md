@@ -28,15 +28,33 @@ This app lives in `site/`. The repository root holds the original property searc
 | | Corporate governance | `/about/corporate-governance` |
 | | Our people | `/about/our-people` |
 | Contact | Contact us | `/contact` |
+| Search | Site search results | `/search?q=` |
+| Funds | Fund detail (placeholder, same content for every fund) | `/investors/funds/<fund>` |
+
+### Japan local market site
+
+Every market in **Find your market** (and the homepage market cards) goes to the Japan local site for now, so the client can compare the group and local templates. It has its own local navigation and footer.
+
+| Page | URL |
+| --- | --- |
+| Local homepage | `/jp` |
+| Portfolio overview | `/jp/portfolio` |
+| Properties | `/jp/properties` |
+| Developments | `/jp/developments` |
+| Proven capability | `/jp/proven-capability` |
+| News and insights | `/jp/news` |
+| About | `/jp/about` |
+| Our leadership | `/jp/leadership` |
+| Property tours | `/jp/property-tours` |
 
 Use the **Prototype** badge (bottom right) to jump to any page, or to any state of the property search.
 
 ## How it behaves
 
-- Links to pages that are not wireframed yet (Infrastructure, Our customers, fund pages, articles, case study and property details, market sites, social links, PDFs) are inert. Clicking one shows a short "This page is not part of the prototype" notice.
+- Links to pages that are not wireframed yet (Infrastructure, Our customers, articles, case study and property details, social links, PDFs) are inert. Clicking one shows a short "This page is not part of the prototype" notice.
 - Filters on news, case studies and the fund table work over the sample records. Forms validate required fields and show a confirmation without sending anything.
 - The header menus open on click (Enter or Space) and close on Escape, the overlay, or another menu. While one is open, resting the pointer on another section switches to it.
-- Typing in the header search shows the results block as designed (four placeholder rows, not filtered and not linked); Enter goes to the news search results page.
+- The header search covers the whole site (group and Japan pages, news, case studies, leaders, documents, funds): typing shows the top matches, and Enter opens the full results page at `/search`. `/news/search` stays as the news-only search.
 
 ## Editing
 
