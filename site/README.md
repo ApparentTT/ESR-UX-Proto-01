@@ -35,11 +35,13 @@ Use the **Prototype** badge (bottom right) to jump to any page, or to any state 
 
 - Links to pages that are not wireframed yet (Infrastructure, Our customers, fund pages, articles, case study and property details, market sites, social links, PDFs) are inert. Clicking one shows a short "This page is not part of the prototype" notice.
 - Filters on news, case studies and the fund table work over the sample records. Forms validate required fields and show a confirmation without sending anything.
-- The header search goes to the news search results page.
+- The header menus open on click (Enter or Space) and close on Escape, the overlay, or another menu. While one is open, resting the pointer on another section switches to it.
+- Typing in the header search lists the matching prototype pages; Enter goes to the news search results page.
 
 ## Editing
 
-- **Navigation and the page list:** `config/site.ts`. Set a nav item's `href` to `null` to make it inert.
+- **Navigation:** `config/nav.ts` holds the header menus, mobile menu and market list (`components/layout/nav/` renders them). Set a link's `href` to `null` to make it inert.
+- **Page list** (Prototype badge, header search): `config/site.ts`.
 - **Page copy:** `data/site/*.ts` (shared sets such as leaders, news, offices, funds) and `data/site/pages/*.ts` (page-specific copy).
 - **Sections:** `components/sections/<family>/`. Pages in `app/<route>/page.tsx` assemble them.
 - **Design tokens:** `app/globals.css`. Type scale: `components/ui/type.ts`.

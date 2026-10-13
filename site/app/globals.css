@@ -19,6 +19,9 @@
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
+  /* Desktop header and mega menus (1180px); a rem value so it sorts after md and lg */
+  --breakpoint-nav: 73.75rem;
+
   --radius-btn: 6px;
   --radius-control: 8px;
   --radius-card: 12px;
@@ -28,6 +31,8 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* The nav locks page scroll while a menu is open; keep the scrollbar's space so nothing shifts. */
+  scrollbar-gutter: stable;
 }
 
 /*

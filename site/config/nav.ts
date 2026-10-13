@@ -1,0 +1,353 @@
+/**
+ * Global navigation content, from the Figma section "Global Navigation" (672:25100).
+ * Copy is verbatim from the design (Figma leading and trailing spaces trimmed).
+ * href: null renders an inert link ("not part of the prototype" notice).
+ *
+ * Each section has:
+ * - groups: its page links in reading order (the mobile rows, and the desktop item blocks)
+ * - panel: the desktop mega menu, as a grid of cells laid out at the 1440 frame (column widths are
+ *   fractions, paddings and row heights are px) that MegaMenu renders
+ * - mobile: what follows the rows in the mobile menu
+ */
+
+export type NavItem = { icon?: string; title: string; text: string; href: string | null };
+export type NavLinkItem = { label: string; href: string | null };
+export type NavStat = { value: string; label: string };
+/** A language name; lang is set for non-English scripts so screen readers pronounce them. */
+export type LangPart = { text: string; lang?: string };
+export type NavRegion = "Asia" | "Oceania" | "Middle East";
+export type NavMarket = { region: NavRegion; name: string; languages: LangPart[]; /** Mobile frame copy where it differs */ mobileLanguages?: LangPart[] };
+
+export type ItemBlock = { type: "item"; item: NavItem; /** Reserve two lines for the description, so Explore links line up */ reserve?: boolean };
+export type RegionsBlock = { type: "regions"; heading: string; regions: { name: NavRegion; span?: number }[]; link: NavLinkItem };
+export type GlanceBlock = { type: "glance"; variant: "map" | "card"; heading: string; stats: NavStat[] };
+export type MarketListBlock = { type: "markets"; heading: string; columns: NavRegion[][]; /** Column widths in px */ widths: number[] };
+export type DownloadsBlock = { type: "downloads"; heading: string; items: NavLinkItem[]; link: NavLinkItem };
+export type LatestCard = { title: string; text: string; href: string | null };
+export type LatestBlock = { type: "latest"; heading: string; cards: LatestCard[] };
+export type PeopleBlock = { type: "people"; heading: NavLinkItem; text: string; stats: NavStat[]; link: NavLinkItem };
+export type MegaBlock = ItemBlock | RegionsBlock | GlanceBlock | MarketListBlock | DownloadsBlock | LatestBlock | PeopleBlock;
+
+export type MegaCell = {
+  /** 1-based grid column and row, with spans */
+  col: number;
+  span?: number;
+  row?: number;
+  rowSpan?: number;
+  /** Padding in px at 1440: top, right, bottom, left */
+  pad: [number, number, number, number];
+  /** Divider lines on the cell's right and/or bottom edge */
+  line?: "r" | "b" | "rb";
+  surface?: boolean;
+  eyebrow?: string;
+  /** Blocks side by side (row) or stacked (column, default), with a px gap */
+  flow?: "row" | "column";
+  gap?: number;
+  blocks: MegaBlock[];
+};
+
+export type MegaStrip = { line: boolean; align: "start" | "end"; pad: [number, number]; gap?: number; links: NavLinkItem[] };
+
+export type MegaPanel = {
+  /** Column widths at 1440 (used as fr, so the grid scales down to the 1180 breakpoint) */
+  cols: number[];
+  /** Minimum row heights in px */
+  rows: number[];
+  cells: MegaCell[];
+  strip?: MegaStrip;
+  /** 1px line under the panel */
+  bottomLine?: boolean;
+};
+
+export type ChipsBlock = { type: "chips"; heading: string; selected: string; stats: NavStat[]; statCols: 2 | 3; map?: boolean };
+export type MobileStripBlock = { type: "strip"; links: NavLinkItem[] };
+export type MobileLatestBlock = LatestBlock & { links: NavLinkItem[] };
+export type MobileBlock = ChipsBlock | DownloadsBlock | MobileLatestBlock | PeopleBlock | MobileStripBlock;
+
+export type NavSection = {
+  id: string;
+  /** Header label; matches activeGroup() in config/site.ts */
+  label: string;
+  groups: { eyebrow?: string; items: NavItem[] }[];
+  panel: MegaPanel;
+  mobile: MobileBlock[];
+};
+
+/* ---------------------------------------------------------------- markets */
+
+const EN: LangPart = { text: "English" };
+
+/** Find your market (desktop 672:25832, mobile 715:30298), in design order. */
+export const NAV_MARKETS: NavMarket[] = [
+  { region: "Asia", name: "Greater China", languages: [{ text: "简体中文", lang: "zh-Hans" }, EN] },
+  { region: "Asia", name: "India", languages: [EN] },
+  // Korean as drawn on both breakpoints (likely a copy slip in the design; flagged to the client)
+  { region: "Asia", name: "Indonesia", languages: [{ text: "한국어", lang: "ko" }, EN] },
+  { region: "Asia", name: "Japan", languages: [{ text: "日本語", lang: "ja" }, EN] },
+  { region: "Asia", name: "Malaysia", languages: [EN] },
+  { region: "Asia", name: "Singapore", languages: [EN] },
+  { region: "Asia", name: "South Korea", languages: [{ text: "한국어", lang: "ko" }, EN] },
+  { region: "Asia", name: "Thailand", languages: [EN] },
+  { region: "Asia", name: "Vietnam", languages: [EN] },
+  { region: "Oceania", name: "Australia & New Zealand", languages: [EN] },
+  { region: "Middle East", name: "Saudi Arabia", languages: [{ text: "Arabic" }, EN], mobileLanguages: [EN] },
+];
+
+export const marketsIn = (region: NavRegion) => NAV_MARKETS.filter((m) => m.region === region).map((m) => m.name);
+
+export const MARKET_PANEL = {
+  title: "Choose your market",
+  body: "You'll be taken to that market's website.",
+  currentLabel: "Currently viewing:",
+  current: "Global (EN)",
+};
+
+/* ----------------------------------------------------------------- shared */
+
+export const NAV_COPY = {
+  findMarket: "Find your market",
+  contact: "Contact us",
+  explore: "Explore",
+  searchPlaceholder: "Search ESR.com by market, region, property",
+  searchPlaceholderMobile: "Search by market, region, property",
+};
+
+const GLANCE = "ESR at a glance";
+const AUM: NavStat = { value: "US$77.3bn", label: "Total AUM" };
+const PORTFOLIO_STATS: NavStat[] = [AUM, { value: "11", label: "APAC markets" }, { value: "50Mil m²", label: "gross floor area" }];
+const INVESTOR_STATS: NavStat[] = [AUM, { value: "US$1.9B", label: "Capital Raised" }, { value: "1900+", label: "Employees" }, { value: "140", label: "funds and mandates" }];
+/** Mobile market chips: the first is the current scope ("ERS Group" as drawn, flagged to the client). */
+const CHIP_SELECTED = "ERS Group";
+
+/* -------------------------------------------------------------- portfolio */
+
+const P = {
+  global: { icon: "globe_asia", title: "Our global portfolio", text: "Scale and reach across APAC", href: "/portfolio" },
+  properties: { icon: "apartment", title: "Properties", text: "Logistics and industrial", href: "/portfolio/properties" },
+  developments: { icon: "handyman", title: "Developments", text: "Pipeline, technology and sustainability.", href: "/portfolio/developments" },
+  dataCentres: { icon: "database", title: "Data centres", text: "Digital infrastructure capability", href: "/portfolio/data-centres" },
+  infrastructure: { icon: "cell_tower", title: "Infrastructure", text: "Lorem ipsum dolor sit amet, consectetur", href: null },
+} satisfies Record<string, NavItem>;
+
+const PORTFOLIO: NavSection = {
+  id: "portfolio",
+  label: "Our portfolio",
+  groups: [{ items: [P.global, P.properties, P.developments, P.dataCentres, P.infrastructure] }],
+  panel: {
+    cols: [295, 295, 305, 284, 261],
+    rows: [200, 337],
+    cells: [
+      // Card 1's description is padded to two lines in Figma; Properties' is one line, so its Explore sits higher (as drawn)
+      { col: 1, pad: [33, 0, 0, 30], line: "rb", blocks: [{ type: "item", item: P.global, reserve: true }] },
+      { col: 2, pad: [33, 0, 0, 39], line: "rb", blocks: [{ type: "item", item: P.properties }] },
+      { col: 3, pad: [33, 0, 0, 63], line: "rb", blocks: [{ type: "item", item: P.developments }] },
+      { col: 4, pad: [33, 0, 0, 62], line: "rb", blocks: [{ type: "item", item: P.dataCentres }] },
+      { col: 5, pad: [33, 0, 0, 39], line: "b", blocks: [{ type: "item", item: P.infrastructure }] },
+      {
+        col: 1,
+        span: 5,
+        row: 2,
+        pad: [25, 34, 19, 30],
+        flow: "row",
+        gap: 10,
+        blocks: [
+          {
+            type: "regions",
+            heading: "Browse properties by region",
+            regions: [{ name: "Asia", span: 2 }, { name: "Oceania" }, { name: "Middle East" }],
+            link: { label: "Stay up to date on vacancies", href: null },
+          },
+          { type: "glance", variant: "map", heading: GLANCE, stats: PORTFOLIO_STATS },
+        ],
+      },
+    ],
+  },
+  mobile: [{ type: "chips", heading: "Browse properties by region", selected: CHIP_SELECTED, stats: PORTFOLIO_STATS, statCols: 3, map: true }],
+};
+
+/* --------------------------------------------------------------- investor */
+
+const I = {
+  investing: { icon: "attach_money", title: "Investing with ESR", text: "Strategy and approach", href: "/investors" },
+  track: { icon: "area_chart", title: "Track record", text: "Performance and proof points", href: "/investors#track-record" },
+  funds: { icon: "batch_prediction", title: "Our funds", text: "Every asset globally", href: "/investors#our-funds" },
+  governance: { icon: "analytics", title: "Governance and reporting", text: "Disclosures and policies", href: null },
+} satisfies Record<string, NavItem>;
+
+const INVESTOR: NavSection = {
+  id: "investor",
+  label: "Investor",
+  groups: [{ items: [I.investing, I.track, I.funds, I.governance] }],
+  panel: {
+    cols: [295, 295, 850],
+    rows: [215, 241],
+    bottomLine: true,
+    cells: [
+      { col: 1, row: 1, pad: [37, 0, 0, 30], line: "rb", blocks: [{ type: "item", item: I.investing }] },
+      { col: 2, row: 1, pad: [37, 0, 0, 38], line: "rb", blocks: [{ type: "item", item: I.track }] },
+      { col: 1, row: 2, pad: [53, 0, 0, 30], line: "r", blocks: [{ type: "item", item: I.funds }] },
+      { col: 2, row: 2, pad: [53, 0, 0, 38], line: "r", blocks: [{ type: "item", item: I.governance }] },
+      {
+        col: 3,
+        row: 1,
+        rowSpan: 2,
+        pad: [37, 32, 0, 42],
+        flow: "row",
+        gap: 56,
+        blocks: [
+          { type: "markets", heading: "Invest by Market", columns: [["Asia"], ["Oceania", "Middle East"]], widths: [155, 100] },
+          { type: "glance", variant: "card", heading: GLANCE, stats: INVESTOR_STATS },
+        ],
+      },
+    ],
+  },
+  mobile: [{ type: "chips", heading: "Invest by Market", selected: CHIP_SELECTED, stats: INVESTOR_STATS, statCols: 2 }],
+};
+
+/* --------------------------------------------------------- sustainability */
+
+const S = {
+  approach: { icon: "nest_eco_leaf", title: "Our ESG approach", text: "Strategy, targets and progress", href: "/sustainability" },
+  cases: { icon: "video_template", title: "Sustainability case studies", text: "How it works in practice", href: "/sustainability/case-studies" },
+  governance: { icon: "policy", title: "Sustainability governance", text: "Reports, data packs and policies", href: "/sustainability/governance" },
+} satisfies Record<string, NavItem>;
+
+/** Mobile lists these in this order; the desktop 2 x 2 grid fills column by column. */
+const DOWNLOADS: DownloadsBlock = {
+  type: "downloads",
+  heading: "Latest downloads",
+  items: [
+    { label: "Sustainability report", href: null },
+    { label: "ESG data pack", href: null },
+    { label: "Modern slavery statement", href: null },
+    { label: "TCFD disclosure", href: null },
+  ],
+  link: { label: "All reports and policies", href: "/sustainability/governance" },
+};
+
+const SUSTAINABILITY: NavSection = {
+  id: "sustainability",
+  label: "Sustainability",
+  groups: [{ items: [S.approach, S.cases, S.governance] }],
+  panel: {
+    cols: [295, 295, 295, 555],
+    rows: [288],
+    cells: [
+      { col: 1, pad: [55, 0, 0, 30], line: "r", blocks: [{ type: "item", item: S.approach, reserve: true }] },
+      { col: 2, pad: [55, 0, 0, 38], line: "r", blocks: [{ type: "item", item: S.cases, reserve: true }] },
+      { col: 3, pad: [55, 0, 0, 38], blocks: [{ type: "item", item: S.governance, reserve: true }] },
+      { col: 4, pad: [54, 24, 0, 31], surface: true, blocks: [DOWNLOADS] },
+    ],
+  },
+  mobile: [DOWNLOADS],
+};
+
+/* ------------------------------------------------------------------- news */
+
+const N = {
+  all: { icon: "book_5", title: "All stories", text: "Everything in one feed", href: "/news" },
+  thought: { icon: "news", title: "Thought leadership", text: "Group and market updates", href: "/news/search?type=thought-leadership" },
+  press: { icon: "brand_awareness", title: "Press releases", text: "Official announcements", href: "/news/search?type=press-release" },
+  cases: { icon: "area_chart", title: "Case studies", text: "Capability in practice", href: "/news/search?type=case-study" },
+} satisfies Record<string, NavItem>;
+
+const LOREM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor";
+const LATEST: LatestBlock = {
+  type: "latest",
+  heading: "Latest",
+  cards: [
+    { title: "Press release · Japan", text: LOREM, href: null },
+    { title: "Case study · Australia", text: LOREM, href: null },
+    { title: "News · Group", text: LOREM, href: null },
+  ],
+};
+const MEDIA_LINKS: NavLinkItem[] = [
+  { label: "Media enquiries", href: "/news#media-enquiries" },
+  { label: "Media kit", href: null },
+];
+
+const NEWS: NavSection = {
+  id: "news",
+  label: "News and insights",
+  groups: [{ items: [N.all, N.thought, N.press, N.cases] }],
+  panel: {
+    cols: [295, 295, 850],
+    rows: [196, 217],
+    cells: [
+      { col: 1, row: 1, pad: [35, 0, 0, 30], line: "rb", blocks: [{ type: "item", item: N.all }] },
+      { col: 2, row: 1, pad: [35, 0, 0, 38], line: "rb", blocks: [{ type: "item", item: N.thought }] },
+      { col: 1, row: 2, pad: [52, 0, 0, 30], line: "r", blocks: [{ type: "item", item: N.press }] },
+      { col: 2, row: 2, pad: [52, 0, 0, 38], line: "r", blocks: [{ type: "item", item: N.cases }] },
+      { col: 3, row: 1, rowSpan: 2, pad: [34, 62, 24, 42], blocks: [LATEST] },
+    ],
+    strip: { line: true, align: "start", pad: [30, 30], gap: 70, links: MEDIA_LINKS },
+  },
+  mobile: [{ ...LATEST, links: MEDIA_LINKS }],
+};
+
+/* ------------------------------------------------------------------ about */
+
+const A = {
+  about: { title: "About us", text: "Who we are and how we got here", href: "/about" },
+  leadership: { title: "Our leadership", text: "The people running the group", href: "/about/leadership" },
+  capability: { title: "Proven capability", text: "Case studies across the group", href: "/about/proven-capability" },
+  customers: { title: "Our customers", text: "The industries we serve", href: null },
+  governance: { title: "Corporate governance", text: "Reports, policies and disclosures", href: "/about/corporate-governance" },
+} satisfies Record<string, NavItem>;
+
+/** "Our people" has no link drawn; the heading links to the built page, styled as drawn. */
+const PEOPLE: PeopleBlock = {
+  type: "people",
+  heading: { label: "Our people", href: "/about/our-people" },
+  text: "The culture and values behind the group, and where we're hiring.",
+  stats: [
+    { value: "1900+", label: "people across APAC" },
+    { value: "11", label: "markets" },
+  ],
+  link: { label: "Find jobs at ESR", href: null },
+};
+const ABOUT_STRIP_LINKS: NavLinkItem[] = [{ label: "Corporate governance", href: "/about/corporate-governance" }];
+
+const ABOUT: NavSection = {
+  id: "about",
+  label: "About",
+  groups: [
+    { eyebrow: "The company", items: [A.about, A.leadership] },
+    { eyebrow: "Our capability", items: [A.capability, A.customers] },
+    { eyebrow: "Governance", items: [A.governance] },
+  ],
+  panel: {
+    cols: [295, 295, 312, 538],
+    rows: [414],
+    cells: [
+      {
+        col: 1,
+        pad: [32, 0, 24, 30],
+        line: "r",
+        eyebrow: "The company",
+        gap: 74,
+        blocks: [
+          { type: "item", item: A.about, reserve: true },
+          { type: "item", item: A.leadership, reserve: true },
+        ],
+      },
+      {
+        col: 2,
+        pad: [32, 0, 24, 43],
+        line: "r",
+        eyebrow: "Our capability",
+        gap: 74,
+        blocks: [
+          { type: "item", item: A.capability, reserve: true },
+          { type: "item", item: A.customers, reserve: true },
+        ],
+      },
+      { col: 3, pad: [32, 0, 24, 55], line: "r", eyebrow: "Governance", blocks: [{ type: "item", item: A.governance, reserve: true }] },
+      { col: 4, pad: [32, 32, 24, 43], blocks: [PEOPLE] },
+    ],
+    strip: { line: false, align: "end", pad: [30, 62], links: ABOUT_STRIP_LINKS },
+  },
+  mobile: [PEOPLE, { type: "strip", links: ABOUT_STRIP_LINKS }],
+};
+
+export const NAV_SECTIONS: NavSection[] = [PORTFOLIO, INVESTOR, SUSTAINABILITY, NEWS, ABOUT];

@@ -28,7 +28,7 @@ export default function NewsPage() {
       {/* §5 market CTA, rendered as drawn: Japan with the designer note */}
       <MarketCtaStrip market="Japan" {...NEWS_MARKET_CTA} />
       {/* §6 */}
-      <FormBlock variant="mediaEnquiry" />
+      <FormBlock variant="mediaEnquiry" id="media-enquiries" />
     </PageShell>
   );
 }

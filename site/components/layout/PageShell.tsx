@@ -1,4 +1,4 @@
-import { SiteHeader } from "./SiteHeader";
+import { SiteHeader } from "./nav/SiteHeader";
 import { SiteFooter } from "./SiteFooter";
 
 export function PageShell({ children }: { children: React.ReactNode }) {

@@ -35,7 +35,7 @@ export default function InvestorsPage() {
       {/* §5 "Flagship funds across the group" */}
       <FundCards {...INV_FLAGSHIP_FUNDS} />
       {/* §6 "Our funds": filters + fund table */}
-      <FundList {...FUND_LIST} />
+      <FundList {...FUND_LIST} id="our-funds" />
       {/* §7 "Our investors" logo strip */}
       <LogoMarquee {...INV_INVESTORS} />
       {/* §8a–b "The latest from across our markets" */}
