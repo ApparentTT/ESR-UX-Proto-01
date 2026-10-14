@@ -17,7 +17,8 @@ export function TourPropertyCards({
   href,
 }: {
   title: string;
-  cards: { region: string; title: string }[];
+  /** A card's own href (its property detail page) wins over the shared `href` */
+  cards: { region: string; title: string; href?: string | null }[];
   cta: string;
   href: string | null;
 }) {
@@ -31,7 +32,7 @@ export function TourPropertyCards({
         {cards.map((c) => (
           <li key={c.title}>
             <SmartLink
-              href={href}
+              href={c.href !== undefined ? c.href : href}
               className="group flex h-full flex-col overflow-hidden rounded-[10px] bg-white transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(17,24,39,0.08)] motion-reduce:transition-none"
             >
               <ImagePlaceholder className="h-[200px] w-full" iconSize={32} />

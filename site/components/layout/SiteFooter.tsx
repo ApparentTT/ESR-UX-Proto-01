@@ -40,7 +40,7 @@ const ABOUT: Group = {
   links: [
     { label: "About us", href: "/about" },
     { label: "Our leadership", href: "/about/leadership" },
-    { label: "Our customers" },
+    { label: "Our customers", href: "/about/our-customers" },
     { label: "Proven capability", href: "/about/proven-capability" },
     { label: "Resources" },
     { label: "Corporate governance", href: "/about/corporate-governance" },

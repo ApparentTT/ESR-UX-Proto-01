@@ -56,7 +56,7 @@ export function LocalIntro({
   );
 }
 
-function Breadcrumb({ items }: { items: Crumb[] }) {
+export function Breadcrumb({ items }: { items: Crumb[] }) {
   return (
     <nav aria-label="Breadcrumb">
       <ol className="flex flex-wrap items-center text-[13px] leading-[1.48] text-muted">

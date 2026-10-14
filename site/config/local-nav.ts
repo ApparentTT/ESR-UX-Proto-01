@@ -278,7 +278,7 @@ const A = {
   about: { title: "About us", text: "Who we are and how we got here", href: "/jp/about" },
   leadership: { title: "Our leadership", text: "The people running the team", href: "/jp/leadership" },
   capability: { title: "Proven capability", text: "Case studies across the group", href: "/jp/proven-capability" },
-  customers: { title: "Our customers", text: "The industries we serve", href: null },
+  customers: { title: "Our customers", text: "The industries we serve", href: "/jp/our-customers" },
   governance: { title: "Corporate governance", text: "Reports, policies and disclosures", href: null },
 } satisfies Record<string, LocalNavItem>;
 /** Mobile (719:1454) keeps the group wording for Our leadership */
@@ -389,7 +389,7 @@ export const LOCAL_FOOTER: Record<"portfolio" | "investors" | "sustainability" |
     links: [
       { label: "About us", href: "/jp/about" },
       { label: "Our leadership", href: "/jp/leadership" },
-      { label: "Our customers", href: null },
+      { label: "Our customers", href: "/jp/our-customers" },
       { label: "Proven capability", href: "/jp/proven-capability" },
       // "Ressources" in Figma; spelt as in the group footer
       { label: "Resources", href: null },

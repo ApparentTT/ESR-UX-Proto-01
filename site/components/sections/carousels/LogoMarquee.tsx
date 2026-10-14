@@ -14,8 +14,9 @@ export type LogoMarqueeProps = {
   /**
    * customers: heading 64 top / 24 bottom, logo row 32 / 32 (PORT §5, PROP §6).
    * investors: no heading top padding, logo row 64 / 64 (INV §7).
+   * trusted: Bold 24/32 heading, 64 top / 48 to the logo row, row 0 / 64 (Our customers "Trusted by businesses").
    */
-  spacing?: "customers" | "investors";
+  spacing?: "customers" | "investors" | "trusted";
   /** Accessible name of the logo list; defaults to "<title> logos" */
   listLabel?: string;
   headingLevel?: "h2" | "h3";
@@ -56,6 +57,7 @@ export function LogoMarquee({ title, count = 7, spacing = "customers", listLabel
   const [paused, setPaused] = useState(false);
   const headingId = useId();
   const investors = spacing === "investors";
+  const trusted = spacing === "trusted";
 
   const set = (copy: number) => (
     <ul
@@ -79,9 +81,11 @@ export function LogoMarquee({ title, count = 7, spacing = "customers", listLabel
         {CSS}
       </style>
       <Container
-        className={`flex items-end justify-between gap-4 ${investors ? "pt-0" : "pt-12 pb-4 md:pt-14 md:pb-5 lg:pt-16 lg:pb-6"}`}
+        className={`flex items-end justify-between gap-4 ${
+          investors ? "pt-0" : trusted ? "pt-12 pb-6 md:pt-14 md:pb-10 lg:pt-16 lg:pb-12" : "pt-12 pb-4 md:pt-14 md:pb-5 lg:pt-16 lg:pb-6"
+        }`}
       >
-        <H id={headingId} className={T.h40m}>
+        <H id={headingId} className={trusted ? "text-[20px] font-bold leading-7 text-ink lg:text-[24px] lg:leading-8" : T.h40m}>
           {title}
         </H>
         <button
@@ -94,7 +98,11 @@ export function LogoMarquee({ title, count = 7, spacing = "customers", listLabel
         </button>
       </Container>
 
-      <div className={`esr-marquee-row flex justify-center overflow-hidden ${investors ? "py-8 md:py-12 lg:py-16" : "py-6 md:py-7 lg:py-8"}`}>
+      <div
+        className={`esr-marquee-row flex justify-center overflow-hidden ${
+          investors ? "py-8 md:py-12 lg:py-16" : trusted ? "pb-12 md:pb-14 lg:pb-16" : "py-6 md:py-7 lg:py-8"
+        }`}
+      >
         <div className="esr-marquee-track flex w-max shrink-0 will-change-transform">
           {Array.from({ length: COPIES }, (_, c) => set(c))}
         </div>

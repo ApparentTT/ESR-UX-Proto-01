@@ -52,7 +52,7 @@ export const SGOV_GOVERN_CARDS: MediaCardData[] = [
 /** B13 featured3, ABOUT §7 (surface band, no heading). */
 export const ABOUT_FEATURED_CARDS: MediaCardData[] = [
   { title: "Our people", href: "/about/our-people" },
-  { title: "Our customers", href: null },
+  { title: "Our customers", href: "/about/our-customers" },
   { title: "News and insights", href: "/news" },
 ];
 

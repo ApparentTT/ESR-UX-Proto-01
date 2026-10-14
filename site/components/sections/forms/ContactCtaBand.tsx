@@ -1,4 +1,4 @@
-import { Section } from "@/components/ui/Section";
+import { Section, type SectionBg } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { PAD } from "@/components/ui/type";
 
@@ -8,6 +8,8 @@ export type ContactCtaBandProps = {
   /** Pill button, e.g. "Contact us" → /contact */
   cta: { label: string; href: string | null };
   headingLevel?: "h2" | "h3";
+  /** Band colour; the Japan "Our customers" band is drawn white. Default surface. */
+  bg?: SectionBg;
 };
 
 /**
@@ -16,10 +18,10 @@ export type ContactCtaBandProps = {
  * vertically centred with a 64px gap. Aligned to the standard container (the drawn 112px
  * side padding is not used). Stacks at 390 with the pill left-aligned; a row from 768.
  */
-export function ContactCtaBand({ title, body, cta, headingLevel: H = "h2" }: ContactCtaBandProps) {
+export function ContactCtaBand({ title, body, cta, headingLevel: H = "h2", bg = "surface" }: ContactCtaBandProps) {
   return (
     <Section
-      bg="surface"
+      bg={bg}
       className={PAD.mid}
       containerClassName="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between md:gap-8 lg:gap-16"
     >

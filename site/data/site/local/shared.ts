@@ -9,6 +9,7 @@ import type { SplitBlockCta } from "@/components/sections/blocks/SplitBlock";
 import type { MediaCardData } from "@/components/sections/cards/MediaCard";
 import type { LocalPropertyCardData } from "@/components/sections/local/LocalPropertyCards";
 import type { PropertySearchEntryProps } from "@/components/sections/local/PropertySearchEntry";
+import { jpPropertyHref } from "./property-detail";
 
 /** Local destinations */
 export const JP = {
@@ -62,7 +63,7 @@ export function jpFeaturedProperties(sqm: " sqm" | "sqm"): LocalPropertyCardData
       type: "Warehouse",
       size: `8,921,59${sqm}`,
       availability: "Available now",
-      href: null,
+      href: jpPropertyHref("Higashi Distribution Centre"),
     },
     {
       tags: ["Japan", "CASBEE S"],
@@ -70,7 +71,7 @@ export function jpFeaturedProperties(sqm: " sqm" | "sqm"): LocalPropertyCardData
       type: "Warehouse",
       size: `35,595.27${sqm}`,
       availability: "Available now",
-      href: null,
+      href: jpPropertyHref("Yokohama Sachiura Distribution Centre 1"),
     },
     {
       tags: ["Japan"],
@@ -78,7 +79,7 @@ export function jpFeaturedProperties(sqm: " sqm" | "sqm"): LocalPropertyCardData
       type: "Logistics",
       size: `433,000${sqm}`,
       availability: "Under development",
-      href: null,
+      href: jpPropertyHref("Kawanishi Distribution Centre 3"),
     },
   ];
 }

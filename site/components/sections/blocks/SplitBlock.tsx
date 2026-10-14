@@ -16,6 +16,7 @@ export function SplitBlock({
   body,
   cta,
   imageSide = "right",
+  leftLayout = "wide",
   bg = "white",
   headingLevel: H = "h2",
 }: {
@@ -23,20 +24,26 @@ export function SplitBlock({
   body?: string;
   cta?: SplitBlockCta;
   imageSide?: "right" | "left";
+  /**
+   * imageSide "left" only. wide (default, ABOUT §5): 653 | 119 | 534, image first on mobile.
+   * equal (Our customers "Data centres"): two equal columns 30 apart, text first on mobile, as the right-image block.
+   */
+  leftLayout?: "wide" | "equal";
   /** CGOV §4 draws this block on a grey band: use "surface" */
   bg?: SectionBg;
   headingLevel?: "h2" | "h3";
 }) {
   const left = imageSide === "left";
+  const equal = left && leftLayout === "equal";
   return (
     <Section
       bg={bg}
       className={PAD.block}
       containerClassName={`flex flex-col gap-6 lg:grid lg:items-center ${
-        left ? "lg:grid-cols-[653fr_534fr] lg:gap-16 xl:gap-[119px]" : "lg:grid-cols-2 lg:gap-[30px]"
+        left && !equal ? "lg:grid-cols-[653fr_534fr] lg:gap-16 xl:gap-[119px]" : "lg:grid-cols-2 lg:gap-[30px]"
       }`}
     >
-      <div className={left ? "order-2 lg:order-none lg:col-start-2 lg:row-start-1" : ""}>
+      <div className={equal ? "lg:col-start-2 lg:row-start-1" : left ? "order-2 lg:order-none lg:col-start-2 lg:row-start-1" : ""}>
         <H className={T.h40m}>{title}</H>
         {body && <p className={`mt-4 lg:mt-5 ${T.bodyLg}`}>{body}</p>}
         {cta && (
@@ -49,7 +56,13 @@ export function SplitBlock({
         )}
       </div>
       <ImagePlaceholder
-        className={`w-full rounded-control ${left ? "order-1 aspect-[638/380] lg:order-none lg:col-start-1 lg:row-start-1 lg:aspect-[653/380]" : "aspect-[638/380]"}`}
+        className={`w-full rounded-control ${
+          equal
+            ? "aspect-[638/380] lg:col-start-1 lg:row-start-1"
+            : left
+              ? "order-1 aspect-[638/380] lg:order-none lg:col-start-1 lg:row-start-1 lg:aspect-[653/380]"
+              : "aspect-[638/380]"
+        }`}
         iconSize={40}
       />
     </Section>

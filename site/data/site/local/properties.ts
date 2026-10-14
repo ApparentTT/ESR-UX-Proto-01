@@ -10,6 +10,7 @@ import type { QuoteCarouselProps, QuoteSlide } from "@/components/sections/carou
 import type { ServiceStep } from "@/components/sections/local/ServiceSteps";
 import { PROP_INTRO } from "@/data/site/pages/portfolio";
 import { JP } from "./shared";
+import { JP_DRAWN_PROPERTY, jpPropertyHref } from "./property-detail";
 
 /** 1110:72068 (the group intro copy, as drawn) */
 export const JP_PROP_INTRO = PROP_INTRO;
@@ -37,8 +38,10 @@ export const JP_PROP_SERVICES: { title: string; steps: ServiceStep[] } = {
 };
 
 const NAME = "[Property name]";
+/** The "[Property name]" cards open the drawn property detail page */
+const DETAIL = jpPropertyHref(JP_DRAWN_PROPERTY.name);
 
-/** "Featured cards" 1110:72076: all inert (property pages are not wireframed) */
+/** "Featured cards" 1110:72076: each opens the drawn property detail page */
 export const JP_PROP_FEATURED = {
   title: "Featured properties",
   featured: {
@@ -47,12 +50,13 @@ export const JP_PROP_FEATURED = {
     type: "Industrial",
     size: "2,500-175,000 sqm",
     availability: "Available now",
+    href: DETAIL,
   } satisfies PropertyCardData,
   cards: [
-    { title: NAME, type: "Industrial", size: "2,500-175,000 sqm", availability: "Available now" },
-    { title: NAME, type: "Industrial", size: "941-1,162 sqm", availability: "Available now" },
-    { tags: ["Under development"], title: NAME, type: "Industrial", size: "2,883-25,309 sqm", availability: "Available now" },
-    { title: NAME, type: "Industrial", size: "5,539-13,850 sqm", availability: "Available now" },
+    { title: NAME, type: "Industrial", size: "2,500-175,000 sqm", availability: "Available now", href: DETAIL },
+    { title: NAME, type: "Industrial", size: "941-1,162 sqm", availability: "Available now", href: DETAIL },
+    { tags: ["Under development"], title: NAME, type: "Industrial", size: "2,883-25,309 sqm", availability: "Available now", href: DETAIL },
+    { title: NAME, type: "Industrial", size: "5,539-13,850 sqm", availability: "Available now", href: DETAIL },
   ] satisfies PropertyCardData[],
   link: { label: "View all properties", href: JP.findProperties },
 };

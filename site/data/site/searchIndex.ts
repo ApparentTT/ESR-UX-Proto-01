@@ -27,6 +27,7 @@ import { LEAD_INTRO } from "@/data/site/pages/about-leadership";
 import { CAP_INTRO } from "@/data/site/pages/about-proven-capability";
 import { CGOV_INTRO } from "@/data/site/pages/about-corporate-governance";
 import { PEOPLE_INTRO } from "@/data/site/pages/our-people";
+import { CUSTOMERS_INTRO } from "@/data/site/pages/our-customers";
 import { CONTACT_INTRO } from "@/data/site/pages/contact";
 
 export type SearchType = "page" | "local" | "news" | "case-study" | "leader" | "document" | "fund";
@@ -75,6 +76,7 @@ const PAGE_EXCERPTS: Record<string, string> = {
   "/about/proven-capability": CAP_INTRO.body,
   "/about/corporate-governance": CGOV_INTRO.body,
   "/about/our-people": PEOPLE_INTRO.body,
+  "/about/our-customers": CUSTOMERS_INTRO.body,
   "/contact": CONTACT_INTRO.body,
 };
 

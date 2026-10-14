@@ -6,6 +6,7 @@
  * Pin positions are the property locations (Higashi-Ogishima 2 and Itami from the property search data).
  */
 import { JP } from "./shared";
+import { jpPropertyHref } from "./property-detail";
 
 export type Tour = {
   id: string;
@@ -76,12 +77,12 @@ export const JP_TOURS_COPY = {
 export const JP_TOURS_PROPERTIES = {
   title: "Featured properties",
   cards: [
-    { region: "Kanagawa", title: "Higashi-Ogishima Distribution Centre 2" },
-    { region: "Kanagawa", title: "Yokohama Sachiura Distribution Centre 3" },
-    { region: "Hyogo", title: "Itami Distribution Centre" },
+    { region: "Kanagawa", title: "Higashi-Ogishima Distribution Centre 2", href: jpPropertyHref("Higashi-Ogishima Distribution Centre 2") },
+    { region: "Kanagawa", title: "Yokohama Sachiura Distribution Centre 3", href: jpPropertyHref("Yokohama Sachiura Distribution Centre 3") },
+    { region: "Hyogo", title: "Itami Distribution Centre", href: jpPropertyHref("Itami Distribution Centre") },
   ],
   cta: "View property",
-  /** Property detail pages are not part of the prototype */
+  /** Fallback for a card without its own href (each card opens its property detail page) */
   href: null as string | null,
 };
 

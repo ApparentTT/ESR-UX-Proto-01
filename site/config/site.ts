@@ -19,6 +19,7 @@ export const PAGES: { group: string; label: string; href: string }[] = [
   { group: "About", label: "Proven capability", href: "/about/proven-capability" },
   { group: "About", label: "Corporate governance", href: "/about/corporate-governance" },
   { group: "About", label: "Our people", href: "/about/our-people" },
+  { group: "About", label: "Our customers", href: "/about/our-customers" },
   { group: "Contact", label: "Contact us", href: "/contact" },
   { group: "Search", label: "Site search results", href: "/search" },
   // The Japan local market site (local header and footer, components/layout/local)
@@ -30,7 +31,9 @@ export const PAGES: { group: string; label: string; href: string }[] = [
   { group: "Local market (Japan)", label: "News and insights", href: "/jp/news" },
   { group: "Local market (Japan)", label: "About us", href: "/jp/about" },
   { group: "Local market (Japan)", label: "Our leadership", href: "/jp/leadership" },
+  { group: "Local market (Japan)", label: "Property detail", href: "/jp/properties/higashi-ogishima-distribution-centre-2" },
   { group: "Local market (Japan)", label: "Our people", href: "/jp/our-people" },
+  { group: "Local market (Japan)", label: "Our customers", href: "/jp/our-customers" },
   { group: "Local market (Japan)", label: "Proven capability", href: "/jp/proven-capability" },
 ];
 

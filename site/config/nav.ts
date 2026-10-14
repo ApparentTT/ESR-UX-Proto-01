@@ -350,7 +350,7 @@ const A = {
   about: { title: "About us", text: "Who we are and how we got here", href: "/about" },
   leadership: { title: "Our leadership", text: "The people running the group", href: "/about/leadership" },
   capability: { title: "Proven capability", text: "Case studies across the group", href: "/about/proven-capability" },
-  customers: { title: "Our customers", text: "The industries we serve", href: null },
+  customers: { title: "Our customers", text: "The industries we serve", href: "/about/our-customers" },
   governance: { title: "Corporate governance", text: "Reports, policies and disclosures", href: "/about/corporate-governance" },
 } satisfies Record<string, NavItem>;
 
