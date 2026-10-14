@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { LocalPageShell } from "@/components/layout/local/LocalPageShell";
 import { PageIntro } from "@/components/sections/PageIntro";
-import { SectionHeading } from "@/components/sections/SectionHeading";
 import { Section } from "@/components/ui/Section";
 import { TextLink } from "@/components/ui/TextLink";
 import { ProcessSteps } from "@/components/sections/stats/ProcessSteps";
@@ -9,7 +8,7 @@ import { OverlayCaseCards } from "@/components/sections/cards/OverlayCaseCards";
 import { DEV_CASE_STUDY_CARDS } from "@/components/sections/cards/presets";
 import { FeatureBand } from "@/components/sections/blocks/FeatureBand";
 import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
-import { OutlineTextCardRow } from "@/components/sections/infocards/OutlineTextCardRow";
+import { BentoAccordion } from "@/components/sections/carousels/BentoAccordion";
 import { Accordion } from "@/components/sections/listings/Accordion";
 import { FormBlock } from "@/components/sections/forms/FormBlock";
 import { DevOpportunitySearch } from "@/components/sections/local/DevOpportunitySearch";
@@ -53,8 +52,7 @@ export default function JapanDevelopmentsPage() {
       <FeatureBand controls="carousel-lg" {...JP_DEV_CUSTOMER_STORIES} />
       <FeatureBand controls="carousel-lg" bg="white" {...JP_DEV_SUSTAINABILITY} />
       <SplitBlock bg="surface" {...JP_INVEST} />
-      <SectionHeading title={<span id="jp-what-we-develop">{JP_DEV_WHAT_WE_DEVELOP.title}</span>} />
-      <OutlineTextCardRow items={JP_DEV_WHAT_WE_DEVELOP.items} labelledBy="jp-what-we-develop" />
+      <BentoAccordion {...JP_DEV_WHAT_WE_DEVELOP} />
       <Accordion {...PORTFOLIO_FAQ} />
       <FormBlock
         variant="newsletter"

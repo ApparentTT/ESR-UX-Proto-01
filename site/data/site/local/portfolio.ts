@@ -36,7 +36,7 @@ export const JP_PORT_OUR_ASSETS: BentoAccordionProps = {
         { label: "Developments", href: JP.developments },
       ],
     },
-    { id: "data-centres", title: "Data centres", href: JP.dataCentres, links: [{ label: "Data centres", href: JP.dataCentres }] },
+    { id: "data-centres", title: "Data centres", href: JP.dataCentres },
     { id: "infrastructure", title: "Infrastructure", href: null },
   ],
   currentHref: JP.portfolio,

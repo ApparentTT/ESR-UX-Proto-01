@@ -4,7 +4,7 @@
  * imported from the group data.
  */
 import type { LocalStat } from "@/components/sections/local/LocalKeyStats";
-import type { OutlineTextCardItem } from "@/components/sections/infocards/OutlineTextCard";
+import type { BentoAccordionProps } from "@/components/sections/carousels/BentoAccordion";
 import type { FeatureBandAction } from "@/components/sections/blocks/FeatureBand";
 import { JP } from "./shared";
 
@@ -54,14 +54,24 @@ export const JP_DEV_SUSTAINABILITY: { title: string; body: string; actions: Feat
   actions: [{ label: "View case study", href: null }],
 };
 
-/** "What we develop": Data centres goes to the group page (as in the local nav); the others are not built */
-export const JP_DEV_WHAT_WE_DEVELOP: { title: string; items: OutlineTextCardItem[] } = {
-  title: "What we develop",
-  items: [
-    { title: "Logistics & industrial", linkLabel: "Learn more", href: null },
-    { title: "Data centres", linkLabel: "Learn more", href: JP.dataCentres },
-    { title: "Infrastructure", linkLabel: "Learn more", href: null },
+/** "What we develop": the shared assets module (Figma 1455:42800), linked to the local pages; Data centres goes to the group page */
+export const JP_DEV_WHAT_WE_DEVELOP: BentoAccordionProps = {
+  heading: "What we develop",
+  description:
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  tiles: [
+    {
+      id: "industrial",
+      title: "Industrial and logistics",
+      links: [
+        { label: "Properties", href: JP.properties },
+        { label: "Developments", href: JP.developments },
+      ],
+    },
+    { id: "data-centres", title: "Data centres", href: JP.dataCentres },
+    { id: "infrastructure", title: "Infrastructure", href: null },
   ],
+  currentHref: JP.developments,
 };
 
 /** Newsletter: no country field, as drawn */

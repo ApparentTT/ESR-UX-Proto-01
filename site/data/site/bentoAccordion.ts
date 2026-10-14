@@ -1,7 +1,7 @@
 /**
- * B14 BentoAccordion content ("Explore the portfolio" component): PORT §3, DEV §6, DC §8, verbatim.
- * Only "Industrial and logistics" is designed open. Undesigned open states (inventory B14): Data centres reuses the
- * section lorem with one sub-card "Data centres"; Infrastructure reuses the lorem with no sub-cards (inert).
+ * Our assets / our portfolio module content (Figma 1455:42800): PORT §3, DEV §6, DC §8 and the fund page.
+ * Industrial and logistics opens with the Properties and Developments cards; Data centres and Infrastructure open
+ * with the section lorem and "Explore now" (Infrastructure is not built, so its link is inert).
  */
 import type { BentoAccordionProps, BentoTile } from "@/components/sections/carousels/BentoAccordion";
 
@@ -18,7 +18,6 @@ export const BENTO_TILES: BentoTile[] = [
     id: "data-centres",
     title: "Data centres",
     href: "/portfolio/data-centres",
-    links: [{ label: "Data centres", href: "/portfolio/data-centres" }],
   },
   { id: "infrastructure", title: "Infrastructure", href: null },
 ];
