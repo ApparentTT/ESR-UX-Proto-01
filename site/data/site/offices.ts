@@ -10,6 +10,7 @@ import type { Office, OfficeRegionId } from "@/components/sections/forms/OfficeL
 import type { ContactEnquiryFormProps } from "@/components/sections/forms/ContactEnquiryForm";
 import type { ContactPersonBandProps } from "@/components/sections/forms/ContactPersonBand";
 import type { ContactCtaBandProps } from "@/components/sections/forms/ContactCtaBand";
+import { CONTACT_ENQUIRY_SUCCESS } from "@/components/sections/forms/formPresets";
 
 /* ------------------------------------------------------------------ §2 Enquiry routes */
 
@@ -55,8 +56,8 @@ export const CONTACT_ENQUIRY_FORM: ContactEnquiryFormProps = {
   enquiryTypes: ["General enquiry", "Leasing", "Investor relations", "Media", "Careers"],
   optIn: "Keep me updated on ESR news and property availability",
   submitLabel: "Submit",
-  // No success state is designed (contact.md open question 3).
-  successMessage: "[Thank you message to be confirmed]",
+  // Success card from Figma "Enquiry form — states" (drawn on the investor enquiry; "our team" here)
+  success: CONTACT_ENQUIRY_SUCCESS,
 };
 
 /* ------------------------------------------------------------------ §4 Office locations */

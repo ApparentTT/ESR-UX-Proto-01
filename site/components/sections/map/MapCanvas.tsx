@@ -19,9 +19,12 @@ export const MAP_FOCUS = { x: 0.5, y: 0.555 };
  * tall from 1280, where the region panel is overlaid). Crops centre on `focus`, so on narrow frames the
  * empty sea on either side goes first; zoom scales the artwork around the same point.
  *
- * Dots: 16px black circles (14px on phones). The active market's dot scales up with a dark ring and a
- * name label, placed beside, above or below the dot so it never covers a neighbouring dot (pickPlace). Dots are a pointer shortcut only (aria-hidden): the region panel's buttons are the
- * accessible controls.
+ * Dots: 16px black circles (14px on phones). The active (hovered) market's dot scales up with a dark ring
+ * and a name label, placed beside, above or below the dot so it never covers a neighbouring dot (pickPlace).
+ * The selected market's dot gets a white ring instead and its outline is filled dark (its card names it).
+ * Dots are a pointer shortcut only (aria-hidden): the region panel's buttons are the accessible controls.
+ * Zoom and pan glide over 700ms (instant under prefers-reduced-motion); `anchor` moves the focus point off
+ * centre, e.g. into the free space between the region panel and the market card.
  */
 /** Where the active market's name sits relative to its dot. */
 type LabelPlace = "right" | "left" | "above" | "below";
@@ -65,8 +68,11 @@ export function MapCanvas({
   dots,
   names,
   activeId = null,
+  selectedId = null,
+  highlight,
   zoom = 1,
   focus = MAP_FOCUS,
+  anchor,
   overlay = false,
   label = "Map of ESR markets",
   onDotHover,
@@ -80,10 +86,16 @@ export function MapCanvas({
   names?: Record<string, string>;
   /** The highlighted market (hovered or selected) */
   activeId?: string | null;
+  /** The selected market: its dot gets a white ring and no name label (its card names it) */
+  selectedId?: string | null;
+  /** Selected market outline (marketShapes.ts), filled dark on the land */
+  highlight?: string;
   /** Artwork scale, 1 = cover */
   zoom?: number;
   /** Point to keep centred when the artwork is cropped or zoomed, as fractions (0-1) of the artwork */
   focus?: { x: number; y: number };
+  /** Where in the frame (px from its top left) the focus point sits. Default: the frame centre. */
+  anchor?: { x: number; y: number } | null;
   /** DEV: a 20% dark overlay rgba(46,46,46,0.2) on the map image */
   overlay?: boolean;
   /** Accessible name of the map image */
@@ -128,33 +140,35 @@ export function MapCanvas({
       ro.disconnect();
       canvas.removeEventListener("transitionend", measure);
     };
-  }, [activeId, preferLeft, zoom, focus.x, focus.y]);
+  }, [activeId, preferLeft, zoom, focus.x, focus.y, anchor?.x, anchor?.y]);
 
   const canvasStyle = {
     "--z": zoom,
     width: `calc${w}`,
     height: `calc${h}`,
-    left: `clamp(calc(100cqw - ${w}), calc(50cqw - ${focus.x} * ${w}), 0px)`,
-    top: `clamp(calc(100cqh - ${h}), calc(50cqh - ${focus.y} * ${h}), 0px)`,
+    left: `clamp(calc(100cqw - ${w}), calc(${anchor ? `${anchor.x}px` : "50cqw"} - ${focus.x} * ${w}), 0px)`,
+    top: `clamp(calc(100cqh - ${h}), calc(${anchor ? `${anchor.y}px` : "50cqh"} - ${focus.y} * ${h}), 0px)`,
   } as CSSProperties;
 
   return (
     <div
       ref={frameRef}
+      data-map-frame
       className={`relative w-full overflow-hidden bg-[#EFEFEF] [container-type:size] ${sizeClassName} ${className}`}
     >
       <div
         ref={canvasRef}
         role="img"
         aria-label={label}
-        className="absolute transition-[width,height,left,top] duration-300 ease-out motion-reduce:transition-none"
+        className="absolute transition-[width,height,left,top] duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] motion-reduce:transition-none"
         style={canvasStyle}
       >
-        <MapArtwork className="absolute inset-0 size-full" />
+        <MapArtwork className="absolute inset-0 size-full" highlight={highlight} highlightKey={selectedId ?? undefined} />
         {overlay && <div aria-hidden="true" className="absolute inset-0 bg-[rgba(46,46,46,0.2)]" />}
         {dots.map((d) => {
           const active = d.marketId === activeId;
-          const name = names?.[d.marketId];
+          const isSelected = d.marketId === selectedId;
+          const name = active && !isSelected ? names?.[d.marketId] : undefined;
           return (
             <span
               key={d.marketId}
@@ -169,9 +183,9 @@ export function MapCanvas({
                 onClick={onDotClick ? () => onDotClick(d.marketId) : undefined}
                 className={`absolute left-0 top-0 block size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black transition-[scale,box-shadow] duration-200 motion-reduce:transition-none md:size-4 ${
                   onDotClick ? "cursor-pointer" : ""
-                } ${active ? "scale-[1.35] shadow-[0_0_0_4px_rgba(0,0,0,0.25)]" : ""}`}
+                } ${isSelected ? "scale-[1.35] shadow-[0_0_0_3px_#fff]" : active ? "scale-[1.35] shadow-[0_0_0_4px_rgba(0,0,0,0.25)]" : ""}`}
               />
-              {active && name && (
+              {name && (
                 <span
                   ref={labelRef}
                   className={`pointer-events-none absolute whitespace-nowrap rounded-[4px] bg-white px-2 py-0.5 text-[12px] font-medium leading-5 text-ink shadow-[0_1px_3px_rgba(0,0,0,0.2)] ${LABEL_PLACE[place]}`}

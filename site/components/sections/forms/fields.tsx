@@ -9,8 +9,9 @@ import { Icon } from "@/components/ui/Icon";
  * mirror their two families and add one:
  * - "form": labels Medium 14 body, 48px inputs, 1px ink border, radius 10, textarea 160 + counter
  * - "contact": labels Regular 13 muted, 46px inputs (52px select), 1px line border, radius 6
- * Errors are greyscale: a 2px ink border (1px border + 1px inset shadow, no layout shift)
- * plus a 12px body-grey message under the field, wired with aria-invalid / aria-describedby.
+ * Errors follow the drawn enquiry error state (Figma 1265:33788): label in the error red, a 1.5px red border
+ * (1px border + 0.5px inset shadow, no layout shift) on the error-bg fill with an "error" icon at the right,
+ * and a 13/1.48 red message with an icon under the field, wired with aria-invalid / aria-describedby.
  */
 export type FieldFamily = "form" | "contact";
 
@@ -25,16 +26,25 @@ const CONTROL: Record<FieldFamily, string> = {
   contact: "w-full rounded-btn border bg-white px-3.5 text-[15px] leading-[1.45] text-ink placeholder:text-muted",
 };
 const FOCUS = "focus:outline-2 focus:outline-offset-2 focus:outline-ink";
-const INVALID = "border-ink shadow-[inset_0_0_0_1px_var(--color-ink)]";
+const INVALID = "border-error bg-error-bg shadow-[inset_0_0_0_0.5px_var(--color-error)]";
 
 function controlCls(family: FieldFamily, invalid: boolean) {
   return `${CONTROL[family]} ${FOCUS} ${invalid ? INVALID : family === "contact" ? "border-line hover:border-[#9CA3AF]" : ""}`;
 }
 
+function labelCls(family: FieldFamily, invalid: boolean) {
+  return invalid ? `${LABEL[family].replace(/text-(body|muted-surface)/, "")} text-error` : LABEL[family];
+}
+
+/** The drawn 18px "error" icon inside an invalid control (decorative: the message carries the text) */
+function ErrorMark({ pos = "right-3.5 top-1/2 -translate-y-1/2" }: { pos?: string }) {
+  return <Icon name="error" size={18} className={`pointer-events-none absolute text-error ${pos}`} />;
+}
+
 export function FieldError({ id, children, className = "" }: { id: string; children: React.ReactNode; className?: string }) {
   return (
-    <p id={id} className={`anim-pop flex items-start gap-1.5 pt-1.5 text-[12px] leading-[1.45] text-body ${className}`}>
-      <Icon name="error" size={16} className="mt-px" />
+    <p id={id} className={`anim-pop flex items-start gap-1.5 pt-0.5 text-[13px] leading-[1.48] text-error ${className}`}>
+      <Icon name="error" size={15} className="mt-0.5 shrink-0" />
       <span>{children}</span>
     </p>
   );
@@ -64,21 +74,24 @@ export function InputField({
   const errId = `${id}-error`;
   return (
     <div className={`flex flex-col ${family === "form" ? "gap-1" : "gap-1.5"} ${className}`}>
-      <label htmlFor={id} className={LABEL[family]}>
+      <label htmlFor={id} className={labelCls(family, !!error)}>
         {label}
       </label>
-      <input
-        id={id}
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        spellCheck={type === "email" ? false : undefined}
-        aria-required={required || undefined}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errId : undefined}
-        className={`${controlCls(family, !!error)} ${family === "form" ? "h-12" : "h-[46px]"}`}
-      />
+      <div className="relative">
+        <input
+          id={id}
+          name={name}
+          type={type}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          spellCheck={type === "email" ? false : undefined}
+          aria-required={required || undefined}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errId : undefined}
+          className={`${controlCls(family, !!error)} block ${family === "form" ? "h-12" : "h-[46px]"} ${error ? "pr-10" : ""}`}
+        />
+        {error && <ErrorMark />}
+      </div>
       {error && <FieldError id={errId}>{error}</FieldError>}
     </div>
   );
@@ -99,7 +112,7 @@ export function SelectField({
   const [value, setValue] = useState("");
   return (
     <div className={`flex flex-col ${family === "form" ? "gap-1" : "gap-1.5"} ${className}`}>
-      <label htmlFor={id} className={LABEL[family]}>
+      <label htmlFor={id} className={labelCls(family, !!error)}>
         {label}
       </label>
       <div className="relative">
@@ -111,9 +124,9 @@ export function SelectField({
           aria-required={required || undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errId : undefined}
-          className={`${controlCls(family, !!error)} cursor-pointer appearance-none pr-10 ${family === "form" ? "h-12" : "h-[52px] pl-3.5 pr-11"} ${
-            value ? "text-ink" : "text-muted"
-          }`}
+          className={`${controlCls(family, !!error)} cursor-pointer appearance-none ${family === "form" ? "h-12" : "h-[52px] pl-3.5"} ${
+            error ? "pr-[72px]" : family === "form" ? "pr-10" : "pr-11"
+          } ${value ? "text-ink" : "text-muted"}`}
         >
           <option value="" disabled>
             {placeholder}
@@ -124,6 +137,7 @@ export function SelectField({
             </option>
           ))}
         </select>
+        {error && <ErrorMark pos="right-10 top-1/2 -translate-y-1/2" />}
         <Icon
           name="keyboard_arrow_down"
           size={20}
@@ -153,7 +167,7 @@ export function TextAreaField({
   const describedBy = [error ? errId : "", counter && maxLength ? countId : ""].filter(Boolean).join(" ") || undefined;
   return (
     <div className={`flex flex-col ${family === "form" ? "gap-1" : "gap-1.5"} ${className}`}>
-      <label htmlFor={id} className={LABEL[family]}>
+      <label htmlFor={id} className={labelCls(family, !!error)}>
         {label}
       </label>
       <div className="relative">
@@ -166,8 +180,9 @@ export function TextAreaField({
           aria-required={required || undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
-          className={`${controlCls(family, !!error)} block resize-none ${family === "form" ? "h-40 pb-7 pt-3.5" : "h-[120px] py-3"}`}
+          className={`${controlCls(family, !!error)} block resize-none ${family === "form" ? "h-40 pb-7 pt-3.5" : "h-[120px] py-3"} ${error ? "pr-10" : ""}`}
         />
+        {error && <ErrorMark pos="right-3.5 top-3.5" />}
         {counter && maxLength && (
           <span id={countId} className="pointer-events-none absolute bottom-1.5 left-3 text-[11px] leading-5 text-muted">
             {len} / {maxLength}
@@ -217,7 +232,7 @@ export function CheckboxField({
         <span className={form ? "text-[14px] font-medium leading-5 text-body" : "text-[13px] leading-[1.5] text-muted-surface"}>{label}</span>
       </label>
       {error && (
-        <FieldError id={errId} className={form ? "pl-11" : "pl-7"}>
+        <FieldError id={errId} className={`pt-1.5 ${form ? "pl-11" : "pl-7"}`}>
           {error}
         </FieldError>
       )}
@@ -286,5 +301,11 @@ export function useValidatedForm(rules: FieldRule[], onValid: () => void) {
     if (attempted) setErrors(check(e.currentTarget, rules));
   };
 
-  return { errors, onSubmit, onChange };
+  /** Back to a fresh, untouched form (after "Send another enquiry") */
+  const resetErrors = () => {
+    setErrors({});
+    setAttempted(false);
+  };
+
+  return { errors, onSubmit, onChange, resetErrors };
 }

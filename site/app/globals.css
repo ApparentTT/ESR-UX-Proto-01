@@ -16,6 +16,9 @@
   --color-white: #ffffff;
   --color-placeholder: #b8bdc2;
   --color-scrim: rgb(17 24 38 / 0.45);
+  /* The one colour exception: the enquiry form error state is drawn in red (Figma "Enquiry form — states" 1265:30373) */
+  --color-error: #b82121;
+  --color-error-bg: #fcf2f2;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 

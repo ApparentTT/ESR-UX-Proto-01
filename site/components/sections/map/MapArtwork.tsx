@@ -108,7 +108,19 @@ const LAND_PATH = [
  * The map image: sea is the frame's own background; land is drawn in a light grey. Fills its box
  * (keep the box at 1306:635, or crop it with an overflow-hidden parent).
  */
-export function MapArtwork({ className = "", landClassName = "fill-[#D3D6DA]" }: { className?: string; landClassName?: string }) {
+export function MapArtwork({
+  className = "",
+  landClassName = "fill-[#D3D6DA]",
+  highlight,
+  highlightKey,
+}: {
+  className?: string;
+  landClassName?: string;
+  /** Outline drawn dark over the land (the selected market, marketShapes.ts) */
+  highlight?: string;
+  /** Changes when the highlighted market changes, so the outline fades in again */
+  highlightKey?: string;
+}) {
   return (
     <svg
       viewBox={`0 0 ${MAP_ART_WIDTH} ${MAP_ART_HEIGHT}`}
@@ -118,6 +130,15 @@ export function MapArtwork({ className = "", landClassName = "fill-[#D3D6DA]" }:
       className={`block ${className}`}
     >
       <path d={LAND_PATH} fillRule="evenodd" className={landClassName} />
+      {highlight && (
+        <path
+          key={highlightKey}
+          d={highlight}
+          fillRule="evenodd"
+          vectorEffect="non-scaling-stroke"
+          className="anim-fade fill-muted-surface stroke-muted-surface [animation-duration:400ms] [stroke-width:0.75]"
+        />
+      )}
     </svg>
   );
 }

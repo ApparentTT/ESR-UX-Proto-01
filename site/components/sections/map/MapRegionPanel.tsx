@@ -3,8 +3,9 @@ import type { MapRegion } from "./types";
 
 /**
  * The region / market nav panel (inventory B15). Region headings are a single-open accordion
- * (buttons with aria-expanded); markets are inert toggle buttons (aria-pressed) that select and
- * highlight their dot. Hovered, focused and selected markets are Bold + underlined.
+ * (buttons with aria-expanded); markets are toggle buttons (aria-pressed) that select the market: the
+ * map zooms onto it and its card opens (MapExplorer). Hovered, focused and selected markets are Bold +
+ * underlined.
  *
  * From 1280 it overlays the map as drawn: 21px from the left, top 44 (PORT) / 61 (DEV), 319 x 538,
  * 24px padding, a 1px white rule, white text, translucent black with a 2px blur. The fill is 55% black
@@ -34,7 +35,8 @@ export function MapRegionPanel({
   /** Selected (clicked) market: aria-pressed */
   selectedId?: string | null;
   onHoverMarket?: (marketId: string | null) => void;
-  onSelectMarket?: (marketId: string) => void;
+  /** viaKeyboard: activated with Enter / Space (MapExplorer then moves focus into the market card) */
+  onSelectMarket?: (marketId: string, viaKeyboard: boolean) => void;
   /** Overlay top offset at 1280+: port (44px) or dev (61px) */
   offset?: "port" | "dev";
   /** Prefix for the accordion ids (unique per map on the page) */
@@ -95,7 +97,8 @@ export function MapRegionPanel({
                       <button
                         type="button"
                         aria-pressed={m.id === selectedId}
-                        onClick={() => onSelectMarket?.(m.id)}
+                        data-market={m.id}
+                        onClick={(e) => onSelectMarket?.(m.id, e.detail === 0)}
                         onMouseEnter={() => onHoverMarket?.(m.id)}
                         onMouseLeave={() => onHoverMarket?.(null)}
                         onFocus={() => onHoverMarket?.(m.id)}

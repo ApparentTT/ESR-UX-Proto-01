@@ -1,11 +1,18 @@
 /** Shared types for the InteractiveMap family (inventory B15). */
 
-/** One market link in the region nav panel. Markets are inert: they select and highlight only. */
+/**
+ * One market in the region nav panel. Selecting it (button or dot) zooms the map onto the market and
+ * opens its card (Figma InteractiveMap "selected", 592:49404).
+ */
 export type MapMarket = {
-  /** Stable key, also used to pair a market with its dot */
+  /** Stable key, also used to pair a market with its dot and its outline (marketShapes.ts) */
   id: string;
   /** Label as drawn, e.g. "Greater China", "Australia & New Zealand" */
   name: string;
+  /** Card lines under the name. Default: the drawn placeholders (MAP_CARD_FACTS in MapMarketCard.tsx). */
+  facts?: string[];
+  /** Card "Explore {name}" link. Default "/jp": the Japan local site stands in for every market for now. */
+  href?: string | null;
 };
 
 /** A region heading in the nav panel ("Asia", "Oceania", "Middle East") and its markets. */

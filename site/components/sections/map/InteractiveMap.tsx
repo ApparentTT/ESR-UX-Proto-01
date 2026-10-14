@@ -29,10 +29,13 @@ export type InteractiveMapProps = {
  * "We span" stats + interactive map (inventory B15; PORT §2, DEV §4). Padding 72/72 and a 60px
  * column gap at desktop: the stats row ("We span" + StatRow map stats, right-aligned), then the map
  * frame with its region / market panel and zoom controls. A static greyscale map (no map APIs).
+ * Selecting a market (panel or dot) zooms onto it and pops out its card (Figma InteractiveMap
+ * "selected", 592:49404); see MapExplorer.
  *
  * Responsive: 390 → heading on its own line, stats 2 x 2, map 4:3, panel stacked under the map,
- * 40px zoom buttons. 768 → map 16:10. 1024 → stats in one row, map 1306:635. 1280+ → panel and zoom
- * overlaid on the map as drawn (map at least 600px tall so the 538px panel fits).
+ * 40px zoom buttons, market card under the map. 768 → map 16:10, card image beside its text. 1024 →
+ * stats in one row, map 1306:635. 1280+ → panel, zoom and card overlaid on the map as drawn (map at
+ * least 600px tall so the 538px panel fits).
  */
 export function InteractiveMap({
   stats,

@@ -51,3 +51,10 @@ export const DC_EXPLORE_PORTFOLIO: BentoAccordionProps = {
   tiles: BENTO_TILES,
   currentHref: "/portfolio/data-centres",
 };
+
+/** Fund detail "Explore the portfolio" (Figma 1246:27945): no tile is the current page */
+export const FUND_EXPLORE_PORTFOLIO: BentoAccordionProps = {
+  heading: "Explore the portfolio",
+  description: LOREM_4,
+  tiles: BENTO_TILES,
+};

@@ -10,15 +10,45 @@ export type FormFieldKey = "name" | "email" | "country" | "message" | "consent";
 /** Keys that can be required ("name" expands to firstName + lastName). */
 export type FormRequiredKey = "firstName" | "lastName" | "email" | "country" | "message" | "consent";
 
+/** Success card copy (Figma "Enquiry form — states", success 1265:33904). */
+export type EnquirySuccessCopy = {
+  title: string;
+  body: string;
+  /** Reference chip, e.g. "[XXXXXX]" (omitted for the newsletter) */
+  reference?: string;
+  /** Dark primary action (drawn on the investor enquiry only) */
+  primary?: { label: string; href: string | null };
+  /** Outline secondary: brings the empty form back */
+  resetLabel: string;
+};
+
+/**
+ * The drawn investor success copy, verbatim; the other enquiry forms keep the same heading and wording with
+ * their own team (from each form's intro). Only the investor forms carry the drawn "Explore our funds" action.
+ */
+const enquirySuccess = (team: string, primary?: EnquirySuccessCopy["primary"]): EnquirySuccessCopy => ({
+  title: "Thanks, your enquiry is with us",
+  body: `A member of ${team} will be in touch within two business days. We have sent a copy to the email address you gave us.`,
+  reference: "[XXXXXX]",
+  primary,
+  resetLabel: "Send another enquiry",
+});
+
+export const INVESTOR_ENQUIRY_SUCCESS = enquirySuccess("our capital partnerships team", { label: "Explore our funds", href: "/investors#our-funds" });
+export const CONTACT_ENQUIRY_SUCCESS = enquirySuccess("our team");
+
+/** Field error for a malformed email (drawn, 1265:33813) */
+export const EMAIL_INVALID = "Enter a valid email address so we can reply";
+
 export type FormBlockConfig = {
   title: string;
   body: string;
   fields: FormFieldKey[];
   required: FormRequiredKey[];
   submitLabel: string;
-  /** Inline confirmation shown in place of the form (none is designed). */
-  successMessage: string;
-  /** Wireframe default for the instance (PORT/PROP newsletter are centred, everything else top-aligned). */
+  /** Success card shown in place of the form row after the loading state */
+  success: EnquirySuccessCopy;
+  /** Copy column alignment at desktop: every instance is top-aligned (client feedback) */
   align: "start" | "center";
   bg: "grey" | "white";
 };
@@ -61,8 +91,12 @@ export const FORM_PRESETS: Record<FormBlockVariant, FormBlockConfig> = {
     fields: ["name", "email", "country", "consent"],
     required: ["firstName", "lastName", "email", "consent"],
     submitLabel: "Submit",
-    successMessage: "Thanks — you're subscribed.",
-    align: "center",
+    success: {
+      title: "Thanks, you're subscribed",
+      body: "We have sent a confirmation to the email address you gave us.",
+      resetLabel: "Sign up another email address",
+    },
+    align: "start",
     bg: "grey",
   },
   /** DC §11 */
@@ -72,7 +106,7 @@ export const FORM_PRESETS: Record<FormBlockVariant, FormBlockConfig> = {
     fields: ["name", "email", "message", "consent"],
     required: ["firstName", "lastName", "email", "message"],
     submitLabel: "Send enquiry",
-    successMessage: "Thanks — our data centre team will be in touch.",
+    success: enquirySuccess("our data centre team"),
     align: "start",
     bg: "grey",
   },
@@ -83,7 +117,7 @@ export const FORM_PRESETS: Record<FormBlockVariant, FormBlockConfig> = {
     fields: ["name", "email", "message", "consent"],
     required: ["firstName", "lastName", "email", "message"],
     submitLabel: "Submit",
-    successMessage: "[Thank you message to be confirmed]",
+    success: INVESTOR_ENQUIRY_SUCCESS,
     align: "start",
     bg: "grey",
   },
@@ -94,7 +128,7 @@ export const FORM_PRESETS: Record<FormBlockVariant, FormBlockConfig> = {
     fields: ["name", "email", "country", "message", "consent"],
     required: ["firstName", "lastName", "email", "message"],
     submitLabel: "Submit",
-    successMessage: "[Thank you message to be confirmed]",
+    success: enquirySuccess("our communications team"),
     align: "start",
     bg: "grey",
   },
@@ -105,7 +139,7 @@ export const FORM_PRESETS: Record<FormBlockVariant, FormBlockConfig> = {
     fields: ["name", "email", "message", "consent"],
     required: ["firstName", "lastName", "email", "message"],
     submitLabel: "Submit",
-    successMessage: "[Thank you message to be confirmed]",
+    success: enquirySuccess("the ESR people team"),
     align: "start",
     bg: "white",
   },

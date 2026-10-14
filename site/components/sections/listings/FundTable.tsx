@@ -2,7 +2,7 @@ import { SmartLink } from "@/components/ui/SmartLink";
 import { Icon } from "@/components/ui/Icon";
 import { HIT } from "@/components/ui/type";
 
-/** One fund row (INV §6c), verbatim. "View fund" goes to an external market site: href null = inert. */
+/** One fund row (INV §6c), verbatim. The fund name and "View fund" open the fund detail page (href null = inert). */
 export type FundRow = {
   fund: string;
   strategy: string;
@@ -58,7 +58,7 @@ export function FundTable({ columns, rows, caption, empty }: { columns: FundColu
             rows.map((r, i) => (
               <tr key={i} className={`transition-colors hover:bg-[#F9FAFB] ${i === rows.length - 1 ? "border-b-2" : "border-b"} border-line`}>
                 <th scope="row" className="py-5 pr-5 text-left align-middle text-[15px] font-medium leading-[1.45] text-ink lg:text-[16px]">
-                  {r.fund}
+                  <FundName row={r} />
                 </th>
                 <td className="py-5 pr-5 align-middle text-[15px] leading-[1.45] text-muted lg:text-[16px]">{r.strategy}</td>
                 <td className="py-5 pr-5 align-middle text-[15px] leading-[1.45] text-muted lg:text-[16px]">{r.markets}</td>
@@ -80,7 +80,9 @@ export function FundTable({ columns, rows, caption, empty }: { columns: FundColu
           <ul role="list" aria-label={caption} className="border-t border-line">
             {rows.map((r, i) => (
               <li key={i} className={`flex flex-col gap-3 py-5 ${i === rows.length - 1 ? "border-b-2" : "border-b"} border-line`}>
-                <p className="text-[16px] font-medium leading-[1.45] text-ink">{r.fund}</p>
+                <p className="text-[16px] font-medium leading-[1.45] text-ink">
+                  <FundName row={r} />
+                </p>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
                   {(
                     [
@@ -102,6 +104,15 @@ export function FundTable({ columns, rows, caption, empty }: { columns: FundColu
         )}
       </div>
     </>
+  );
+}
+
+/** The fund name, linked to its detail page (underlines on hover) */
+function FundName({ row }: { row: FundRow }) {
+  return (
+    <SmartLink href={row.link.href} className={`${HIT} underline-offset-4 hover:underline`}>
+      {row.fund}
+    </SmartLink>
   );
 }
 

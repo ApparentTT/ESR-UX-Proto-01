@@ -50,8 +50,9 @@ const SLOTS = [
 /**
  * B14 BentoAccordion ("Explore the portfolio" component: PORT §3, DEV §6, DC §8).
  * One tile is always open. "+" on a closed tile opens it into the wide slot (the tiles glide to their new slots
- * over ~300ms at desktop) and closes the current one; "−" returns to the default tile. The default tile's "−"
- * cannot collapse further, so it is aria-disabled (APG accordion pattern). Toggles are buttons with aria-expanded.
+ * over ~300ms at desktop) and closes the current one; "−" returns to the default tile. The default tile cannot
+ * collapse further, so it has no "−" while open (client feedback); reopening it with its "+" moves focus to its
+ * title. Toggles are buttons with aria-expanded.
  * 1024+: the 869 / 417 bento, 520 tall. 768: the open tile full width, closed tiles side by side below.
  * 390: one column, open tile first.
  */
@@ -80,12 +81,17 @@ export function BentoAccordion({ heading, description, tiles, defaultOpenId, cur
             const slot = slotOf(tile.id);
             const isDefault = tile.id === fallback;
             const panelId = `${uid}-${tile.id}`;
+            const titleId = `${panelId}-title`;
             const toggle = (e: React.MouseEvent<HTMLButtonElement>) => {
               const btn = e.currentTarget;
               if (!open) setOpenId(tile.id);
               else if (!isDefault) setOpenId(fallback);
-              // Reordering can move this tile in the DOM, which drops focus; put it back on the toggle.
-              requestAnimationFrame(() => btn.isConnected && document.activeElement !== btn && btn.focus({ preventScroll: true }));
+              // Reordering can move this tile in the DOM, which drops focus; put it back on the toggle, or on the
+              // title when the toggle is gone (the default tile, reopened).
+              requestAnimationFrame(() => {
+                const target = btn.isConnected ? btn : document.getElementById(titleId);
+                if (target && document.activeElement !== target) target.focus({ preventScroll: true });
+              });
             };
             return (
               <div
@@ -96,7 +102,7 @@ export function BentoAccordion({ heading, description, tiles, defaultOpenId, cur
                 }`}
               >
                 <div className={`flex h-full flex-col p-5 md:p-6 lg:p-7 ${open ? "" : "justify-end"}`}>
-                  <h3 className={`pr-14 text-[20px] font-bold text-black md:pr-16 lg:text-[24px] ${open ? "leading-[1.2] lg:pt-[17px] lg:leading-[1.12]" : "leading-[1.45]"}`}>
+                  <h3 id={titleId} tabIndex={-1} className={`pr-14 text-[20px] font-bold text-black md:pr-16 lg:text-[24px] ${open ? "leading-[1.2] lg:pt-[17px] lg:leading-[1.12]" : "leading-[1.45]"}`}>
                     <TileTitle tile={tile} current={current} />
                   </h3>
                   <div id={panelId} hidden={!open} className={open ? "anim-fade flex flex-1 flex-col" : ""}>
@@ -112,19 +118,20 @@ export function BentoAccordion({ heading, description, tiles, defaultOpenId, cur
                     )}
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={toggle}
-                  aria-expanded={open}
-                  aria-controls={panelId}
-                  aria-disabled={open && isDefault ? true : undefined}
-                  aria-label={tile.title}
-                  className={`absolute right-4 top-4 inline-flex size-11 items-center justify-center rounded-full text-ink transition-colors md:right-5 md:top-5 lg:right-6 lg:top-6 ${
-                    open ? "bg-white" : "bg-white/90 hover:bg-white"
-                  } ${open && isDefault ? "cursor-default" : "hover:shadow-[0_1px_4px_rgba(0,0,0,0.12)]"}`}
-                >
-                  <Icon name={open ? "remove" : "add"} size={22} />
-                </button>
+                {!(open && isDefault) && (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    aria-expanded={open}
+                    aria-controls={panelId}
+                    aria-label={tile.title}
+                    className={`absolute right-4 top-4 inline-flex size-11 items-center justify-center rounded-full text-ink transition-colors hover:shadow-[0_1px_4px_rgba(0,0,0,0.12)] md:right-5 md:top-5 lg:right-6 lg:top-6 ${
+                      open ? "bg-white" : "bg-white/90 hover:bg-white"
+                    }`}
+                  >
+                    <Icon name={open ? "remove" : "add"} size={22} />
+                  </button>
+                )}
               </div>
             );
           })}
