@@ -62,9 +62,9 @@ export const JP_ABOUT_CAPABILITY: { title: string; body: string; actions: Featur
   actions: [{ label: "View all case studies", href: JP.provenCapability }],
 };
 
-/** Featured cards: Our people and Our customers are not built on the Japan site (inert, as in the local nav) */
+/** Featured cards: Our people goes to the Japan page; Our customers is not built yet (inert) */
 export const JP_ABOUT_CARDS: MediaCardData[] = [
-  { title: "Our people", href: null },
+  { title: "Our people", href: "/jp/our-people" },
   { title: "Our customers", href: null },
   { title: "News and insights", href: JP.news },
 ];

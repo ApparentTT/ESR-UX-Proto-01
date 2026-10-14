@@ -30,6 +30,7 @@ export const PAGES: { group: string; label: string; href: string }[] = [
   { group: "Local market (Japan)", label: "News and insights", href: "/jp/news" },
   { group: "Local market (Japan)", label: "About us", href: "/jp/about" },
   { group: "Local market (Japan)", label: "Our leadership", href: "/jp/leadership" },
+  { group: "Local market (Japan)", label: "Our people", href: "/jp/our-people" },
   { group: "Local market (Japan)", label: "Proven capability", href: "/jp/proven-capability" },
 ];
 

@@ -92,7 +92,7 @@ export function localActiveSection(pathname: string): string | null {
   const p = pathname.replace(/\/$/, "");
   if (["/jp/portfolio", "/jp/properties", "/jp/developments", "/jp/property-tours"].some((r) => p === r || p.startsWith(`${r}/`))) return "portfolio";
   if (p === "/jp/news" || p.startsWith("/jp/news/")) return "news";
-  if (["/jp/about", "/jp/leadership", "/jp/proven-capability"].some((r) => p === r || p.startsWith(`${r}/`))) return "about";
+  if (["/jp/about", "/jp/leadership", "/jp/proven-capability", "/jp/our-people", "/jp/our-customers"].some((r) => p === r || p.startsWith(`${r}/`))) return "about";
   return null;
 }
 
@@ -288,7 +288,7 @@ const PEOPLE_TEXT = "The culture and values behind the group, and where we're hi
 const PEOPLE_COUNT = { value: "XX+", label: "people across Japan" };
 const PEOPLE: PeopleBlock = {
   type: "people",
-  heading: { label: "Our people", href: null },
+  heading: { label: "Our people", href: "/jp/our-people" },
   text: PEOPLE_TEXT,
   stats: [PEOPLE_COUNT, { value: "XX", label: "Offices" }],
   link: { label: "Find jobs at ESR", href: null },
@@ -394,7 +394,7 @@ export const LOCAL_FOOTER: Record<"portfolio" | "investors" | "sustainability" |
       // "Ressources" in Figma; spelt as in the group footer
       { label: "Resources", href: null },
       { label: "Corporate governance", href: null },
-      { label: "Our people", href: null },
+      { label: "Our people", href: "/jp/our-people" },
     ],
   },
 };
