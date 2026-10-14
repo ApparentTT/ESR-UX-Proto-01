@@ -40,7 +40,7 @@ export default function JapanDevelopmentsPage() {
       </div>
       {/* "Find a development opportunity" into the ESR Japan property search */}
       <DevOpportunitySearch {...JP_DEV_SEARCH} />
-      {/* "Backed by global scale" */}
+      {/* "Backed by group scale" */}
       <LocalKeyStats title={JP_DEV_SCALE.title} sub={JP_DEV_SCALE.sub} stats={JP_DEV_SCALE.stats} footnotes={JP_DEV_SCALE.footnotes} />
       {/* Development case studies (no heading drawn: the card titles are h2) + "View all case studies" */}
       <OverlayCaseCards cards={DEV_CASE_STUDY_CARDS} headingLevel="h2" className="pb-6 pt-2 md:pt-4 lg:pb-6 lg:pt-0" />

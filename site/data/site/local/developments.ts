@@ -10,7 +10,7 @@ import { JP } from "./shared";
 
 export const JP_DEV_INTRO = {
   title: "Developments",
-  body: "We design and build logistics facilities across Japan, from first plan to first day of operation. Backed by global experience, delivered by a local team who know these markets.",
+  body: "We design and build logistics facilities across Japan, from first plan to first day of operation. Backed by group experience, delivered by a local team who know these markets.",
 };
 
 /** "Find a development opportunity": submits to the ESR Japan property search, pre-lease included */
@@ -22,7 +22,7 @@ export const JP_DEV_SEARCH = {
 };
 
 export const JP_DEV_SCALE: { title: string; sub: string; stats: LocalStat[]; footnotes: string[] } = {
-  title: "Backed by global scale",
+  title: "Backed by group scale",
   sub: "A leading platform with the scale, expertise and local presence to deliver, wherever your business is heading next.",
   stats: [
     { value: "US $60.9B", label: "Total assets under management", sup: 1 },

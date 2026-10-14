@@ -43,7 +43,7 @@ export const PROP_INTRO_ACTIONS = [
 
 /** PROP §3 */
 export const PROP_MARKETS_HEADING = {
-  title: "Explore our properties around the world",
+  title: "Explore our properties across the group",
   sub: "Quis nis ullarper vestibulum eros. Suspendisse lacus lectus molestie id et, nibh tellus in.",
 };
 

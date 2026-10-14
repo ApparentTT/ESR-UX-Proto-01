@@ -8,7 +8,7 @@ import type { FeatureBandAction } from "@/components/sections/blocks/FeatureBand
 /** DEV §1 */
 export const DEV_INTRO = {
   title: "Developments",
-  body: "We design and build industrial and logistics facilities across Asia Pacific, from first plan to first day of operation. Global experience, local expertise, and a pipeline built around where our customers are heading next.",
+  body: "We design and build industrial and logistics facilities across Asia Pacific, from first plan to first day of operation. Group experience, local expertise, and a pipeline built around where our customers are heading next.",
   /** heroCta: the flow board draws an arrow from this hero back to Portfolio overview */
   cta: { label: "Explore our portfolio", href: "/portfolio" },
 };

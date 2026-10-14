@@ -4,7 +4,7 @@ import { useId } from "react";
 import { MARKET_PANEL, NAV_MARKETS } from "@/config/nav";
 import { MarketCard } from "./parts";
 
-/** "Currently viewing: Global (EN)", static text. */
+/** "Currently viewing: Group (EN)", static text. */
 export function CurrentMarket({ className = "" }: { className?: string }) {
   return (
     <p className={`text-[14px] leading-5 text-body ${className}`}>

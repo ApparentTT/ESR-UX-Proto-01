@@ -37,6 +37,6 @@ export type JpNewsArticle = LocalArticle;
 /** "News from across the ESR group": the group News and insights page */
 export const JP_NEWS_GROUP_CTA = {
   title: "News from across the ESR group",
-  sub: "Global announcements, fund news and thought leadership from our markets across Asia Pacific.",
+  sub: "Group announcements, fund news and thought leadership from our markets across Asia Pacific.",
   cta: { label: "Go to group news", href: "/news" },
 };

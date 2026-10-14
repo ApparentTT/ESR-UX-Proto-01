@@ -1,5 +1,5 @@
 /**
- * Greyscale Asia Pacific map behind the "Our global pipeline" dots (inventory B21, DC §3): land only, no
+ * Greyscale Asia Pacific map behind the "Our group pipeline" dots (inventory B21, DC §3): land only, no
  * borders or labels, in the 646 x 571 frame. Natural Earth 1:50m land (public domain, via world-atlas
  * 2.0.2) in Web Mercator, 57°E to 184.5°E, 50°N to about 48°S. `projectPipeline` turns a market's
  * longitude / latitude into its position on the frame, so the dots sit on their real markets.

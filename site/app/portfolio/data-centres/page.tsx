@@ -30,7 +30,7 @@ export default function PortfolioDataCentresPage() {
       <PageIntro title={DC_INTRO.title} body={DC_INTRO.body} />
       {/* §2 overview image 1306 x 500 */}
       <FullWidthImage />
-      {/* §3 "Our global pipeline" */}
+      {/* §3 "Our group pipeline" */}
       <PowerPipeline {...POWER_PIPELINE} />
       {/* §4 "Features and benefits" heading + expanding cards (the h2 names the cards region) */}
       <SectionHeading title={<span id="features-heading">{DC_FEATURES_HEADING}</span>} />

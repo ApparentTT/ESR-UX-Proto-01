@@ -82,7 +82,7 @@ export const LOCAL_UTILITY: NavLinkItem[] = [
  * The way back to the ESR Group site from the market panel. Not drawn (the local panel shows the 11 market
  * cards only); added as a twelfth card in the same design so the group site can be reached from a local site.
  */
-export const GROUP_SITE_CARD = { region: "Global", name: "ESR Group", languages: "English", href: "/" };
+export const GROUP_SITE_CARD = { region: "Group", name: "ESR Group", languages: "English", href: "/" };
 
 /** A link to an ESR Group page, named for screen readers. */
 export const GROUP_SITE_SUFFIX = "(ESR Group site)";
@@ -113,13 +113,13 @@ const VACANCIES: NavLinkItem = { label: "Stay up to date on vacancies", href: nu
 const P = {
   properties: { icon: "apartment", title: "Properties", text: "Logistics, industrial, and property management.", href: "/jp/properties" },
   developments: { icon: "handyman", title: "Developments", text: "Pipeline, technology and sustainability.", href: "/jp/developments" },
-  dataCentres: { icon: "database", title: "Data centres", text: "Explore our global pipeline", href: DATA_CENTRES_GROUP, external: true },
+  dataCentres: { icon: "database", title: "Data centres", text: "Explore our group pipeline", href: DATA_CENTRES_GROUP, external: true },
   overview: { icon: "globe_asia", title: "Our portfolio", text: "Everything we own / manage", href: PORTFOLIO_PAGE },
 } satisfies Record<string, LocalNavItem>;
 
 /** Mobile copy (718:853): the rows keep the group menu's wording, as drawn; same destinations as desktop. */
 const PM = {
-  overview: { icon: "globe_asia", title: "Our global portfolio", text: "Scale and reach across APAC", href: PORTFOLIO_PAGE },
+  overview: { icon: "globe_asia", title: "Our group portfolio", text: "Scale and reach across APAC", href: PORTFOLIO_PAGE },
   properties: { ...P.properties, text: "Logistics and industrial" },
   developments: P.developments,
   dataCentres: { ...P.dataCentres, text: "Digital infrastructure capability" },
@@ -353,7 +353,7 @@ export const LOCAL_FOOTER: Record<"portfolio" | "investors" | "sustainability" |
   portfolio: {
     title: "Our portfolio",
     links: [
-      { label: "Our global portfolio", href: PORTFOLIO_PAGE },
+      { label: "Our group portfolio", href: PORTFOLIO_PAGE },
       { label: "Properties", href: "/jp/properties" },
       { label: "Developments", href: "/jp/developments" },
       { label: "Data centres", href: DATA_CENTRES_GROUP, external: true },

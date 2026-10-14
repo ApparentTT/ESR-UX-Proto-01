@@ -120,7 +120,7 @@ export const MARKET_PANEL = {
   title: "Choose your market",
   body: "You'll be taken to that market's website.",
   currentLabel: "Currently viewing:",
-  current: "Global (EN)",
+  current: "Group (EN)",
 };
 
 /* ----------------------------------------------------------------- shared */
@@ -173,7 +173,7 @@ const CHIP_SELECTED = "ERS Group";
 /* -------------------------------------------------------------- portfolio */
 
 const P = {
-  global: { icon: "globe_asia", title: "Our global portfolio", text: "Scale and reach across APAC", href: "/portfolio" },
+  group: { icon: "globe_asia", title: "Our group portfolio", text: "Scale and reach across APAC", href: "/portfolio" },
   properties: { icon: "apartment", title: "Properties", text: "Logistics and industrial", href: "/portfolio/properties" },
   developments: { icon: "handyman", title: "Developments", text: "Pipeline, technology and sustainability.", href: "/portfolio/developments" },
   dataCentres: { icon: "database", title: "Data centres", text: "Digital infrastructure capability", href: "/portfolio/data-centres" },
@@ -184,13 +184,13 @@ const PORTFOLIO: NavSection = {
   id: "portfolio",
   label: "Our portfolio",
   labelWidth: [85, 88],
-  groups: [{ items: [P.global, P.properties, P.developments, P.dataCentres, P.infrastructure] }],
+  groups: [{ items: [P.group, P.properties, P.developments, P.dataCentres, P.infrastructure] }],
   panel: {
     cols: [295, 295, 305, 284, 261],
     rows: [200, 337],
     cells: [
       // Card 1's description is padded to two lines in Figma; Properties' is one line, so its Explore sits higher (as drawn)
-      { col: 1, pad: [33, 16, 0, 30], line: "b", blocks: [{ type: "item", item: P.global, reserve: true }] },
+      { col: 1, pad: [33, 16, 0, 30], line: "b", blocks: [{ type: "item", item: P.group, reserve: true }] },
       { col: 2, pad: [33, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.properties }] },
       { col: 3, pad: [33, 16, 0, 63], line: "lb", blocks: [{ type: "item", item: P.developments }] },
       { col: 4, pad: [33, 16, 0, 62], line: "lb", blocks: [{ type: "item", item: P.dataCentres }] },
@@ -222,7 +222,7 @@ const PORTFOLIO: NavSection = {
 const I = {
   investing: { icon: "attach_money", title: "Investing with ESR", text: "Strategy and approach", href: "/investors" },
   track: { icon: "area_chart", title: "Track record", text: "Performance and proof points", href: "/investors#track-record" },
-  funds: { icon: "batch_prediction", title: "Our funds", text: "Every asset globally", href: "/investors#our-funds" },
+  funds: { icon: "batch_prediction", title: "Our funds", text: "Every asset across the group", href: "/investors#our-funds" },
   governance: { icon: "analytics", title: "Governance and reporting", text: "Disclosures and policies", href: null },
 } satisfies Record<string, NavItem>;
 

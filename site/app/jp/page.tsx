@@ -35,7 +35,7 @@ export default function JapanHomePage() {
       <PropertySearchEntry {...JP_SEARCH_ENTRY} />
       {/* Who we are */}
       <SplitStatement {...JP_HOME_WHO_WE_ARE} />
-      {/* Scale that delivers: Global / Local toggle */}
+      {/* Scale that delivers: Group / Local toggle */}
       <LocalKeyStats {...JP_HOME_STATS} />
       {/* Featured properties */}
       <SectionHeading title={JP_HOME_FEATURED_HEADING} />

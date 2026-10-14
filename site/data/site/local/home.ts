@@ -10,7 +10,7 @@ import { HOME_WHAT_WE_DO, HOME_WHO_WE_ARE } from "@/data/site/pages/home";
 import { JP, JP_AUM_FOOTNOTE } from "./shared";
 
 export const JP_HOME_HERO = {
-  title: "[Japan heading] Global new economy assets, REITS and asset management",
+  title: "[Japan heading] Group new economy assets, REITS and asset management",
   sub: "Vorem ipsum dolor sit amet, consectetur adipiscing elit.",
 };
 
@@ -18,7 +18,7 @@ export const JP_HOME_HERO = {
 export const JP_HOME_WHO_WE_ARE = HOME_WHO_WE_ARE;
 
 /**
- * "Key stats / opt 2" (1110:53502). Global is drawn; the Local (Japan) figures are not, so they are
+ * "Key stats / opt 2" (1110:53502). Group is drawn; the Local (Japan) figures are not, so they are
  * placeholders until ESR Japan supplies them.
  */
 export const JP_HOME_STATS: LocalKeyStatsProps = {
@@ -26,7 +26,7 @@ export const JP_HOME_STATS: LocalKeyStatsProps = {
   sub: "A leading platform with the scale, expertise and local presence to create value across Asia-Pacific.",
   link: { label: "Explore our portfolio", href: JP.portfolio },
   stats: {
-    global: [
+    group: [
       { value: "US $31.8B", label: "Total assets under management", sup: 1 },
       { value: "4.7m sqm", label: "Gross floor area" },
       { value: "XX sqm", label: "Development pipeline" },

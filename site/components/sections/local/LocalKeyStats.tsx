@@ -13,8 +13,8 @@ export type LocalKeyStatsProps = {
   sub?: string;
   /** Section link at the top right ("Explore our portfolio") */
   link?: { label: string; href: string | null };
-  /** One stat set, or a Global / Local pair with the pill toggle above the stats (as drawn on the homepage) */
-  stats: LocalStat[] | { global: LocalStat[]; local: LocalStat[] };
+  /** One stat set, or a Group / Local pair with the pill toggle above the stats (as drawn on the homepage) */
+  stats: LocalStat[] | { group: LocalStat[]; local: LocalStat[] };
   footnotes?: string[];
 };
 
@@ -25,15 +25,15 @@ const COLS: Record<number, string> = { 3: "lg:grid-cols-3", 4: "lg:grid-cols-4" 
 /**
  * "Key stats" (Figma "Key stats / opt 2" 1110:53502 on the Japan homepage, "opt 3" 1290:29645 on the Japan
  * portfolio): SemiBold 24 heading, 18/28 muted sub and an optional section link, then (opt 2) a pill toggle
- * between the group ("Global") and Japan ("Local") figures, the stats in one row (Medium 48 values, 16/24
- * labels, 30 apart), and the footnote under a #858585 rule. Only the Global state is drawn, so the Local
+ * between the group ("Group") and Japan ("Local") figures, the stats in one row (Medium 48 values, 16/24
+ * labels, 30 apart), and the footnote under a #858585 rule. Only the Group state is drawn, so the Local
  * figures are placeholders. 390: stats 2 x 2.
  */
 export function LocalKeyStats({ title, sub, link, stats, footnotes }: LocalKeyStatsProps) {
   const uid = useId();
   const headingId = `${uid}-title`;
   const toggled = !Array.isArray(stats);
-  const [view, setView] = useState<"global" | "local">("global");
+  const [view, setView] = useState<"group" | "local">("group");
   const list = Array.isArray(stats) ? stats : stats[view];
   return (
     <section aria-labelledby={headingId} className="bg-white pb-10 pt-12 md:pb-14 md:pt-16 lg:pb-16 lg:pt-[72px]">
@@ -54,7 +54,7 @@ export function LocalKeyStats({ title, sub, link, stats, footnotes }: LocalKeySt
 
         {toggled && (
           <div role="group" aria-label="Show figures for" className="mt-8 inline-flex gap-0.5 rounded-full border border-black p-0.5 lg:mt-[60px]">
-            {(["global", "local"] as const).map((v) => (
+            {(["group", "local"] as const).map((v) => (
               <button
                 key={v}
                 type="button"
@@ -64,7 +64,7 @@ export function LocalKeyStats({ title, sub, link, stats, footnotes }: LocalKeySt
                   view === v ? "bg-[#2F2F2F] font-semibold text-white" : "text-[#3E3E3E] hover:bg-surface"
                 }`}
               >
-                {v === "global" ? "Global" : "Local"}
+                {v === "group" ? "Group" : "Local"}
               </button>
             ))}
           </div>

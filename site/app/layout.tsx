@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 
 export const metadata: Metadata = {
   title: "ESR — website prototype",
-  description: "Wireframe prototype of the ESR global website. Content and imagery are placeholder.",
+  description: "Wireframe prototype of the ESR group website. Content and imagery are placeholder.",
   robots: { index: false, follow: false },
 };
 

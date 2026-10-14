@@ -1,11 +1,11 @@
 /**
- * DC §3 "Our global pipeline" (inventory B21), verbatim.
+ * DC §3 "Our group pipeline" (inventory B21), verbatim.
  * Bar widths are the wireframe's placeholder values; dots are placed on their real markets.
  */
 import type { PowerPipelineProps } from "@/components/sections/stats/PowerPipeline";
 
 export const POWER_PIPELINE: PowerPipelineProps = {
-  title: "Our global pipeline",
+  title: "Our group pipeline",
   sub: "Power secured, under development and in advanced procurement across Asia Pacific. Select a market to see its position.",
   stats: [
     { value: "XXX MW", label: "Total power bank" },

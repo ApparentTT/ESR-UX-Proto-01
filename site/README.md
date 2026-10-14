@@ -1,6 +1,6 @@
-# ESR global website — wireframe prototype
+# ESR group website — wireframe prototype
 
-Clickable greyscale prototype of the ESR global website, built from the Figma key and primary wireframes and the designer's user flow, for client review. It includes the property search prototype, unchanged, under Our portfolio.
+Clickable greyscale prototype of the ESR group website, built from the Figma key and primary wireframes and the designer's user flow, for client review. It includes the property search prototype, unchanged, under Our portfolio.
 
 Content and imagery are placeholder, figures are indicative and the map is simulated. Copy is taken word for word from the wireframes, including lorem ipsum and `[bracketed placeholders]`.
 

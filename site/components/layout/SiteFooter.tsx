@@ -10,7 +10,7 @@ type Group = { title: string; links: { label: string; href?: string }[] };
 const PORTFOLIO: Group = {
   title: "Our portfolio",
   links: [
-    { label: "Our global portfolio", href: "/portfolio" },
+    { label: "Our group portfolio", href: "/portfolio" },
     { label: "Properties", href: "/portfolio/properties" },
     { label: "Developments", href: "/portfolio/developments" },
     { label: "Data centres", href: "/portfolio/data-centres" },

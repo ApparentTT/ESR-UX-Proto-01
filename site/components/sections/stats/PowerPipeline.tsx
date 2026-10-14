@@ -8,7 +8,7 @@ import { StatList, type StatItem } from "./StatRow";
 import { PIPELINE_LAND, PIPELINE_MAP_H, PIPELINE_MAP_W, projectPipeline } from "./pipelineMap";
 
 /**
- * "Our global pipeline" (inventory B21, DC §3).
+ * "Our group pipeline" (inventory B21, DC §3).
  * Surface band, 80/80, column with a 36px gap: Bold 40 head + sub (max 820), StatRow bold4,
  * then the market list card (white, r12) beside a map frame (646:571, r12): a greyscale Asia Pacific
  * map (pipelineMap.ts) with status dots on their markets (by longitude / latitude), then a 13px footnote.

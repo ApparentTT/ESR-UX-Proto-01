@@ -70,7 +70,7 @@ export const NEWS_ARTICLES: NewsArticle[] = [
 /** NEWS §1 page intro: `<PageIntro title={NEWS_INTRO.title} body={NEWS_INTRO.body} />` (also on /news/search). */
 export const NEWS_INTRO = {
   title: "News and insights",
-  body: "The single source of truth for ESR. Global group announcements alongside curated highlights from every market we operate in.",
+  body: "The single source of truth for ESR. Group announcements alongside curated highlights from every market we operate in.",
 };
 
 /** NEWS §2 / NSR §1 search field and filter bar labels. */

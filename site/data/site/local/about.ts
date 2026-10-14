@@ -1,6 +1,6 @@
 /**
  * /jp/about: R2_Local_About (Key wireframes 1347:77157, mobile 1347:77158), verbatim.
- * The drawn toggle shows the "Global" figures; the "Local" figures are not drawn, so they read "XX".
+ * The drawn toggle shows the "Group" figures; the "Local" figures are not drawn, so they read "XX".
  */
 import type { StatItem } from "@/components/sections/stats/StatRow";
 import type { OutlineTextCardItem } from "@/components/sections/infocards/OutlineTextCard";
@@ -17,13 +17,13 @@ export const JP_ABOUT_INTRO = {
   action: { label: "Discover more about ESR group", href: "/about" },
 };
 
-/** "Key stats / opt 2" (1348:77195): Global / Local toggle over four stats and a footnote */
+/** "Key stats / opt 2" (1348:77195): Group / Local toggle over four stats and a footnote */
 export const JP_ABOUT_STATS: { label: string; options: { id: string; label: string; stats: StatItem[] }[]; footnotes: string[] } = {
   label: "Show figures for",
   options: [
     {
-      id: "global",
-      label: "Global",
+      id: "group",
+      label: "Group",
       stats: [
         { value: "US $31.8B", label: "Total assets under management", sup: 1 },
         { value: "4.7m sqm", label: "Gross floor area" },

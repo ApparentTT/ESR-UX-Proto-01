@@ -27,7 +27,7 @@ export default function JapanAboutPage() {
       {/* Intro + "Discover more about ESR group" (group About page) */}
       <LocalIntro title={JP_ABOUT_INTRO.title} body={JP_ABOUT_INTRO.body} action={JP_ABOUT_INTRO.action} />
       <FullWidthImage size="tall" />
-      {/* Key stats / opt 2: Global / Local toggle, four stats, footnote */}
+      {/* Key stats / opt 2: Group / Local toggle, four stats, footnote */}
       <ScopeStats {...JP_ABOUT_STATS} />
       <SectionHeading title={<span id="jp-our-purpose">{JP_ABOUT_PURPOSE_HEADING}</span>} />
       <OutlineTextCardRow items={JP_ABOUT_PURPOSE} labelledBy="jp-our-purpose" />
