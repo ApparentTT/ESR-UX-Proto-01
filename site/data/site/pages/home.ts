@@ -4,7 +4,7 @@ import type { FeatureBandAction } from "@/components/sections/blocks/FeatureBand
 /** Verbatim HOME copy (specs/home.md). Shared data sets (stats, latest, explore cards, markets) live in their own modules. */
 
 export const HOME_HERO = {
-  title: "Group new economy assets, REITS and asset management",
+  title: "New economy assets, REITs and asset management across the group",
   sub: "Vorem ipsum dolor sit amet, consectetur adipiscing elit.",
 };
 

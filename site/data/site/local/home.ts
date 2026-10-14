@@ -10,7 +10,7 @@ import { HOME_WHAT_WE_DO, HOME_WHO_WE_ARE } from "@/data/site/pages/home";
 import { JP, JP_AUM_FOOTNOTE } from "./shared";
 
 export const JP_HOME_HERO = {
-  title: "[Japan heading] Group new economy assets, REITS and asset management",
+  title: "[Japan heading] New economy assets, REITs and asset management across the group",
   sub: "Vorem ipsum dolor sit amet, consectetur adipiscing elit.",
 };
 
