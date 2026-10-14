@@ -17,7 +17,8 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const fund = FUND_PAGES.find((f) => f.slug === (await params).slug);
+  const { slug } = await params;
+  const fund = FUND_PAGES.find((f) => f.slug === slug);
   return { title: `${fund?.name ?? "Fund"} | ESR — website prototype` };
 }
 
@@ -26,7 +27,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
  * content for every fund; only the name changes. Header active item: Investor.
  */
 export default async function FundDetailPage({ params }: Params) {
-  const fund = FUND_PAGES.find((f) => f.slug === (await params).slug);
+  const { slug } = await params;
+  const fund = FUND_PAGES.find((f) => f.slug === slug);
   if (!fund) notFound();
   const d = FUND_DETAIL;
   return (

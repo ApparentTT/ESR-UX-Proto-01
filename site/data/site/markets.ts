@@ -49,5 +49,6 @@ export const MAP_DOTS: MapDot[] = [
   { marketId: "thailand", x: 52.8, y: 68.7 },
   { marketId: "vietnam", x: 58.8, y: 73.7 },
   { marketId: "malaysia", x: 54.6, y: 87.8 },
-  { marketId: "singapore", x: 56.6, y: 92.9 },
+  // Nudged ~4px from the drawn 56.6 / 92.9 onto the island's outline, so it still marks it when zoomed in.
+  { marketId: "singapore", x: 56.2, y: 92.4 },
 ];

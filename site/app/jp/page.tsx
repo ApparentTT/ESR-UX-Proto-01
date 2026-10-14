@@ -1,17 +1,55 @@
 import type { Metadata } from "next";
 import { LocalPageShell } from "@/components/layout/local/LocalPageShell";
-import { PageIntro } from "@/components/sections/PageIntro";
+import { SectionHeading } from "@/components/sections/SectionHeading";
+import { SplitStatement } from "@/components/sections/blocks/SplitStatement";
+import { SidebarFeatureGrid } from "@/components/sections/blocks/SidebarFeatureGrid";
+import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
+import { NewsCardRow } from "@/components/sections/cards/NewsCardRow";
+import { MediaCardGrid } from "@/components/sections/cards/MediaCardGrid";
+import { LocalHomeHero } from "@/components/sections/local/LocalHomeHero";
+import { PropertySearchEntry } from "@/components/sections/local/PropertySearchEntry";
+import { LocalKeyStats } from "@/components/sections/local/LocalKeyStats";
+import { LocalPropertyCards } from "@/components/sections/local/LocalPropertyCards";
+import { JP_INVEST, JP_SEARCH_ENTRY, jpFeaturedProperties } from "@/data/site/local/shared";
+import {
+  JP_HOME_EXPLORE_CARDS,
+  JP_HOME_EXPLORE_HEADING,
+  JP_HOME_FEATURED_HEADING,
+  JP_HOME_HERO,
+  JP_HOME_LATEST,
+  JP_HOME_LATEST_HEADING,
+  JP_HOME_STATS,
+  JP_HOME_WHAT_WE_DO,
+  JP_HOME_WHO_WE_ARE,
+} from "@/data/site/local/home";
 
-export const metadata: Metadata = { title: "Japan | ESR Japan — website prototype" };
+export const metadata: Metadata = { title: "Home | ESR Japan — website prototype" };
 
-/**
- * /jp: the Japan local market homepage. Shell page; the page body is to come. The heading is the Japan
- * homepage hero as drawn (R2_Local_homepage_>10Properties 1347:52640), placeholder included.
- */
+/** /jp: Japan local homepage (Key wireframes R2_Local_homepage_>10Properties 1347:52640; mobile 1347:52641). */
 export default function JapanHomePage() {
   return (
     <LocalPageShell>
-      <PageIntro title="[Japan heading] Global new economy assets, REITS and asset management" pb="lg" />
+      {/* Hero (h1) */}
+      <LocalHomeHero {...JP_HOME_HERO} />
+      {/* Find space for your business: into the ESR Japan property search */}
+      <PropertySearchEntry {...JP_SEARCH_ENTRY} />
+      {/* Who we are */}
+      <SplitStatement {...JP_HOME_WHO_WE_ARE} />
+      {/* Scale that delivers: Global / Local toggle */}
+      <LocalKeyStats {...JP_HOME_STATS} />
+      {/* Featured properties */}
+      <SectionHeading title={JP_HOME_FEATURED_HEADING} />
+      <LocalPropertyCards cards={jpFeaturedProperties(" sqm")} />
+      {/* What we do */}
+      <SidebarFeatureGrid {...JP_HOME_WHAT_WE_DO} />
+      {/* Invest with ESR */}
+      <SplitBlock {...JP_INVEST} />
+      {/* The latest from Japan */}
+      <SectionHeading {...JP_HOME_LATEST_HEADING} />
+      <NewsCardRow cards={JP_HOME_LATEST} />
+      {/* Explore more about us */}
+      <SectionHeading title={JP_HOME_EXPLORE_HEADING} />
+      <MediaCardGrid variant="explore2" cards={JP_HOME_EXPLORE_CARDS} />
     </LocalPageShell>
   );
 }

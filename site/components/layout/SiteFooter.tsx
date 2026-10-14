@@ -3,6 +3,7 @@ import { Container } from "./Container";
 import { Icon } from "@/components/ui/Icon";
 import { InertLink } from "@/components/ui/InertLink";
 import { Logo } from "@/components/ui/Logo";
+import { SOCIAL_LINKS, SocialIcon } from "@/components/ui/SocialIcon";
 
 type Group = { title: string; links: { label: string; href?: string }[] };
 
@@ -46,13 +47,6 @@ const ABOUT: Group = {
     { label: "Our people", href: "/about/our-people" },
   ],
 };
-/** Generic Material Symbols stand in for the brand glyphs (greyscale wireframe; WeChat is drawn as a paper plane). */
-const SOCIAL: { label: string; icon: string }[] = [
-  { label: "Instagram", icon: "photo_camera" },
-  { label: "LinkedIn", icon: "work" },
-  { label: "WeChat", icon: "send" },
-  { label: "YouTube", icon: "smart_display" },
-];
 const LEGAL = ["Terms & Conditions", "Privacy", "Cookies Policy"];
 
 function FooterLink({ label, href, className = "" }: { label: string; href?: string; className?: string }) {
@@ -125,10 +119,10 @@ export function SiteFooter() {
           <div>
             <h2 className={HEADING}>Connect with us</h2>
             <ul className={LINKS}>
-              {SOCIAL.map((s) => (
+              {SOCIAL_LINKS.map((s) => (
                 <li key={s.label}>
                   <InertLink className="inline-flex items-center gap-2 hover:text-ink hover:underline">
-                    <Icon name={s.icon} size={18} className="text-ink" />
+                    <SocialIcon brand={s.brand} className="text-ink" />
                     {s.label}
                   </InertLink>
                 </li>
@@ -148,12 +142,12 @@ export function SiteFooter() {
             <Accordion group={ABOUT} />
           </div>
           <h2 className={`mt-6 ${HEADING}`}>Connect with us</h2>
+          {/* Drawn (Global-Footer / mob): 64px surface circles, 12 apart, each an 18px brand glyph */}
           <ul className="mt-3 flex flex-wrap gap-3">
-            {SOCIAL.map((s) => (
+            {SOCIAL_LINKS.map((s) => (
               <li key={s.label}>
-                <InertLink className="inline-flex h-11 items-center gap-2 rounded-full bg-surface px-4 text-sm font-medium text-body">
-                  <Icon name={s.icon} size={18} />
-                  {s.label}
+                <InertLink aria-label={s.label} className="inline-flex size-16 items-center justify-center rounded-full bg-surface text-ink hover:bg-line">
+                  <SocialIcon brand={s.brand} />
                 </InertLink>
               </li>
             ))}

@@ -10,8 +10,9 @@ import type { Leader } from "@/data/site/leaders";
  * one row per leader: 260 x 300 photo, then name, title, full bio, inert "LinkedIn profile" and an
  * optional inert "View [area of focus]" button. Groups render in order of first appearance.
  * 390: photo stacks above the text (160 x 185). 768: side by side, photo 200 x 231.
+ * `divided` (Japan Our leadership 1095:58368): a 1px line between rows and under the last one.
  */
-export function LeaderList({ leaders }: { leaders: Leader[] }) {
+export function LeaderList({ leaders, divided = false }: { leaders: Leader[]; divided?: boolean }) {
   const groups: { title: string; leaders: Leader[] }[] = [];
   for (const l of leaders) {
     const g = groups.find((x) => x.title === l.group);
@@ -24,9 +25,9 @@ export function LeaderList({ leaders }: { leaders: Leader[] }) {
       {groups.map((g) => (
         <div key={g.title}>
           <h2 className={`border-t border-[#D6D6D6] pb-3 pt-4 ${T.h24b}`}>{g.title}</h2>
-          <ul>
-            {g.leaders.map((l) => (
-              <li key={l.name}>
+          <ul className={divided ? "divide-y divide-line border-b border-line" : undefined}>
+            {g.leaders.map((l, i) => (
+              <li key={`${l.name}-${i}`}>
                 <LeaderRow leader={l} />
               </li>
             ))}

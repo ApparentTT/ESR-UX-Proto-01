@@ -15,7 +15,7 @@ const ZOOM_MAX = 6;
 const ZOOM_STEP = 1.5;
 /** Zoom range when fitting a selected market (huge Greater China to tiny Singapore). */
 const FIT_MIN = 1.2;
-const FIT_MAX = 5;
+const FIT_MAX = 4;
 
 /** The card overlays the map from 1280 (the region panel does too): 315 wide, right 88 (145 from 1400). */
 const OVERLAY_QUERY = "(min-width: 1280px)";
@@ -234,7 +234,8 @@ export function MapExplorer({
           <div
             ref={cardRef}
             tabIndex={-1}
-            className={`my-4 rounded-[7px] xl:absolute xl:right-[88px] xl:z-10 xl:my-0 xl:w-[315px] min-[1400px]:right-[145px] ${cardPos}`}
+            className={`my-4 rounded-[7px] xl:absolute xl:z-10 xl:my-0 xl:w-[315px] ${cardPos}`}
+            style={{ right: frame?.cardRight ?? 88 }}
           >
             <MapMarketCard
               key={selectedMarket.id}
