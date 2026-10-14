@@ -174,7 +174,8 @@ export function MapExplorer({
     focusCard.current = viaKeyboard;
     setSelected(id);
     setManualZoom(null);
-    setMessage(`${names[id] ?? id} selected. Map zoomed to ${names[id] ?? id}, details shown.`);
+    const name = names[id] ?? id;
+    setMessage(MARKET_SHAPES[id] ? `${name} selected. Map zoomed to ${name}, details shown.` : `${name} selected, details shown.`);
     // A dot click selects its market: open that market's region so the row is visible.
     const region = regionOf[id];
     if (region && region !== openRegion) setOpenRegion(region);

@@ -93,7 +93,7 @@ function TourMap({
   // Fit the tour area ("meet"), centred; the rest of the outline fills the frame around it.
   const spanX = (FIT.lng[1] - FIT.lng[0]) * COS;
   const spanY = FIT.lat[1] - FIT.lat[0];
-  const s = Math.min(w / (spanX * 1.12), h / (spanY * 1.25));
+  const s = Math.min(w / (spanX * 1.5), h / (spanY * 1.9));
   const cLat = (FIT.lat[0] + FIT.lat[1]) / 2;
   const cLng = (FIT.lng[0] + FIT.lng[1]) / 2;
   const px = ([lat, lng]: LatLng) => [w / 2 + (lng - cLng) * COS * s, h / 2 - (lat - cLat) * s] as const;
@@ -113,7 +113,7 @@ function TourMap({
   let popStyle: React.CSSProperties | undefined;
   if (active?.pin) {
     const [x, y] = px(active.pin.at);
-    const left = x > w / 2 ? x - POP_W - 20 : x + 20;
+    const left = x > w / 2 ? x - POP_W - 64 : x + 64;
     popStyle = { left: Math.max(12, Math.min(left, w - POP_W - 12)), top: Math.max(12, Math.min(y - POP_H / 2, h - POP_H - 12)), width: POP_W };
   }
 

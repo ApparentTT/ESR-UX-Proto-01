@@ -11,7 +11,7 @@ export type MarketCardData = {
   name: string;
   /** Optional explicit line breaks as drawn, e.g. ["Australia and", "New Zealand"] */
   lines?: string[];
-  /** Local market sites are external and not wireframed, so cards default to inert (null) */
+  /** Default "/jp": the Japan local site stands in for every market's local site for now. null = inert. */
   href?: string | null;
 };
 
@@ -19,7 +19,7 @@ export type MarketCardData = {
  * One market card: a tall surface-grey tile (248.4:357) with a 1px muted border, content bottom-aligned:
  * SemiBold 20/32 name + a small arrow_outward. Two-line names use line-height 1.3 with the arrow on line 2.
  */
-export function MarketCard({ name, lines, href = null }: MarketCardData) {
+export function MarketCard({ name, lines, href = "/jp" }: MarketCardData) {
   const twoLine = !!lines && lines.length > 1;
   return (
     <SmartLink
@@ -50,6 +50,9 @@ export function MarketCard({ name, lines, href = null }: MarketCardData) {
  * B7 MarketCards ("Explore our markets", HOME §5, PORT §7–8, DEV §9; identical on all three).
  * Renders its own SectionHeading (72 / 30) and the card block (30 / 64).
  * 390: a scroll-snap row (~70% cards) scrolling inside its own container; 768: ~3 visible; ≥1280: static 5-up.
+ * While the row scrolls sideways (below 1280) a slider sits ~30px under the cards (ScrollRow indicator):
+ * it tracks the scroll and can be dragged or clicked; it is hidden whenever nothing overflows.
+ * Every card links to the Japan local site (/jp), which stands in for each market's site for now.
  */
 export function MarketCards({
   title = "Explore our markets",
@@ -64,7 +67,9 @@ export function MarketCards({
     <>
       <SectionHeading title={title} as={headingLevel} />
       <Section className="pb-12 pt-2 md:pb-14 md:pt-4 lg:pb-16 lg:pt-[30px]">
-        <ScrollRow className="thin-scrollbar -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-3 overflow-x-auto px-6 pb-2 pt-1 md:-mx-10 md:scroll-px-10 md:gap-4 md:px-10 lg:-mx-20 lg:scroll-px-20 lg:px-20 xl:mx-0 xl:grid xl:grid-cols-5 xl:overflow-visible xl:px-0 xl:pb-0 xl:pt-0"
+        <ScrollRow
+          indicator="xl:hidden"
+          className="no-scrollbar -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-3 overflow-x-auto px-6 pb-2 pt-1 md:-mx-10 md:scroll-px-10 md:gap-4 md:px-10 lg:-mx-20 lg:scroll-px-20 lg:px-20 xl:mx-0 xl:grid xl:grid-cols-5 xl:overflow-visible xl:px-0 xl:pb-0 xl:pt-0"
         >
           {markets.map((m) => (
             <li key={m.name} className="w-[70%] max-w-[280px] shrink-0 snap-start md:w-[30%] lg:w-[23%] xl:w-auto xl:max-w-none">

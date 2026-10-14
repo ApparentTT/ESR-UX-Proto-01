@@ -22,14 +22,14 @@ const LABEL: Record<FieldFamily, string> = {
 };
 
 const CONTROL: Record<FieldFamily, string> = {
-  form: "w-full rounded-[10px] border border-ink bg-white px-3 text-[14px] leading-5 text-ink placeholder:text-muted",
-  contact: "w-full rounded-btn border bg-white px-3.5 text-[15px] leading-[1.45] text-ink placeholder:text-muted",
+  form: "w-full rounded-[10px] border px-3 text-[14px] leading-5 text-ink placeholder:text-muted",
+  contact: "w-full rounded-btn border px-3.5 text-[15px] leading-[1.45] text-ink placeholder:text-muted",
 };
 const FOCUS = "focus:outline-2 focus:outline-offset-2 focus:outline-ink";
 const INVALID = "border-error bg-error-bg shadow-[inset_0_0_0_0.5px_var(--color-error)]";
 
 function controlCls(family: FieldFamily, invalid: boolean) {
-  return `${CONTROL[family]} ${FOCUS} ${invalid ? INVALID : family === "contact" ? "border-line hover:border-[#9CA3AF]" : ""}`;
+  return `${CONTROL[family]} ${FOCUS} ${invalid ? INVALID : family === "contact" ? "bg-white border-line hover:border-[#9CA3AF]" : "bg-white border-ink"}`;
 }
 
 function labelCls(family: FieldFamily, invalid: boolean) {
@@ -217,9 +217,9 @@ export function CheckboxField({
             aria-required={required || undefined}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? errId : undefined}
-            className={`peer cursor-pointer appearance-none bg-white checked:border-ink checked:bg-ink ${FOCUS} ${
-              form ? "size-5 rounded-[3px] border border-ink" : "size-[18px] rounded-[4px] border border-line hover:border-[#9CA3AF]"
-            } ${error ? INVALID : ""}`}
+            className={`peer cursor-pointer appearance-none border checked:border-ink checked:bg-ink ${FOCUS} ${form ? "size-5 rounded-[3px]" : "size-[18px] rounded-[4px]"} ${
+              error ? INVALID : form ? "border-ink bg-white" : "border-line bg-white hover:border-[#9CA3AF]"
+            }`}
           />
           <span
             aria-hidden="true"

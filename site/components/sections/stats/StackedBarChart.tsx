@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { Legend, FootnoteText } from "@/components/ui/DataBits";
 import { T } from "@/components/ui/type";
 
@@ -8,7 +11,37 @@ import { T } from "@/components/ui/type";
  * Mobile (< 768): the same data as horizontal stacked bars, one row per year, so every label stays
  * legible without a horizontal scroller (the spec's listed alternative).
  * The drawn bars are hidden from assistive tech; a visually hidden table carries the data.
+ *
+ * Motion: the first time the chart scrolls into view (30% visible) the bars grow from 0 to full height
+ * (width on mobile) over 3s, ease-out, 120ms apart. A clip-path reveal, so nothing reflows. With
+ * prefers-reduced-motion the bars are simply drawn in full.
  */
+
+/** Growth timing: 3s ease-out (cubic), 120ms stagger. */
+const GROW = "motion-safe:transition-[clip-path] motion-safe:duration-[3000ms] motion-safe:ease-[cubic-bezier(0.33,1,0.68,1)]";
+const STAGGER_MS = 120;
+
+/** "idle" until the chart first scrolls into view, then "play" (once). */
+function useGrowOnView<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+  const [state, setState] = useState<"idle" | "play">("idle");
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setState("play");
+          io.disconnect();
+        }
+      },
+      { threshold: 0.3 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return [ref, state] as const;
+}
 
 export type StackedBar = {
   /** Category label under the bar, e.g. "2019" */
@@ -61,9 +94,15 @@ export function StackedBarChart({
   const titleId = `${id}-title`;
   const first = bars[0]?.label;
   const last = bars[bars.length - 1]?.label;
+  const [ref, grow] = useGrowOnView<HTMLElement>();
 
   return (
-    <figure aria-labelledby={titleId} className={`relative flex flex-col gap-5 rounded-card bg-white p-5 md:px-8 md:py-7 ${className}`}>
+    <figure
+      ref={ref}
+      aria-labelledby={titleId}
+      data-grow={grow}
+      className={`group/bars relative flex flex-col gap-5 rounded-card bg-white p-5 md:px-8 md:py-7 ${className}`}
+    >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
         <H id={titleId} className={`flex-1 ${T.title20m}`}>
           {title}
@@ -78,14 +117,14 @@ export function StackedBarChart({
 
       {/* Vertical columns, 768+ */}
       <div aria-hidden="true" className="hidden h-[300px] grid-cols-8 items-end gap-3 md:grid lg:gap-5">
-        {bars.map((b) => {
+        {bars.map((b, i) => {
           const total = b.top + b.bottom;
           return (
             <div key={b.label} className="flex min-w-0 flex-col items-center gap-2.5">
               <span className="whitespace-nowrap text-[12px] font-medium leading-[1.45] text-ink lg:text-[13px]">{b.value}</span>
               <span
-                className="flex w-full flex-col overflow-hidden rounded-[6px]"
-                style={{ height: `${(total / scaleMax) * MAX_BAR_PX}px` }}
+                className={`flex w-full flex-col overflow-hidden rounded-[6px] [clip-path:inset(0_0_0_0)] motion-safe:group-data-[grow=idle]/bars:[clip-path:inset(100%_0_0_0)] ${GROW}`}
+                style={{ height: `${(total / scaleMax) * MAX_BAR_PX}px`, transitionDelay: `${i * STAGGER_MS}ms` }}
               >
                 <span className="w-full bg-ink" style={{ flexGrow: b.top }} />
                 <span className="w-full bg-[#A1A6AD]" style={{ flexGrow: b.bottom }} />
@@ -98,15 +137,15 @@ export function StackedBarChart({
 
       {/* Horizontal rows, < 768 */}
       <div aria-hidden="true" className="flex flex-col gap-3 md:hidden">
-        {bars.map((b) => {
+        {bars.map((b, i) => {
           const total = b.top + b.bottom;
           return (
             <div key={b.label} className="grid grid-cols-[36px_minmax(0,1fr)_auto] items-center gap-3">
               <span className="text-[13px] leading-[1.45] text-muted">{b.label}</span>
               <span className="flex h-4 min-w-0">
                 <span
-                  className="flex h-full overflow-hidden rounded-[4px]"
-                  style={{ width: `${(total / scaleMax) * 100}%` }}
+                  className={`flex h-full overflow-hidden rounded-[4px] [clip-path:inset(0_0_0_0)] motion-safe:group-data-[grow=idle]/bars:[clip-path:inset(0_100%_0_0)] ${GROW}`}
+                  style={{ width: `${(total / scaleMax) * 100}%`, transitionDelay: `${i * STAGGER_MS}ms` }}
                 >
                   <span className="h-full bg-[#A1A6AD]" style={{ flexGrow: b.bottom }} />
                   <span className="h-full bg-ink" style={{ flexGrow: b.top }} />

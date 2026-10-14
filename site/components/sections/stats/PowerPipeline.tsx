@@ -3,15 +3,15 @@
 import { useState } from "react";
 import { Section } from "@/components/ui/Section";
 import { Legend, ProgressBar } from "@/components/ui/DataBits";
-import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { PAD, T } from "@/components/ui/type";
 import { StatList, type StatItem } from "./StatRow";
+import { PIPELINE_LAND, PIPELINE_MAP_H, PIPELINE_MAP_W, projectPipeline } from "./pipelineMap";
 
 /**
  * "Our global pipeline" (inventory B21, DC §3).
  * Surface band, 80/80, column with a 36px gap: Bold 40 head + sub (max 820), StatRow bold4,
- * then the market list card (white, r12) beside a map frame (646:571, r12) with status dots,
- * then a 13px footnote.
+ * then the market list card (white, r12) beside a map frame (646:571, r12): a greyscale Asia Pacific
+ * map (pipelineMap.ts) with status dots on their markets (by longitude / latitude), then a 13px footnote.
  *
  * Behaviour: each market row is an aria-pressed toggle. Selecting one tints the row with a 3px ink
  * bar, mutes the other rows, and on the map brings that market's dots to full opacity with a
@@ -30,9 +30,12 @@ export type PipelineMarket = {
 };
 
 export type PipelineDot = {
-  /** Dot centre as % of the map frame */
-  left: number;
-  top: number;
+  /** Where the dot sits: longitude / latitude of the market (placed on the Asia Pacific map) ... */
+  lon?: number;
+  lat?: number;
+  /** ... or its centre as % of the map frame */
+  left?: number;
+  top?: number;
   /** Diameter in px at the 646px desktop frame (scales with the frame) */
   size: number;
   status: "secured" | "development";
@@ -56,7 +59,7 @@ export type PowerPipelineProps = {
 };
 
 /** Desktop map frame width the dot sizes are drawn against. */
-const FRAME_W = 646;
+const FRAME_W = PIPELINE_MAP_W;
 
 export function PowerPipeline({
   title,
@@ -158,11 +161,17 @@ export function PowerPipeline({
 
         {/* Map frame */}
         <figure className="relative aspect-[646/571] w-full overflow-hidden rounded-card bg-white">
-          <ImagePlaceholder className="absolute inset-0 size-full" icon={false} />
-          {/* Lightens the placeholder like the wireframe's 60%-opacity map so the grey dots read */}
-          <span aria-hidden="true" className="absolute inset-0 bg-white/55" />
+          <svg
+            viewBox={`0 0 ${PIPELINE_MAP_W} ${PIPELINE_MAP_H}`}
+            aria-hidden="true"
+            focusable="false"
+            className="absolute inset-0 block size-full"
+          >
+            <path d={PIPELINE_LAND} fillRule="evenodd" className="fill-[#E1E3E7]" />
+          </svg>
           {dots.map((d, i) => {
             const isSel = selected === d.market;
+            const pos = d.lon !== undefined && d.lat !== undefined ? projectPipeline(d.lon, d.lat) : { left: d.left ?? 50, top: d.top ?? 50 };
             const faded = selected !== null && !isSel;
             return (
               <button
@@ -174,8 +183,8 @@ export function PowerPipeline({
                 onClick={() => toggle(d.market)}
                 className={`absolute aspect-square -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full motion-safe:transition-[opacity,transform,box-shadow] motion-safe:duration-200 ${
                   d.status === "secured" ? "bg-ink" : "bg-[#A1A6AD]"
-                } ${isSel ? "scale-115 opacity-100 shadow-[0_0_0_2px_#fff,0_2px_8px_rgb(17_24_38/0.3)]" : faded ? "opacity-25" : "opacity-85"}`}
-                style={{ left: `${d.left}%`, top: `${d.top}%`, width: `${(d.size / FRAME_W) * 100}%` }}
+                } ${isSel ? "scale-115 opacity-100 shadow-[0_0_0_2px_#fff,0_2px_8px_rgb(17_24_38/0.3)]" : faded ? "opacity-25" : "opacity-90 shadow-[0_0_0_1.5px_#fff]"}`}
+                style={{ left: `${pos.left}%`, top: `${pos.top}%`, width: `${(d.size / FRAME_W) * 100}%` }}
               />
             );
           })}

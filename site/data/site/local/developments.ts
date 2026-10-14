@@ -3,7 +3,7 @@
  * "End to end, in house", the case-study cards and the FAQ are word for word the group versions, so they are
  * imported from the group data.
  */
-import type { StatItem } from "@/components/sections/stats/StatRow";
+import type { LocalStat } from "@/components/sections/local/LocalKeyStats";
 import type { OutlineTextCardItem } from "@/components/sections/infocards/OutlineTextCard";
 import type { FeatureBandAction } from "@/components/sections/blocks/FeatureBand";
 import { JP } from "./shared";
@@ -21,7 +21,7 @@ export const JP_DEV_SEARCH = {
   submitLabel: "Search",
 };
 
-export const JP_DEV_SCALE: { title: string; sub: string; stats: StatItem[]; footnotes: string[] } = {
+export const JP_DEV_SCALE: { title: string; sub: string; stats: LocalStat[]; footnotes: string[] } = {
   title: "Backed by global scale",
   sub: "A leading platform with the scale, expertise and local presence to deliver, wherever your business is heading next.",
   stats: [
