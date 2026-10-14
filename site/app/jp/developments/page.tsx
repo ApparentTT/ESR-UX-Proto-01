@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LocalPageShell } from "@/components/layout/local/LocalPageShell";
 import { PageIntro } from "@/components/sections/PageIntro";
+import { SectionHeading } from "@/components/sections/SectionHeading";
 import { Section } from "@/components/ui/Section";
 import { TextLink } from "@/components/ui/TextLink";
 import { ProcessSteps } from "@/components/sections/stats/ProcessSteps";
@@ -18,6 +19,7 @@ import { PORTFOLIO_FAQ } from "@/data/site/documents";
 import { JP_INVEST, JP_NEWSLETTER } from "@/data/site/local/shared";
 import {
   JP_DEV_CUSTOMER_STORIES,
+  JP_DEV_FEATURED_HEADING,
   JP_DEV_INTRO,
   JP_DEV_NEWSLETTER,
   JP_DEV_SCALE,
@@ -42,8 +44,9 @@ export default function JapanDevelopmentsPage() {
       <DevOpportunitySearch {...JP_DEV_SEARCH} />
       {/* "Backed by group scale" */}
       <LocalKeyStats title={JP_DEV_SCALE.title} sub={JP_DEV_SCALE.sub} stats={JP_DEV_SCALE.stats} footnotes={JP_DEV_SCALE.footnotes} />
-      {/* Development case studies (no heading drawn: the card titles are h2) + "View all case studies" */}
-      <OverlayCaseCards cards={DEV_CASE_STUDY_CARDS} headingLevel="h2" className="pb-6 pt-2 md:pt-4 lg:pb-6 lg:pt-0" />
+      {/* "Featured developments" (1416:99584) + case study cards + "View all case studies" */}
+      <SectionHeading title={JP_DEV_FEATURED_HEADING} />
+      <OverlayCaseCards cards={DEV_CASE_STUDY_CARDS} className="pb-6 pt-2 md:pt-4 lg:pb-6 lg:pt-[30px]" />
       <Section className="pb-12 md:pb-16 lg:pb-20">
         <TextLink href={JP_DEV_VIEW_ALL.href} variant="arrow" size={14}>
           {JP_DEV_VIEW_ALL.label}

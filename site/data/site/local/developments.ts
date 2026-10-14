@@ -36,6 +36,9 @@ export const JP_DEV_SCALE: { title: string; sub: string; stats: LocalStat[]; foo
   ],
 };
 
+/** Heading over the case study cards (1416:99584; its sub line is hidden in the design) */
+export const JP_DEV_FEATURED_HEADING = "Featured developments";
+
 export const JP_DEV_VIEW_ALL = { label: "View all case studies", href: JP.provenCapability };
 
 /** Text carousel, slides 2-3 repeat slide 1 (only slide 1 is drawn) */

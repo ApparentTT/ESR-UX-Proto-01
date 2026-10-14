@@ -80,12 +80,13 @@ export const CAP_CASE_STUDY_CARDS: MediaCardData[] = [
   { title: "Case study title placeholder", meta: "Development  ·  India", href: null },
 ];
 
-/** B20 DEV §5b (after SectionHeading "Development case studies"). All inert. */
+/** B20 DEV §5b (after SectionHeading "Development case studies"; Japan: "Featured developments"). All inert. */
 const SHOWCASE = "[Showcase line to be supplied by the development team]";
+const CASE_STUDY_NAME = "Name of case study";
 export const DEV_CASE_STUDY_CARDS: OverlayCaseCardData[] = [
-  { eyebrow: "Kanagawa  ·  Logistics", title: "Higashi-Ogishima Distribution Centre 2", showcase: SHOWCASE },
-  { eyebrow: "Kanagawa  ·  Logistics", title: "Yokohama Sachiura Distribution Centre 3", showcase: SHOWCASE },
-  { eyebrow: "Hyogo  ·  Logistics", title: "Itami Distribution Centre", showcase: SHOWCASE },
+  { eyebrow: "Kanagawa  ·  Logistics", title: CASE_STUDY_NAME, showcase: SHOWCASE },
+  { eyebrow: "Kanagawa  ·  Logistics", title: CASE_STUDY_NAME, showcase: SHOWCASE },
+  { eyebrow: "Hyogo  ·  Logistics", title: CASE_STUDY_NAME, showcase: SHOWCASE },
 ];
 
 /** B38 CAP §5 (after SectionHeading "Featured properties"). All inert. Opacity-0 tags are not rendered. */
