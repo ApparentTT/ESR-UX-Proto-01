@@ -48,7 +48,7 @@ export function QuoteCarousel({ slides, pager = "dots", topStrip = false, label 
   return (
     <section aria-roledescription="carousel" aria-label={label} className={topStrip ? "bg-white pt-5 lg:pt-[30px]" : ""}>
       <div className="bg-surface">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-6 px-6 py-12 md:gap-8 md:px-8 md:py-16 lg:gap-9 lg:px-[30px] lg:py-20">
+        <div className="mx-auto flex max-w-(--page-max) flex-col gap-6 px-6 py-12 md:gap-8 md:px-8 md:py-16 lg:gap-9 lg:px-[30px] lg:py-20">
           <div className="flex items-center justify-center md:justify-between md:gap-4">
             {multi && (
               <div className="hidden md:block">

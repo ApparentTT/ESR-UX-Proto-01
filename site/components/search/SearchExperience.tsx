@@ -14,6 +14,7 @@ import { EMPTY_FILTERS, filterProperties, filterSummary, nearbyProperties, scope
 import { useSearchState } from "@/lib/useSearchState";
 import { useInfiniteBatches } from "@/lib/useInfiniteBatches";
 import { DESKTOP_QUERY, useMediaQuery } from "@/lib/useMediaQuery";
+import { pageScale } from "@/lib/pageScale";
 
 const PROTOTYPE_PARAMS = ["panel", "view", "demo", "draw"];
 
@@ -84,7 +85,7 @@ export function SearchExperience() {
       const pane = paneRef.current;
       if (!card || !pane) return;
       if (isDesktop) {
-        const top = pane.scrollTop + card.getBoundingClientRect().top - pane.getBoundingClientRect().top - 8;
+        const top = pane.scrollTop + (card.getBoundingClientRect().top - pane.getBoundingClientRect().top) / pageScale() - 8;
         pane.scrollTo({ top, behavior: "smooth" });
       } else {
         card.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -168,7 +169,7 @@ export function SearchExperience() {
       delete document.documentElement.dataset.mobileMap;
     };
   }, [showMobileMap]);
-  const paneHeight = "h-[calc(100dvh-var(--bar-h,0px)-32px)] min-h-[520px]";
+  const paneHeight = "h-[calc(var(--full-h)-var(--bar-h,0px)-32px)] min-h-[520px]";
 
   const map = (
     <FakeMap
@@ -185,7 +186,7 @@ export function SearchExperience() {
       onDrawRequestHandled={onDrawRequestHandled}
       onDrawStart={parkResults}
       bottomInset={showMobileMap ? CAROUSEL_HEIGHT : 0}
-      className={showMobileMap ? "h-[calc(100dvh-var(--bar-h,0px))] min-h-[480px]" : "h-full rounded-card"}
+      className={showMobileMap ? "h-[calc(var(--full-h)-var(--bar-h,0px))] min-h-[480px]" : "h-full rounded-card"}
     >
       {showMobileMap && pins.length > 0 && <MapCarousel items={pins} selectedId={selectedId ?? hoveredId} onCentre={setSelectedId} onNearEnd={loadMore} />}
     </FakeMap>

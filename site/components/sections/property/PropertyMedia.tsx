@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { SmartLink } from "@/components/ui/SmartLink";
 import { ScrollRow } from "@/components/sections/cards/ScrollRow";
+import { pageScale } from "@/lib/pageScale";
 
 export type PropertyMediaItem = { kind: "video" | "image"; height: number };
 
@@ -46,7 +47,7 @@ export function PropertyMedia({ items, name }: { items: PropertyMediaItem[]; nam
     const item = row?.querySelector("li");
     if (!row || !item) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    row.scrollBy({ left: dir * (item.getBoundingClientRect().width + 16), behavior: reduce ? "auto" : "smooth" });
+    row.scrollBy({ left: dir * (item.getBoundingClientRect().width / pageScale() + 16), behavior: reduce ? "auto" : "smooth" });
   };
 
   const arrow = (dir: 1 | -1) => (

@@ -39,7 +39,7 @@ export function SearchPanel({ id, animate, onClose, onSubmitted }: { id: string;
   return (
     <div
       id={id}
-      className={`sb-pad absolute inset-x-0 top-full h-dvh overflow-y-auto overscroll-contain bg-white pb-24 nav:h-auto nav:max-h-[calc(100dvh-72px)] nav:pb-0 ${animate ? "anim-pop" : ""}`}
+      className={`sb-pad absolute inset-x-0 top-full h-(--full-h) overflow-y-auto overscroll-contain bg-white pb-24 nav:h-auto nav:max-h-[calc(var(--full-h)-72px)] nav:pb-0 ${animate ? "anim-pop" : ""}`}
     >
       <form
         role="search"
@@ -53,7 +53,7 @@ export function SearchPanel({ id, animate, onClose, onSubmitted }: { id: string;
         // The row's full-bleed line sits on its last pixel row (72 to 145), and goes once results show
         className={`sb-bleed ${query ? "" : "nav:shadow-[inset_0_-1px_0_var(--color-line)]"}`}
       >
-        <div className={`mx-auto flex max-w-[1440px] items-center pt-[37px] nav:py-4 ${gutter}`}>
+        <div className={`mx-auto flex max-w-(--page-max) items-center pt-[37px] nav:py-4 ${gutter}`}>
           {/* Focus: the underline turns ink and thickens to 2px */}
           <div className="relative min-w-0 flex-1 border-b border-line focus-within:border-ink focus-within:shadow-[inset_0_-1px_0_var(--color-ink)]">
             <Icon name="search" className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 text-ink" />
@@ -81,7 +81,7 @@ export function SearchPanel({ id, animate, onClose, onSubmitted }: { id: string;
           </button>
         </div>
       </form>
-      <div className={`mx-auto max-w-[1440px] ${gutter} ${query ? "pb-[35px] pt-[35px] nav:pr-[119px] nav:pt-[31px]" : ""}`}>
+      <div className={`mx-auto max-w-(--page-max) ${gutter} ${query ? "pb-[35px] pt-[35px] nav:pr-[119px] nav:pt-[31px]" : ""}`}>
         <p role="status" className={query ? "pb-2 text-[14px] font-bold leading-5 text-body [overflow-wrap:anywhere]" : "sr-only"}>
           {status}
         </p>

@@ -87,7 +87,7 @@ export function FeatureBand({
       aria-roledescription={carousel ? "carousel" : undefined}
       aria-label={carousel ? name : undefined}
     >
-      <div className="relative mx-auto max-w-[1440px]">
+      <div className="relative mx-auto max-w-(--page-max)">
         <Container
           className={`flex flex-col justify-center py-12 lg:min-h-[644px] lg:py-2.5 ${carousel ? "md:min-h-[440px] md:py-16 md:pb-24 lg:pb-2.5" : "md:py-20"}`}
         >

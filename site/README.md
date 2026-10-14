@@ -62,6 +62,10 @@ Use the **Prototype** badge (bottom right) to jump to any page, or to any state 
 - "Industries we serve" on Our customers is interactive: hover or tap a segment or a sector to open its details.
 - The header search covers the whole site (group and Japan pages, news, case studies, leaders, documents, funds): typing shows the top matches, and Enter opens the full results page at `/search`. `/news/search` stays as the news-only search.
 
+## Large screens
+
+Up to 1440px wide the layout is exactly as designed. From 1440 to 1920px the whole page scales up in proportion (CSS zoom, up to 1.33×), so a 1920 screen shows the 1440 design. Wider than that, the scale holds and the content area widens from 1440 to 1920 page pixels. The script in `app/layout.tsx` sets `--ui-zoom` and `--page-max` before first paint. Use `var(--full-h)` / `var(--full-w)` instead of `100dvh` / `100vw`, and `pageScale()` (`lib/pageScale.ts`) when mixing pointer or `getBoundingClientRect()` values with layout sizes or element scroll offsets.
+
 ## Editing
 
 - **Navigation:** `config/nav.ts` holds the header menus, mobile menu and market list (`components/layout/nav/` renders them). Set a link's `href` to `null` to make it inert.

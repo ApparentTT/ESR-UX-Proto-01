@@ -116,7 +116,7 @@ export function LocalMobileMenu({
       className="fixed inset-0 z-50 flex flex-col nav:hidden"
     >
       <div className="sb-pad shrink-0 bg-white shadow-[inset_0_-1px_0_#E5E7EB]">
-        <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-6 md:px-10">
+        <div className="mx-auto flex h-[72px] max-w-(--page-max) items-center justify-between px-6 md:px-10">
           <Link href={LOCAL_SITE.home} aria-label={LOCAL_SITE.homeLabel} className="rounded-btn">
             <Logo />
           </Link>

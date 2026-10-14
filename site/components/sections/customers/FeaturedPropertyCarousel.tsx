@@ -7,6 +7,7 @@ import { LocalPropertyCard, type LocalPropertyCardData } from "@/components/sect
 import { CircleArrow } from "@/components/ui/Carousel";
 import { TextLink } from "@/components/ui/TextLink";
 import { T } from "@/components/ui/type";
+import { pageScale } from "@/lib/pageScale";
 
 const PREV = "Previous properties";
 const NEXT = "Next properties";
@@ -68,7 +69,7 @@ export function FeaturedPropertyCarousel({
     if (!row || !item) return;
     const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    row.scrollBy({ left: dir * (item.getBoundingClientRect().width + gap), behavior: reduce ? "auto" : "smooth" });
+    row.scrollBy({ left: dir * (item.getBoundingClientRect().width / pageScale() + gap), behavior: reduce ? "auto" : "smooth" });
   };
 
   // Rendered twice (above the row from 768, below it on mobile); the hidden copy is display:none, so never focusable.

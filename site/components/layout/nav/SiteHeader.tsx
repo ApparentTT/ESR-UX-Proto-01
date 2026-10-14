@@ -166,7 +166,7 @@ export function SiteHeader() {
       {desktopLayer && <div aria-hidden="true" onClick={() => close()} className="anim-fade fixed inset-0 hidden bg-black/80 nav:block" />}
 
       <div className={`sb-bleed relative z-[2] bg-white ${searchOpen ? "shadow-[inset_0_-1px_0_#E5E7EB] nav:shadow-none" : "shadow-[inset_0_-1px_0_#E5E7EB]"}`}>
-        <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-6 px-6 md:px-10 nav:px-[67px]">
+        <div className="mx-auto flex h-[72px] max-w-(--page-max) items-center justify-between gap-6 px-6 md:px-10 nav:px-[67px]">
           <div className="flex items-center gap-5">
             {/* 71.78 wide as drawn, so the section items sit on the Figma x positions */}
             <Link href="/" aria-label="ESR home" className="inline-flex rounded-btn nav:w-[71.78px]">

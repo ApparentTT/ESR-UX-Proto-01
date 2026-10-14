@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import type { Property } from "@/data/types";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { sizeText, statusText } from "@/lib/display";
+import { pageScale } from "@/lib/pageScale";
 
 type Props = {
   items: Property[];
@@ -38,7 +39,7 @@ export function MapCarousel({ items, selectedId, onCentre, onNearEnd }: Props) {
     const onScroll = () => {
       clearTimeout(t);
       t = setTimeout(() => {
-        const mid = list.getBoundingClientRect().left + list.clientWidth / 2;
+        const mid = list.getBoundingClientRect().left + (list.clientWidth * pageScale()) / 2;
         let best: { id: string; d: number } | null = null;
         for (const el of Array.from(list.querySelectorAll<HTMLElement>("[data-card]"))) {
           const r = el.getBoundingClientRect();

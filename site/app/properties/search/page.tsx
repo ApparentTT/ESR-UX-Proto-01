@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function SearchPage() {
   return (
     <PageShell>
-      <Suspense fallback={<div className="min-h-[60vh] bg-surface" />}>
+      <Suspense fallback={<div className="min-h-[calc(var(--full-h)*0.6)] bg-surface" />}>
         <SearchExperience />
       </Suspense>
     </PageShell>

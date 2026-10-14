@@ -118,7 +118,7 @@ export function MobileMenu({
     >
       {/* sb-pad: with a classic scrollbar hidden by the scroll lock, the logo and close stay where the page header has them */}
       <div className="sb-pad shrink-0 bg-white shadow-[inset_0_-1px_0_#E5E7EB]">
-        <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-6 md:px-10">
+        <div className="mx-auto flex h-[72px] max-w-(--page-max) items-center justify-between px-6 md:px-10">
           <Link href="/" aria-label="ESR home" className="rounded-btn">
             <Logo />
           </Link>

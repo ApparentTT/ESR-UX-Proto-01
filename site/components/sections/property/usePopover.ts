@@ -73,5 +73,5 @@ export const OUTLINE_BTN =
   "inline-flex min-h-[46px] items-center justify-center gap-2 rounded-btn border border-line bg-white px-5 py-3 text-[14px] font-medium leading-[1.45] text-ink transition-colors hover:border-ink aria-expanded:border-ink";
 
 /** Popover panel and its rows */
-export const PANEL = "anim-pop absolute z-30 mt-2 w-[min(320px,calc(100vw-48px))] rounded-control border border-line bg-white p-1.5 shadow-panel";
+export const PANEL = "anim-pop absolute z-30 mt-2 w-[min(320px,calc(var(--full-w)-48px))] rounded-control border border-line bg-white p-1.5 shadow-panel";
 export const PANEL_ITEM = "focus-inset flex min-h-11 w-full items-center gap-3 rounded-btn px-3 py-2 text-left text-[14px] leading-5 text-ink hover:bg-surface";

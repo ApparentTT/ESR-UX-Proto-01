@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { MapArtwork, MAP_ART_HEIGHT, MAP_ART_WIDTH } from "./MapArtwork";
 import type { MapDot } from "./types";
+import { pageScale } from "@/lib/pageScale";
 
 const RATIO = MAP_ART_WIDTH / MAP_ART_HEIGHT;
 
@@ -41,16 +42,18 @@ const LABEL_PLACE: Record<LabelPlace, string> = {
  * frames (Japan beside South Korea, the South East Asia cluster), so no single fixed side works everywhere.
  */
 function pickPlace(label: HTMLElement, dot: DOMRect, others: DOMRect[], frame: DOMRect, preferLeft: boolean): LabelPlace {
-  const W = label.offsetWidth;
-  const H = label.offsetHeight;
+  // Rects are in screen pixels; the label's size is in page pixels (differs only on scaled large screens)
+  const k = pageScale();
+  const W = label.offsetWidth * k;
+  const H = label.offsetHeight * k;
   const cx = dot.left + dot.width / 2;
   const cy = dot.top + dot.height / 2;
-  const side = window.innerWidth >= 768 ? 20 : 16;
+  const side = (window.innerWidth >= 768 ? 20 : 16) * k;
   const box: Record<LabelPlace, { l: number; t: number }> = {
     right: { l: cx + side, t: cy - H / 2 },
     left: { l: cx - side - W, t: cy - H / 2 },
-    above: { l: cx - W / 2, t: cy - 16 - H },
-    below: { l: cx - W / 2, t: cy + 16 },
+    above: { l: cx - W / 2, t: cy - 16 * k - H },
+    below: { l: cx - W / 2, t: cy + 16 * k },
   };
   const order: LabelPlace[] = preferLeft ? ["left", "right", "above", "below"] : ["right", "left", "above", "below"];
   const fits = (k: LabelPlace) => {

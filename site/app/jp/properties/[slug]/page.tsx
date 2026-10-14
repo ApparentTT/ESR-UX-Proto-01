@@ -63,7 +63,7 @@ export default async function JapanPropertyDetailPage({ params }: Params) {
         </Container>
 
         {/* Media column beside the property details (1138:10623) */}
-        <div className="mx-auto max-w-[1440px] lg:grid lg:grid-cols-2" data-print-flow>
+        <div className="mx-auto max-w-(--page-max) lg:grid lg:grid-cols-2" data-print-flow>
           <div className="px-6 pt-6 md:px-10 lg:px-[35.5px] lg:pb-12 lg:pt-12" data-print-hide>
             <PropertyMedia items={D.media} name={p.name} />
           </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type RefObject } from "react";
+import { pageScale } from "@/lib/pageScale";
 
 /**
  * A card list that can be a horizontal scroll-snap row at small widths (its classes decide).
@@ -36,7 +37,7 @@ export function ScrollRow({
     else if (it.right > r.right - padR) delta = Math.min(it.right - (r.right - padR), it.left - (r.left + padL));
     if (!delta) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    row.scrollBy({ left: delta, behavior: reduce ? "auto" : "smooth" });
+    row.scrollBy({ left: delta / pageScale(), behavior: reduce ? "auto" : "smooth" });
   };
   const list = (
     <ul ref={rowRef} role="list" className={className} onFocus={onFocus}>

@@ -6,6 +6,7 @@ import { ScrollRow } from "@/components/sections/cards/ScrollRow";
 import { LocalPropertyCard, type LocalPropertyCardData } from "@/components/sections/local/LocalPropertyCards";
 import { CircleArrow } from "@/components/ui/Carousel";
 import { T } from "@/components/ui/type";
+import { pageScale } from "@/lib/pageScale";
 
 const PREV = "Previous properties";
 const NEXT = "Next properties";
@@ -58,7 +59,7 @@ export function RelatedProperties({ title, cards }: { title: string; cards: Loca
     if (!row || !item) return;
     const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    row.scrollBy({ left: dir * (item.getBoundingClientRect().width + gap), behavior: reduce ? "auto" : "smooth" });
+    row.scrollBy({ left: dir * (item.getBoundingClientRect().width / pageScale() + gap), behavior: reduce ? "auto" : "smooth" });
   };
 
   // Rendered twice (above the row from 768, below it on mobile); the hidden copy is display:none, never focusable.

@@ -7,6 +7,7 @@ import { Icon } from "@/components/ui/Icon";
 import { pinText } from "@/lib/display";
 import type { Bbox } from "@/lib/filters";
 import { simplifyPolygon } from "@/lib/geo";
+import { pageScale } from "@/lib/pageScale";
 
 type Props = {
   pins: Property[];
@@ -178,7 +179,8 @@ export function FakeMap({
   );
   const local = (e: React.PointerEvent | React.MouseEvent) => {
     const r = boxRef.current!.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
+    const s = pageScale();
+    return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s };
   };
 
   const startDrawing = useCallback((ev?: { clientX: number; clientY: number; detail?: number }) => {
@@ -327,8 +329,9 @@ export function FakeMap({
     }
     const d = drag.current;
     if (!d) return;
-    const dx = e.clientX - d.x;
-    const dy = e.clientY - d.y;
+    const s = pageScale();
+    const dx = (e.clientX - d.x) / s;
+    const dy = (e.clientY - d.y) / s;
     d.dist = Math.max(d.dist, Math.hypot(dx, dy));
     setView({ ...d.view, lng: d.view.lng - dx / (d.view.k * COS), lat: d.view.lat + dy / d.view.k });
     if (d.dist > 4) {

@@ -169,7 +169,7 @@ export function LocalHeader() {
 
       {/* Utility bar (desktop): the market name at the left, three links at the right (Medium 14/20, 24 apart) */}
       <div className="sb-bleed relative z-[2] hidden bg-white shadow-[inset_0_-1px_0_#E5E7EB] nav:block">
-        <div className="mx-auto flex h-10 max-w-[1440px] items-center justify-between gap-6 px-[67px] text-[14px] font-medium leading-5 text-body">
+        <div className="mx-auto flex h-10 max-w-(--page-max) items-center justify-between gap-6 px-[67px] text-[14px] font-medium leading-5 text-body">
           <p>{LOCAL_SITE.market}</p>
           <nav aria-label="Quick links">
             <ul className="flex items-center gap-6">
@@ -190,7 +190,7 @@ export function LocalHeader() {
       </div>
 
       <div className={`sb-bleed relative z-[2] bg-white ${searchOpen ? "shadow-[inset_0_-1px_0_#E5E7EB] nav:shadow-none" : "shadow-[inset_0_-1px_0_#E5E7EB]"}`}>
-        <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-6 px-6 md:px-10 nav:px-[67px]">
+        <div className="mx-auto flex h-[72px] max-w-(--page-max) items-center justify-between gap-6 px-6 md:px-10 nav:px-[67px]">
           <div className="flex items-center gap-5">
             {/* 71.78 wide as drawn, so the section items sit on the Figma x positions */}
             <Link href={LOCAL_SITE.home} aria-label={LOCAL_SITE.homeLabel} className="inline-flex rounded-btn nav:w-[71.78px]">

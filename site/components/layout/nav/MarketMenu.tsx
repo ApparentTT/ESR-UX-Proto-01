@@ -24,9 +24,9 @@ export function MarketMenu({ id, labelledBy, animate }: { id: string; labelledBy
       id={id}
       role="region"
       aria-labelledby={labelledBy}
-      className={`sb-pad absolute inset-x-0 top-full max-h-[calc(100dvh-72px)] overflow-y-auto overscroll-contain bg-white ${animate ? "anim-pop" : ""}`}
+      className={`sb-pad absolute inset-x-0 top-full max-h-[calc(var(--full-h)-72px)] overflow-y-auto overscroll-contain bg-white ${animate ? "anim-pop" : ""}`}
     >
-      <div className="mx-auto max-w-[1440px] px-[67px] pb-[81px] pt-[26px]">
+      <div className="mx-auto max-w-(--page-max) px-[67px] pb-[81px] pt-[26px]">
         <div className="flex items-start justify-between gap-6">
           <div className="text-[14px] leading-5 text-body">
             <h2 id={titleId} className="font-bold">

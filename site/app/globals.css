@@ -34,6 +34,18 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /*
+    Large screens (set by the script in app/layout.tsx, before first paint). Up to 1440 nothing changes.
+    1440-1920: the whole page scales up in proportion (zoom up to 1.333, so 1920 shows the 1440 design).
+    Wider: the zoom holds and the content width (--page-max) grows from 1440 to 1920 CSS px.
+  */
+  zoom: var(--ui-zoom, 1);
+}
+:root {
+  --page-max: 1440px;
+  /* The window's height in page pixels: vh/dvh are multiplied by the zoom, so divide it back out. Use instead of 100dvh. */
+  --full-h: calc(100dvh / var(--ui-zoom, 1));
+  --full-w: calc(100vw / var(--ui-zoom, 1));
 }
 
 /*

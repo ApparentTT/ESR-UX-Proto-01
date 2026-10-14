@@ -27,6 +27,7 @@ import {
 } from "@/lib/filters";
 import { DESKTOP_QUERY, SHEET_QUERY, useMediaQuery } from "@/lib/useMediaQuery";
 import { MARKET } from "@/config/market";
+import { pageScale } from "@/lib/pageScale";
 
 const POPULAR: { label: string; filters: Partial<Filters> }[] = [
   { label: "Kanagawa South", filters: { pref: ["kanagawa"] } },
@@ -241,7 +242,7 @@ export function FirstVisit() {
                   setHovered(id);
                   const card = previewRefs.current.get(id);
                   const pane = previewPane.current;
-                  if (card && pane) pane.scrollTo({ top: pane.scrollTop + card.getBoundingClientRect().top - pane.getBoundingClientRect().top - 8, behavior: "smooth" });
+                  if (card && pane) pane.scrollTo({ top: pane.scrollTop + (card.getBoundingClientRect().top - pane.getBoundingClientRect().top) / pageScale() - 8, behavior: "smooth" });
                 }}
                 onSearchArea={(bbox) => go({ ...chosen, bbox })}
                 onDrawArea={(area) => area && go({ ...chosen, q: "", pref: [], bbox: null, area })}

@@ -61,7 +61,7 @@ export function StickyEnquire({ name, label }: { name: string; label: string }) 
       data-print-hide
       className="anim-fade fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(17_24_38/0.08)] md:bottom-auto md:top-0 md:border-b md:border-t-0 md:pb-0 md:shadow-[0_4px_16px_rgb(17_24_38/0.08)]"
     >
-      <div className="mx-auto flex h-[72px] max-w-[1440px] items-center gap-6 pl-[max(1.5rem,env(safe-area-inset-left))] pr-[148px] md:h-16 md:px-10 lg:px-20">
+      <div className="mx-auto flex h-[72px] max-w-(--page-max) items-center gap-6 pl-[max(1.5rem,env(safe-area-inset-left))] pr-[148px] md:h-16 md:px-10 lg:px-20">
         <p className="hidden min-w-0 flex-1 truncate text-[16px] font-medium tracking-[-0.02em] text-ink md:block">{name}</p>
         <button
           type="button"

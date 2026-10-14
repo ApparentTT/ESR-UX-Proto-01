@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { pageScale } from "@/lib/pageScale";
 
 export type NewsFilterMenuOption = { id: string; label: string };
 
@@ -45,9 +46,9 @@ export function NewsFilterMenu({
   // Pick the side before paint so the menu never sits off screen.
   useLayoutEffect(() => {
     if (!open || !wrapRef.current || !listRef.current) return;
-    const w = listRef.current.offsetWidth;
+    const w = listRef.current.offsetWidth * pageScale();
     const r = wrapRef.current.getBoundingClientRect();
-    const vw = document.documentElement.clientWidth;
+    const vw = document.documentElement.clientWidth * pageScale();
     const fitsLeft = r.left + w <= vw - 8;
     const fitsRight = r.right - w >= 8;
     setSide(align === "left" ? (fitsLeft || !fitsRight ? "left" : "right") : fitsRight || !fitsLeft ? "right" : "left");
@@ -132,7 +133,7 @@ export function NewsFilterMenu({
           role="listbox"
           aria-label={label}
           onKeyDown={onListKey}
-          className={`anim-pop absolute top-full z-40 mt-2 w-max min-w-[max(200px,100%)] max-w-[calc(100vw-48px)] rounded-control border border-line bg-white p-1.5 shadow-panel ${
+          className={`anim-pop absolute top-full z-40 mt-2 w-max min-w-[max(200px,100%)] max-w-[calc(var(--full-w)-48px)] rounded-control border border-line bg-white p-1.5 shadow-panel ${
             side === "right" ? "right-0" : "left-0"
           }`}
         >

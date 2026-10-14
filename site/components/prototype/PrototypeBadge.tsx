@@ -73,9 +73,9 @@ export function PrototypeBadge() {
           id="prototype-panel"
           role="dialog"
           aria-label="Prototype"
-          className="anim-pop mb-3 w-[min(340px,calc(100vw-32px))] overflow-hidden rounded-card border border-line bg-white shadow-panel"
+          className="anim-pop mb-3 w-[min(340px,calc(var(--full-w)-32px))] overflow-hidden rounded-card border border-line bg-white shadow-panel"
         >
-          <div className="max-h-[min(700px,calc(100dvh-120px))] overflow-y-auto p-4">
+          <div className="max-h-[min(700px,calc(var(--full-h)-120px))] overflow-y-auto p-4">
             <p className="text-[13px] leading-relaxed text-muted">
               This is a wireframe prototype. Content and imagery are placeholder, figures are indicative, and the map is simulated.
             </p>

@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
+import { pageScale } from "@/lib/pageScale";
 
 export type PanelVariant = "popover" | "sheet" | "modal" | "fullsheet";
 
@@ -146,7 +147,7 @@ export function PanelFrame({ open, variant, title, onClose, anchorRef, initialFo
       el.style.transform = "";
       const r = el.getBoundingClientRect();
       const over = r.right - (window.innerWidth - 16);
-      setShift(over > 0 ? -over : 0);
+      setShift(over > 0 ? -over / pageScale() : 0);
     };
     measure();
     window.addEventListener("resize", measure);
@@ -161,8 +162,8 @@ export function PanelFrame({ open, variant, title, onClose, anchorRef, initialFo
         ref={panelRef}
         role="dialog"
         aria-label={title}
-        className="anim-pop absolute left-0 top-full z-40 mt-2 flex max-h-[min(640px,calc(100dvh-var(--bar-h,120px)-24px))] flex-col overflow-hidden rounded-card border border-line bg-white shadow-panel"
-        style={{ width, maxWidth: "calc(100vw - 32px)", transform: shift ? `translateX(${shift}px)` : undefined }}
+        className="anim-pop absolute left-0 top-full z-40 mt-2 flex max-h-[min(640px,calc(var(--full-h)-var(--bar-h,120px)-24px))] flex-col overflow-hidden rounded-card border border-line bg-white shadow-panel"
+        style={{ width, maxWidth: "calc(var(--full-w) - 32px)", transform: shift ? `translateX(${shift}px)` : undefined }}
       >
         <div className={`thin-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-5 ${bodyClassName}`}>{children}</div>
         <PanelFooter {...footer} sheet={false} />
@@ -181,8 +182,8 @@ export function PanelFrame({ open, variant, title, onClose, anchorRef, initialFo
         aria-labelledby="panel-title"
         className={`relative flex w-full flex-col overflow-hidden bg-white ${
           sheet
-            ? `anim-sheet rounded-t-[16px] ${variant === "fullsheet" ? "h-[calc(100dvh-24px)]" : "max-h-[calc(100dvh-48px)]"}`
-            : "anim-pop mx-6 max-h-[calc(100dvh-80px)] max-w-[720px] rounded-[16px] shadow-panel"
+            ? `anim-sheet rounded-t-[16px] ${variant === "fullsheet" ? "h-[calc(var(--full-h)-24px)]" : "max-h-[calc(var(--full-h)-48px)]"}`
+            : "anim-pop mx-6 max-h-[calc(var(--full-h)-80px)] max-w-[720px] rounded-[16px] shadow-panel"
         }`}
       >
         {sheet && <div aria-hidden="true" className="mx-auto mt-3 h-1 w-9 shrink-0 rounded-full bg-line" />}

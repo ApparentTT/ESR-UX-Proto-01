@@ -76,10 +76,10 @@ export function MegaMenu({ section, id, labelledBy, animate }: { section: NavSec
         id={id}
         role="region"
         aria-labelledby={labelledBy}
-        className={`sb-pad absolute inset-x-0 top-full max-h-[calc(100dvh-72px)] overflow-y-auto overflow-x-hidden overscroll-contain bg-white ${panel.bottomLine ? "border-b border-line" : ""} ${animate ? "anim-pop" : ""}`}
+        className={`sb-pad absolute inset-x-0 top-full max-h-[calc(var(--full-h)-72px)] overflow-y-auto overflow-x-hidden overscroll-contain bg-white ${panel.bottomLine ? "border-b border-line" : ""} ${animate ? "anim-pop" : ""}`}
       >
         <div
-          className="mx-auto grid max-w-[1440px]"
+          className="mx-auto grid max-w-(--page-max)"
           style={{
             gridTemplateColumns: panel.cols.map((c) => `minmax(0, ${c}fr)`).join(" "),
             gridTemplateRows: panel.rows.map((r) => `minmax(${r}px, auto)`).join(" "),
@@ -121,7 +121,7 @@ function Cell({ cell, lastCol }: { cell: MegaCell; lastCol: number }) {
         <span
           key={side}
           aria-hidden="true"
-          className={`pointer-events-none absolute top-0 w-[50vw] ${side} ${surface ? "bg-surface" : ""} ${lineB ? "-bottom-px border-b border-line" : "bottom-0"}`}
+          className={`pointer-events-none absolute top-0 w-[calc(var(--full-w)/2)] ${side} ${surface ? "bg-surface" : ""} ${lineB ? "-bottom-px border-b border-line" : "bottom-0"}`}
         />
       ))}
       {eyebrow ? (
@@ -414,7 +414,7 @@ export function Strip({ strip }: { strip: MegaStrip }) {
   return (
     <div className={`sb-bleed bg-surface ${strip.line ? "border-t border-line" : ""}`}>
       <div
-        className={`mx-auto flex h-[59px] max-w-[1440px] items-center ${strip.align === "end" ? "justify-end" : ""}`}
+        className={`mx-auto flex h-[59px] max-w-(--page-max) items-center ${strip.align === "end" ? "justify-end" : ""}`}
         style={{ paddingLeft: px(strip.pad[0]), paddingRight: px(strip.pad[1]), gap: px(strip.gap ?? 24) }}
       >
         {strip.links.map((l) => (
