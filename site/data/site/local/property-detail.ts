@@ -1,20 +1,19 @@
 /**
  * /jp/properties/[slug]: Japan property detail, verbatim from the Figma section "Property and development detail"
- * (719:1873): "Property detail " 1273:90948 (1440) and "Property detail  mob" 1273:90949 (390), with the enquiry
- * form the designer added above Related properties (1469:46857).
+ * (719:1873): "Property detail " 1273:90948 (1440) and "Property detail  mob" 1273:90949 (390), the Downloads menu
+ * (1507:59421) and the photo gallery frames (grid 1507:59463 / 1507:59568, lightbox 1507:59500 / 1507:59592).
  *
  * One static page per property below. The drawn page is Higashi-Ogishima Distribution Centre 2; the other pages
  * use the same wireframe content with their own name and address (as the fund detail page does). Only
  * Higashi-Ogishima Distribution Centre 2 has published figures (see data/properties.ts): every other property
- * keeps bracketed TBC placeholders for its type line, About copy and features, so no real property is shown
- * with another property's figures.
+ * keeps bracketed TBC placeholders for its tags, About copy and key facts, so no real property is shown with
+ * another property's figures.
  *
- * Not drawn, added at the client's request: Share, Downloads (brochure and several floor plans), Export page as
- * PDF and the sticky "Enquire now" bar. Their copy is placeholder in the wireframe voice.
+ * Not drawn, added at the client's request: the Share menu items and the sticky "Enquire now" bar. Their copy is
+ * placeholder in the wireframe voice.
  *
  * Plain module (no imports from ./shared, which imports jpPropertyHref from here).
  */
-import type { LocalPropertyCardData } from "@/components/sections/local/LocalPropertyCards";
 import type { EnquirySuccessCopy } from "@/components/sections/forms/formPresets";
 
 /* ------------------------------------------------------------- properties */
@@ -87,7 +86,7 @@ export function jpPropertyHref(name: string): string {
 /** The drawn property: the target of cards that carry a "[Property name]" placeholder */
 export const JP_DRAWN_PROPERTY = JP_PROPERTIES[0];
 
-/** Type line under the address (1138:10646): published figures, or TBC placeholders */
+/** Tags over the title (1507:52097): published figures, or TBC placeholders */
 export function propertyTags(p: JpProperty): string[] {
   return p.published ? [p.published.type, p.published.completion, p.published.gfa] : ["Logistics", "[Status TBC]", "[GFA TBC]"];
 }
@@ -102,17 +101,21 @@ export function propertyAbout(p: JpProperty): string {
 /* ----------------------------------------------------------------- detail */
 
 export type DistanceStat = { value: string; label: string };
-export type PropertyContact = { name: string; second: string; secondLang?: string; phone: string; email: string };
-export type DownloadFile = { label: string; format: string; size: string; icon: string };
+export type PropertyContact = { name: string; second: string; secondLang?: string; email: string };
+export type DownloadFile = { label: string; meta: string };
+export type DownloadGroup = { label: string; files: DownloadFile[] };
 export type SpaceUnit = { unit: string; sizeSqm: number; available: string };
+export type FeatureCard = { title: string; body: string };
+export type GalleryCategory = { id: string; label: string };
+export type GalleryPhoto = { n: number; category: GalleryCategory };
 
-/** "Enquire about this property" (1138:10668) */
+/** Contacts beside the enquiry form (1507:52335) */
 const CONTACTS: PropertyContact[] = [
-  { name: "ESR Japan leasing team", second: "ESR株式会社 リーシングチーム", secondLang: "ja", phone: "[Phone to be confirmed]", email: "jpn_lease@esr.com" },
-  { name: "[Contact name]", second: "[Role]", phone: "[Phone to be confirmed]", email: "[Email to be confirmed]" },
+  { name: "ESR Japan leasing team", second: "ESR株式会社 リーシングチーム", secondLang: "ja", email: "jpn_lease@esr.com" },
+  { name: "[Contact name]", second: "[Role]", email: "[Email to be confirmed]" },
 ];
 
-/** Distance stats beside the title (1138:10653) and the map (1138:10811), as drawn */
+/** Key distances under the media (1507:52126; a list at 390, 1507:59000) */
 const DISTANCES: DistanceStat[] = [
   { value: "[XXkm]", label: "Tokyo Bay Aqua-Line" },
   { value: "[XXkm]", label: "Central Tokyo" },
@@ -147,36 +150,82 @@ const UNITS: SpaceUnit[] = [
   { unit: "Office suite 4", sizeSqm: 2060, available: "Q2 2028" },
 ];
 
-/** Downloads (not drawn): the drawn brochure and floor plan buttons become one menu with several plan types */
-const DOWNLOADS: DownloadFile[] = [
-  { label: "Brochure", format: "PDF", size: "4.2 MB", icon: "menu_book" },
-  { label: "Site plan", format: "PDF", size: "1.8 MB", icon: "map" },
-  { label: "Warehouse floor plan", format: "PDF", size: "2.6 MB", icon: "floor" },
-  { label: "Office floor plan", format: "PDF", size: "1.1 MB", icon: "meeting_room" },
-  { label: "Floor plan CAD", format: "DWG", size: "6.4 MB", icon: "architecture" },
+/** Downloads menu (1507:59421): brochures and floor plans in two groups, then "Download all as a zip" */
+const PDF = "PDF · [X] MB";
+const DOWNLOADS: DownloadGroup[] = [
+  {
+    label: "Brochures",
+    files: [
+      { label: "Estate brochure", meta: PDF },
+      { label: "[Building] brochure", meta: PDF },
+    ],
+  },
+  {
+    label: "Floor plans",
+    files: [
+      { label: "[Building A] floor plan", meta: PDF },
+      { label: "[Building B] floor plan", meta: PDF },
+      { label: "[Building C] floor plan", meta: PDF },
+    ],
+  },
 ];
+
+/**
+ * Photo gallery (1507:59463): 24 placeholder photos across the five drawn categories, in category order (the
+ * drawn lightbox shows photo 7 as Exterior). The hero and the two images beside it are photos 1 to 3.
+ */
+const GALLERY_CATEGORIES: (GalleryCategory & { count: number })[] = [
+  { id: "exterior", label: "Exterior", count: 8 },
+  { id: "interior", label: "Interior", count: 6 },
+  { id: "aerial", label: "Aerial", count: 4 },
+  { id: "floor-plans", label: "Floor plans", count: 3 },
+  { id: "amenities", label: "Amenities", count: 3 },
+];
+const GALLERY_PHOTOS: GalleryPhoto[] = GALLERY_CATEGORIES.flatMap(({ count, ...category }) => Array.from({ length: count }, () => category)).map(
+  (category, i) => ({ n: i + 1, category }),
+);
+
+const cards = (name: string) => [1, 2, 3, 4].map((i): FeatureCard => ({ title: `[${name} ${i}]`, body: "[One line]" }));
 
 export const JP_PROPERTY_DETAIL = {
   breadcrumb: [
     { label: "Our portfolio", href: "/jp/portfolio" },
     { label: "Properties", href: PROPERTIES_PAGE },
   ],
-  /** Media column (1138:10624): a video, then four images; heights at the 649px column width */
-  media: [
-    { kind: "video" as const, height: 338 },
-    { kind: "image" as const, height: 468 },
-    { kind: "image" as const, height: 468 },
-    { kind: "image" as const, height: 338 },
-    { kind: "image" as const, height: 468 },
-  ],
   distances: DISTANCES,
-  contactTitle: "Enquire about this property",
-  contacts: CONTACTS,
-  contactCta: "Enquire about this property",
   aboutTitle: "About",
-  sharingTitle: "Sharing the space",
-  /** Four customer logo placeholders (1138:10738) */
-  sharingLogos: 4,
+  /** "Enquire now" beside Downloads (1507:52149): jumps to the enquiry module */
+  enquireNow: "Enquire now",
+  downloads: {
+    label: "Downloads",
+    groups: DOWNLOADS,
+    all: "Download all as a zip",
+  },
+  /** "Features and amenities" (1507:52171): three groups, drawn open */
+  features: {
+    title: "Features and amenities",
+    amenities: { label: "Amenities", cards: cards("Amenity") },
+    sustainability: {
+      label: "Sustainability",
+      rating: { title: "[Rating scheme and score]", body: "[Certification body and year, to be confirmed with ESR Japan]" },
+      awardsLabel: "Awards and certifications",
+      /** Award / certification logo placeholders */
+      awards: 4,
+      cards: cards("Sustainability feature"),
+    },
+    property: { label: "Property features", items: Array.from({ length: 10 }, (_, i) => `[Property feature ${i + 1}]`) },
+  },
+  gallery: {
+    photos: GALLERY_PHOTOS,
+    categories: GALLERY_CATEGORIES.map(({ id, label }) => ({ id, label })),
+    showAll: `Show all ${GALLERY_PHOTOS.length} photos`,
+    back: "Back to property",
+    allPhotos: "All photos",
+    all: "All",
+    close: "Close",
+    caption: "[Image caption, to be supplied by ESR Japan]",
+    swipeHint: "Swipe to move between photos",
+  },
   space: {
     title: "Available space",
     units: UNITS,
@@ -203,8 +252,8 @@ export const JP_PROPERTY_DETAIL = {
     clear: "Clear filters",
   },
   /**
-   * "LocationDeepDive" (1478:49678): the map with an estate pin and four [Landmark] pins, and the four access rows
-   * beside it. The drawn map tile shows northern Tokyo and Saitama, which does not include Kawasaki, so the map is
+   * "LocationDeepDive" (1507:52332): the map with an estate pin and four [Feature] pins, and the access rows
+   * beside it (390 adds "Labour catchment" and "Get directions", 1507:59203). The drawn map tile shows northern Tokyo and Saitama, which does not include Kawasaki, so the map is
    * a Tokyo Bay tile in the same greyscale style (Kawasaki on the bay at the bottom) and the estate pin sits at the
    * Kawasaki waterfront, the point of the tile nearest Higashi-Ogishima. Landmark pins keep their drawn positions.
    */
@@ -216,10 +265,10 @@ export const JP_PROPERTY_DETAIL = {
     /** Pin centre as % of the map */
     pin: { x: 53, y: 92 },
     landmarks: [
-      { label: "[Landmark]", x: 12, y: 18 },
-      { label: "[Landmark]", x: 37, y: 22 },
-      { label: "[Landmark]", x: 25, y: 53 },
-      { label: "[Landmark]", x: 43, y: 75 },
+      { label: "[Feature]", x: 12, y: 18 },
+      { label: "[Feature]", x: 37, y: 22 },
+      { label: "[Feature]", x: 25, y: 53 },
+      { label: "[Feature]", x: 43, y: 75 },
     ],
     zoom: { min: 1, max: 3, step: 0.5 },
     rows: [
@@ -227,13 +276,17 @@ export const JP_PROPERTY_DETAIL = {
       { title: "Port access", value: "[XX min]", body: "[One sentence on the port connection]" },
       { title: "Airport access", value: "[XX min]", body: "[One sentence on the airport connection]" },
       { title: "Rail freight", value: "[XX min]", body: "[One sentence on rail freight access]" },
+      { title: "Labour catchment", value: "[XX min]", body: "[One sentence on the surrounding labour catchment]", mobileOnly: true },
     ],
+    directions: "Get directions",
   },
+  /** "ContactAndEnquiry" (1507:52333): contacts beside the form */
   enquiry: {
-    id: "property-enquiry",
     title: "Enquire about this property",
-    body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididun",
-    submitLabel: "Send enquiry",
+    body: "Talk to the ESR Japan leasing team about this facility.",
+    contacts: CONTACTS,
+    optIn: "Keep me updated on ESR news and property availability",
+    submitLabel: "Enquire now",
     success: {
       title: "Thanks, your enquiry is with us",
       body: "A member of the ESR Japan leasing team will be in touch within two business days. We have sent a copy to the email address you gave us.",
@@ -243,14 +296,8 @@ export const JP_PROPERTY_DETAIL = {
   },
   relatedTitle: "Related properties",
   marketsTitle: "Looking in another market?",
-  /** Desktop list (1138:10934). Other local sites are not part of the prototype: inert. */
+  /** "OtherMarkets" (1507:52412). Other local sites are not part of the prototype: inert. */
   markets: ["Australia and New Zealand", "Greater China", "South Korea", "Singapore", "India"].map((label) => ({ label, href: null as string | null })),
-  actions: {
-    share: "Share",
-    exportPdf: "Export page as PDF",
-    downloads: "Downloads",
-    files: DOWNLOADS,
-  },
   share: {
     share: "Share",
     copy: "Copy link",
@@ -267,35 +314,28 @@ export const JP_PROPERTY_DETAIL = {
 export const unitEnquiryMessage = (u: SpaceUnit, size: string, property: string) =>
   `I'd like to find out more about ${u.unit} (${size}, ${u.available}) at ${property}.`;
 
-/**
- * Related property cards (1138:10826): six of the other properties, the drawn four first (four are drawn; six give
- * the carousel arrows something to do at 1440, where four cards fit)
- */
-export function relatedProperties(current: JpProperty): LocalPropertyCardData[] {
-  return JP_PROPERTIES.filter((p) => p.slug !== current.slug).slice(0, 6).map((p) => ({
-    tags: [p.region],
-    title: p.name,
-    type: p.published?.type ?? "Logistics",
-    size: p.published ? p.published.gfa : "[GFA TBC]",
-    availability: p.published ? p.published.completion : "[Status TBC]",
-    href: `${PROPERTIES_PAGE}/${p.slug}`,
-  }));
+export type RelatedPropertyCardData = { region: string; title: string; meta: string; href: string };
+
+/** Related property cards (1507:52375): the next four properties */
+export function relatedProperties(current: JpProperty): RelatedPropertyCardData[] {
+  return JP_PROPERTIES.filter((p) => p.slug !== current.slug)
+    .slice(0, 4)
+    .map((p) => ({
+      region: p.region,
+      title: p.name,
+      meta: `${p.published?.type ?? "Logistics"}  ·  ${p.published ? p.published.gfa : "[GFA TBC]"}`,
+      href: `${PROPERTIES_PAGE}/${p.slug}`,
+    }));
 }
 
-/** Features in the "Property Features" accordion (not drawn): the published figures, or TBC placeholders */
-export function propertyFeatures(p: JpProperty): { label: string; value: string }[] {
+/** Key facts beside About (1507:52151): the published figures, or TBC placeholders */
+export function propertyKeyFacts(p: JpProperty): { label: string; value: string }[] {
   const pub = p.published;
   return [
-    { label: "Property type", value: pub?.type ?? "Logistics" },
+    { label: "Total size", value: pub?.gfa ?? "[GFA TBC]" },
     { label: "Site area", value: pub?.siteArea ?? "[Site area TBC]" },
-    { label: "Gross floor area", value: pub ? pub.gfa.replace(" GFA", "") : "[GFA TBC]" },
-    { label: "Completion", value: pub ? pub.completion.replace("Completion ", "") : "[Status TBC]" },
-    { label: "Structure and specifications", value: "[To be confirmed]" },
+    { label: "Type", value: pub?.type ?? "Logistics" },
+    { label: "Structure and floors", value: pub ? "In planning" : "[TBC]" },
+    { label: "Availability", value: pub ? pub.completion.replace("Completion ", "") : "[Status TBC]" },
   ];
 }
-
-export const PROPERTY_ACCORDIONS = {
-  amenities: { label: "Amenities", body: "[Amenities to be confirmed by ESR Japan.]" },
-  sustainability: { label: "Sustainability", body: "[Environmental certification and sustainability features to be confirmed by ESR Japan.]" },
-  features: { label: "Property Features" },
-};

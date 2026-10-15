@@ -1,6 +1,6 @@
 /**
- * Moves the visitor to the property enquiry form (FormBlock with id ENQUIRY_ID): scrolls it into view, optionally
- * pre-fills the Message, and focuses the first field. Used by the drawn "Enquire about this property" button, each
+ * Moves the visitor to the property enquiry form (ContactEnquiryForm with id ENQUIRY_ID): scrolls it into view, optionally
+ * pre-fills the Message, and focuses the first field. Used by the drawn "Enquire now" button, each
  * Available space row's "Enquire" and the sticky "Enquire now" bar. Browser only (call from event handlers).
  */
 export const ENQUIRY_ID = "property-enquiry";
@@ -21,7 +21,8 @@ export function goToEnquiry(message?: string) {
   }
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   section.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-  // The first field, or (after a sent enquiry) the success card's first control
-  const target = section.querySelector<HTMLElement>("input, select, textarea, button, a[href], [tabindex='-1']");
+  // The form's first field, or (after a sent enquiry) the success card's heading
+  const target =
+    section.querySelector<HTMLElement>("form :is(input, select, textarea)") ?? section.querySelector<HTMLElement>("[tabindex='-1'], button, a[href]");
   target?.focus({ preventScroll: true });
 }

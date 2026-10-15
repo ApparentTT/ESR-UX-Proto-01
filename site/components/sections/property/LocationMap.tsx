@@ -2,7 +2,9 @@
 
 import { useId, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
+import { GUTTER } from "./PropertyBlocks";
 import { MapZoomControls } from "@/components/sections/map/MapZoomControls";
+import { SmartLink } from "@/components/ui/SmartLink";
 
 type Pt = { x: number; y: number };
 export type LocationMapCopy = {
@@ -13,17 +15,22 @@ export type LocationMapCopy = {
   pin: Pt;
   landmarks: (Pt & { label: string })[];
   zoom: { min: number; max: number; step: number };
-  rows: { title: string; value: string; body: string }[];
+  /** mobileOnly: drawn at 390 only */
+  rows: { title: string; value: string; body: string; mobileOnly?: boolean }[];
+  /** "Get directions" (drawn at 390 only; inert) */
+  directions: string;
 };
 
 /**
- * "LocationDeepDive" (1478:49678). 80 / 80 with 67px sides at 1440: the map (760 x 460, radius 12, line border, the
- * map image at 40% on white) beside the four access rows (Medium 18 title + muted 14 "[XX min]", muted 15 sentence,
- * 18px padding, line rules), 40px apart. The estate pin is the drawn dark pill with the warehouse icon (labelled with
- * the property name) and the [Landmark] pins are white outline pills.
+ * "LocationDeepDive" (1507:52332): surface band, 80 / 80 with 67px sides at 1440: the map (760 x 460, radius 12,
+ * line border, the map image at 40% on white) beside the access rows (Medium 18 title + muted 14 "[XX min]",
+ * muted 15 sentence, 18px padding, line rules), 40px apart and vertically centred. The estate pin is the drawn
+ * dark pill with the warehouse icon (labelled with the property name) and the [Feature] pins are white outline
+ * pills. 390 (1507:59203): stacked, the map 342 x 280, a fifth row ("Labour catchment") and a dark full-width
+ * "Get directions" (inert: directions are not part of the prototype).
  * Zoom: the shared + / − controls (MapZoomControls) scale the map image around the estate pin, so the pin stays
- * where it is; landmark pins move outward with the image and keep their size. Buttons are keyboard operable and
- * the new zoom level is announced. Stacked below 1024; on the surface grey at 390 as drawn.
+ * where it is; feature pins move outward with the image and keep their size. Buttons are keyboard operable and
+ * the new zoom level is announced.
  */
 export function LocationMap({ map, name }: { map: LocationMapCopy; name: string }) {
   const headingId = useId();
@@ -33,14 +40,13 @@ export function LocationMap({ map, name }: { map: LocationMapCopy; name: string 
   const set = (z: number) => setZoom(Math.min(map.zoom.max, Math.max(map.zoom.min, z)));
 
   return (
-    <section aria-labelledby={headingId} className="bg-surface py-12 md:py-16 lg:bg-white lg:px-[67px] lg:py-20" data-print-section>
+    <section aria-labelledby={headingId} className="bg-surface py-14 md:py-16 lg:py-20">
       <h2 id={headingId} className="sr-only">
         Location and access
       </h2>
-      <div className="mx-auto flex max-w-[1306px] flex-col gap-8 px-6 md:px-10 lg:flex-row lg:items-start lg:gap-10 lg:px-0">
+      <div className={`${GUTTER} flex flex-col gap-5 md:gap-8 lg:flex-row lg:items-center lg:gap-10`}>
         <div
-          className="relative aspect-[342/260] w-full shrink-0 overflow-hidden rounded-card border border-line bg-white md:aspect-[1088/635] lg:w-[58%] lg:max-w-[760px] lg:aspect-[760/460]"
-          data-print-avoid
+          className="relative aspect-[342/280] w-full shrink-0 overflow-hidden rounded-card border border-line bg-white md:aspect-[1088/635] lg:aspect-[760/460] lg:w-[58%] lg:max-w-[760px]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- a static map tile, no optimisation needed */}
           <img
@@ -69,31 +75,43 @@ export function LocationMap({ map, name }: { map: LocationMapCopy; name: string 
             <Icon name="warehouse" size={16} />
             <span className="truncate text-[12px] font-medium leading-[1.5]">{name}</span>
           </span>
-          <div data-print-hide>
-            <MapZoomControls
-              zoom={zoom}
-              min={map.zoom.min}
-              max={map.zoom.max}
-              onZoomIn={() => set(zoom + map.zoom.step)}
-              onZoomOut={() => set(zoom - map.zoom.step)}
-            />
-          </div>
+          <MapZoomControls
+            zoom={zoom}
+            min={map.zoom.min}
+            max={map.zoom.max}
+            onZoomIn={() => set(zoom + map.zoom.step)}
+            onZoomOut={() => set(zoom - map.zoom.step)}
+          />
           <p className="sr-only" aria-live="polite">
             {zoom > map.zoom.min ? `Map zoomed to ${Math.round(zoom * 100)}%` : ""}
           </p>
         </div>
 
-        <ul className="flex min-w-0 flex-1 flex-col">
-          {map.rows.map((r) => (
-            <li key={r.title} className="flex flex-col gap-[5px] border-b border-line py-[18px] leading-[1.5]">
-              <div className="flex items-center gap-2.5 font-medium">
-                <h3 className="min-w-0 flex-1 text-[17px] text-ink lg:text-[18px]">{r.title}</h3>
-                <span className="shrink-0 whitespace-nowrap text-[14px] text-muted-surface lg:text-muted">{r.value}</span>
-              </div>
-              <p className="text-[15px] text-muted-surface lg:text-muted">{r.body}</p>
-            </li>
-          ))}
-        </ul>
+        <div className="flex min-w-0 flex-1 flex-col gap-5 lg:gap-0">
+          <ul className="flex flex-col">
+            {map.rows.map((r, i) => (
+              <li
+                key={r.title}
+                className={`flex flex-col gap-[5px] border-line py-4 leading-[1.5] lg:border-b lg:border-t-0 lg:py-[18px] ${i > 0 ? "border-t" : ""} ${
+                  r.mobileOnly ? "lg:hidden" : ""
+                }`}
+              >
+                <div className="flex items-center gap-2.5 font-medium">
+                  <h3 className="min-w-0 flex-1 text-[17px] text-ink lg:text-[18px]">{r.title}</h3>
+                  <span className="shrink-0 whitespace-nowrap text-[14px] text-muted-surface">{r.value}</span>
+                </div>
+                <p className="text-[14px] text-muted-surface lg:text-[15px]">{r.body}</p>
+              </li>
+            ))}
+          </ul>
+          <SmartLink
+            href={null}
+            className="inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-btn bg-ink py-3.5 pl-[22px] pr-[18px] text-[15px] font-medium leading-[1.5] text-white transition-colors hover:bg-black lg:hidden"
+          >
+            {map.directions}
+            <Icon name="arrow_forward" size={18} />
+          </SmartLink>
+        </div>
       </div>
     </section>
   );

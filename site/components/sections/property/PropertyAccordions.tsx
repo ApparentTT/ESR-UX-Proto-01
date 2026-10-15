@@ -6,22 +6,23 @@ import { Icon } from "@/components/ui/Icon";
 export type PropertyAccordionItem = { label: string; content: React.ReactNode };
 
 /**
- * Amenities / Sustainability / Property Features (1138:10712-10726): Bold 18 (-0.36) labels with a 24px
- * keyboard_arrow_down on the right, 24px apart, no rules or fills (unlike the B17 FAQ accordion). Independent
- * toggles; the arrow turns when open. Panels are 16/24 body copy. Closed panels are display:none (not the hidden attribute, so print:block can open every panel in print).
+ * "Features and amenities" groups (1507:52174): Amenities, Sustainability and Property features between line
+ * rules, each a Medium 20 label (19 at 390) with a muted 24px arrow on the right, drawn open (arrow up). Every
+ * group starts open; the labels toggle them independently and the arrow turns when closed. 20px padding
+ * (18 at 390), 16px (14) between the label and the panel.
  */
 export function PropertyAccordions({ items }: { items: PropertyAccordionItem[] }) {
   const base = useId();
-  const [open, setOpen] = useState<number[]>([]);
-  const toggle = (i: number) => setOpen((cur) => (cur.includes(i) ? cur.filter((v) => v !== i) : [...cur, i]));
+  const [closed, setClosed] = useState<number[]>([]);
+  const toggle = (i: number) => setClosed((cur) => (cur.includes(i) ? cur.filter((v) => v !== i) : [...cur, i]));
   return (
-    <div className="flex flex-col gap-2">
+    <div className="border-y border-line">
       {items.map((item, i) => {
-        const isOpen = open.includes(i);
+        const isOpen = !closed.includes(i);
         const btnId = `${base}-b${i}`;
         const panelId = `${base}-p${i}`;
         return (
-          <div key={item.label}>
+          <div key={item.label} className={`py-2.5 md:py-3 ${i > 0 ? "border-t border-line" : ""}`}>
             <h3>
               <button
                 id={btnId}
@@ -29,17 +30,17 @@ export function PropertyAccordions({ items }: { items: PropertyAccordionItem[] }
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => toggle(i)}
-                className="flex min-h-10 w-full items-center justify-between gap-4 rounded-btn py-2 text-left text-[18px] font-bold tracking-[-0.02em] text-ink"
+                className="flex min-h-11 w-full items-center gap-3 rounded-btn py-1 text-left text-[19px] font-medium leading-[1.5] text-ink lg:text-[20px]"
               >
-                {item.label}
+                <span className="min-w-0 flex-1">{item.label}</span>
                 <Icon
-                  name="keyboard_arrow_down"
+                  name="keyboard_arrow_up"
                   size={24}
-                  className={`shrink-0 transition-transform motion-reduce:transition-none ${isOpen ? "rotate-180" : ""}`}
+                  className={`text-muted transition-transform motion-reduce:transition-none ${isOpen ? "" : "rotate-180"}`}
                 />
               </button>
             </h3>
-            <div id={panelId} role="region" aria-labelledby={btnId} className={`anim-fade pb-2 pt-1 text-[16px] leading-6 text-body ${isOpen ? "" : "hidden print:block"}`}>
+            <div id={panelId} role="region" aria-labelledby={btnId} hidden={!isOpen} className="anim-fade pb-2 pt-2.5 md:pt-3">
               {item.content}
             </div>
           </div>

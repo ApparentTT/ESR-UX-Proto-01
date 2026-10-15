@@ -1,27 +1,31 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { LocalPageShell } from "@/components/layout/local/LocalPageShell";
-import { Container } from "@/components/layout/Container";
-import { Breadcrumb } from "@/components/sections/local/LocalIntro";
-import { FormBlock } from "@/components/sections/forms/FormBlock";
+import { ContactEnquiryForm } from "@/components/sections/forms/ContactEnquiryForm";
 import { PropertyMedia } from "@/components/sections/property/PropertyMedia";
-import { PropertyActions } from "@/components/sections/property/PropertyActions";
+import { ShareMenu } from "@/components/sections/property/ShareMenu";
 import { DownloadsMenu } from "@/components/sections/property/DownloadsMenu";
 import { EnquireButton } from "@/components/sections/property/EnquireButton";
-import { PropertyAccordions } from "@/components/sections/property/PropertyAccordions";
 import { AvailableSpace } from "@/components/sections/property/AvailableSpace";
 import { LocationMap } from "@/components/sections/property/LocationMap";
 import { RelatedProperties } from "@/components/sections/property/RelatedProperties";
 import { StickyEnquire } from "@/components/sections/property/StickyEnquire";
 import { ENQUIRY_ID } from "@/components/sections/property/enquire";
-import { DistanceStats, MarketChips, PropertyContacts, PropertyTitle, SharingSpace } from "@/components/sections/property/PropertyBlocks";
+import {
+  EnquiryContacts,
+  FeaturesAndAmenities,
+  GUTTER,
+  KeyDistances,
+  KeyFacts,
+  MarketChips,
+  PropertyIntro,
+} from "@/components/sections/property/PropertyBlocks";
 import {
   JP_PROPERTIES,
   JP_PROPERTY_DETAIL as D,
-  PROPERTY_ACCORDIONS as ACC,
   jpPropertyBySlug,
   propertyAbout,
-  propertyFeatures,
+  propertyKeyFacts,
   propertyTags,
   relatedProperties,
 } from "@/data/site/local/property-detail";
@@ -42,100 +46,67 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 /**
  * /jp/properties/[slug]: Japan property detail, Figma "Property detail " 1273:90948 (1440) and "Property detail  mob"
- * 1273:90949 (390). The drawn page is Higashi-Ogishima Distribution Centre 2; the others share its wireframe content
- * with their own name, address and TBC figures. Local Japan shell; local nav active item: Our portfolio.
- * Not drawn, added at the client's request: Share, Export page as PDF (print stylesheet in app/globals.css),
- * Downloads (in place of the two drawn download buttons) and the sticky "Enquire now" bar.
+ * 1273:90949 (390), with the Downloads menu (1507:59421) and the photo gallery (grid 1507:59463 / 1507:59568,
+ * lightbox 1507:59500 / 1507:59592). The drawn page is Higashi-Ogishima Distribution Centre 2; the others share its
+ * wireframe content with their own name, address and TBC figures. Local Japan shell; local nav active item:
+ * Our portfolio. Not drawn, added at the client's request: the Share menu and the sticky "Enquire now" bar.
  */
 export default async function JapanPropertyDetailPage({ params }: Params) {
   const { slug } = await params;
   const p = jpPropertyBySlug(slug);
   if (!p) notFound();
 
-  const features = propertyFeatures(p);
-
   return (
     <LocalPageShell>
-      <div data-property-detail>
-        {/* Breadcrumb bar (1138:10621); not drawn at 390 */}
-        <Container className="hidden pb-1 pt-4 md:block">
-          <Breadcrumb items={[...D.breadcrumb, { label: p.name, href: null }]} />
-        </Container>
+      <PropertyIntro
+        crumbs={[...D.breadcrumb, { label: p.name, href: null }]}
+        tags={propertyTags(p)}
+        name={p.name}
+        address={p.address}
+        actions={<ShareMenu title={`${p.name} | ESR Japan`} text={`${p.name}, ${p.address}`} copy={D.share} panelClassName="left-0 md:left-auto md:right-0" />}
+      />
 
-        {/* Media column beside the property details (1138:10623) */}
-        <div className="mx-auto max-w-(--page-max) lg:grid lg:grid-cols-2" data-print-flow>
-          <div className="px-6 pt-6 md:px-10 lg:px-[35.5px] lg:pb-12 lg:pt-12" data-print-hide>
-            <PropertyMedia items={D.media} name={p.name} />
-          </div>
+      <PropertyMedia gallery={D.gallery} name={p.name} />
 
-          <div className="flex min-w-0 flex-col gap-10 px-6 pb-12 pt-10 md:px-10 lg:gap-12 lg:pb-16 lg:pl-8 lg:pr-10 lg:pt-12 xl:pr-[30px]">
-            <div className="flex flex-col gap-6">
-              <PropertyTitle name={p.name} address={p.address} tags={propertyTags(p)} />
-              <PropertyActions name={p.name} address={p.address} share={D.share} exportLabel={D.actions.exportPdf} />
+      {/* "Overview" (1507:52125): key distances, then About with Downloads / Enquire now beside the key facts */}
+      <section aria-labelledby="property-about" className={`${GUTTER} flex flex-col pb-14 pt-2 md:gap-7 md:pb-16 lg:pb-[72px]`}>
+        <KeyDistances stats={D.distances} />
+        <div className="flex flex-col gap-5 pt-[72px] md:pt-4 lg:flex-row lg:items-start lg:gap-16 lg:pt-0">
+          <div className="flex min-w-0 flex-1 flex-col gap-5 lg:gap-3">
+            <h2 id="property-about" className="text-[28px] font-bold leading-[1.18] text-ink md:text-[30px] lg:text-[32px] lg:leading-[1.15]">
+              {D.aboutTitle}
+            </h2>
+            <p className="text-[15px] leading-[1.5] text-muted lg:text-[17px]">{propertyAbout(p)}</p>
+            <div className="flex flex-col gap-3 md:flex-row md:items-start lg:pt-2">
+              <DownloadsMenu label={D.downloads.label} groups={D.downloads.groups} all={D.downloads.all} property={p.name} />
+              <EnquireButton label={D.enquireNow} />
             </div>
-            <DistanceStats stats={D.distances} />
-
-            <PropertyContacts title={D.contactTitle} contacts={D.contacts}>
-              <div className="py-4">
-                <EnquireButton label={D.contactCta} />
-              </div>
-            </PropertyContacts>
-
-            {/* About (1138:10701) */}
-            <section aria-labelledby="property-about" className="flex flex-col gap-6">
-              <div className="flex flex-col gap-5">
-                <h2 id="property-about" className="text-[28px] font-medium leading-[1.2] tracking-[-0.02em] text-ink md:text-[34px] lg:text-[40px]">
-                  {D.aboutTitle}
-                </h2>
-                <p className="text-[16px] leading-6 text-body lg:text-[18px] lg:leading-7">{propertyAbout(p)}</p>
-                <DownloadsMenu label={D.actions.downloads} files={D.actions.files} property={p.name} />
-              </div>
-              <PropertyAccordions
-                items={[
-                  { label: ACC.amenities.label, content: <p>{ACC.amenities.body}</p> },
-                  { label: ACC.sustainability.label, content: <p>{ACC.sustainability.body}</p> },
-                  {
-                    label: ACC.features.label,
-                    content: (
-                      <dl className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-x-4 gap-y-2">
-                        {features.map((f) => (
-                          <div key={f.label} className="contents">
-                            <dt className="text-muted">{f.label}</dt>
-                            <dd className="text-ink">{f.value}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    ),
-                  },
-                ]}
-              />
-            </section>
-
-            <SharingSpace title={D.sharingTitle} count={D.sharingLogos} />
-            <AvailableSpace copy={D.space} property={p.name} />
           </div>
+          <KeyFacts facts={propertyKeyFacts(p)} label={`Key facts: ${p.name}`} />
         </div>
+      </section>
 
-        <StickyEnquire name={p.name} label={D.sticky.cta} />
+      <FeaturesAndAmenities copy={D.features} />
+      <AvailableSpace copy={D.space} property={p.name} />
+      <StickyEnquire name={p.name} label={D.sticky.cta} />
+      <LocationMap map={D.map} name={p.name} />
 
-        {/* LocationDeepDive (1478:49678) */}
-        <LocationMap map={D.map} name={p.name} />
+      <ContactEnquiryForm
+        id={ENQUIRY_ID}
+        title={D.enquiry.title}
+        body={D.enquiry.body}
+        company={false}
+        phone
+        optIn={D.enquiry.optIn}
+        submitLabel={D.enquiry.submitLabel}
+        success={D.enquiry.success}
+        aside={<EnquiryContacts contacts={D.enquiry.contacts} />}
+        padClassName="py-14 lg:py-[72px]"
+        gutterClassName={GUTTER}
+      />
 
-        {/* Enquiry form the designer added above Related properties (1469:46857) */}
-        <div data-print-hide>
-          <FormBlock
-            variant="dcEnquiry"
-            id={ENQUIRY_ID}
-            title={D.enquiry.title}
-            body={D.enquiry.body}
-            submitLabel={D.enquiry.submitLabel}
-            success={D.enquiry.success}
-          />
-        </div>
-
-        <RelatedProperties title={D.relatedTitle} cards={relatedProperties(p)} />
-        <MarketChips title={D.marketsTitle} markets={D.markets} />
-      </div>
+      <RelatedProperties title={D.relatedTitle} cards={relatedProperties(p)} />
+      <MarketChips title={D.marketsTitle} markets={D.markets} />
     </LocalPageShell>
   );
 }

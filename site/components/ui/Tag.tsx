@@ -36,11 +36,14 @@ export function FilterPills<T extends string>({
   value,
   onChange,
   label,
+  className = "flex flex-wrap gap-2",
 }: {
   options: { id: T; label: string }[];
   value: T;
   onChange: (id: T) => void;
   label: string;
+  /** Layout of the group (default: wrapping row, 8px gaps) */
+  className?: string;
 }) {
   // Radio group keyboard pattern: one Tab stop, arrow keys move and select.
   const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -54,7 +57,7 @@ export function FilterPills<T extends string>({
     (e.currentTarget.querySelectorAll<HTMLButtonElement>("[role=radio]")[n])?.focus();
   };
   return (
-    <div role="radiogroup" aria-label={label} onKeyDown={onKeyDown} className="flex flex-wrap gap-2">
+    <div role="radiogroup" aria-label={label} onKeyDown={onKeyDown} className={className}>
       {options.map((o) => {
         const on = o.id === value;
         return (

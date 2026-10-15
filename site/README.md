@@ -58,7 +58,7 @@ Use the **Prototype** badge (bottom right) to jump to any page, or to any state 
 - Links to pages that are not wireframed yet (Infrastructure, articles, case study details, social links, PDFs and downloads) are inert. Clicking one shows a short "This page is not part of the prototype" notice.
 - Filters on news, case studies and the fund table work over the sample records. Forms validate required fields and show a confirmation without sending anything.
 - The header menus open on click (Enter or Space) and close on Escape, the overlay, or another menu. While one is open, resting the pointer on another section switches to it.
-- The Japan property detail page has Share (copy link, email, LinkedIn, X, LINE), a Downloads menu (brochure and floor plans, placeholders), Export page as PDF (the browser's print dialog with a print layout), a sticky Enquire now bar, working unit filters, and an enquiry form that unit links pre-fill.
+- The Japan property detail page has Share (copy link, email, LinkedIn, X, LINE), a Downloads menu (brochures and floor plans, placeholders), a photo gallery ("Show all photos" opens the grid with category filters; any photo opens the lightbox, with arrow keys, swipe and thumbnails), a sticky Enquire now bar, working unit filters, and an enquiry form that unit links pre-fill.
 - "Industries we serve" on Our customers is interactive: hover or tap a segment or a sector to open its details.
 - The header search covers the whole site (group and Japan pages, news, case studies, leaders, documents, funds): typing shows the top matches, and Enter opens the full results page at `/search`. `/news/search` stays as the news-only search.
 

@@ -8,8 +8,8 @@ import { ENQUIRE_BUTTON_ID } from "./EnquireButton";
 const BAR_H = 64;
 
 /**
- * Sticky "Enquire now" (not drawn, added at the client's request). Shown only while the drawn "Enquire about this
- * property" button has scrolled up out of view and the enquiry form is still below the viewport, so it never sits
+ * Sticky "Enquire now" (not drawn, added at the client's request). Shown only while the drawn "Enquire now" button
+ * beside Downloads has scrolled up out of view and the enquiry form is still below the viewport, so it never sits
  * over the form or the end of the page (the footer). 768+: a slim white bar fixed to the top of the window (the
  * header is not sticky) with the property name and a dark "Enquire now" button; while it shows, the page's
  * scroll-padding-top keeps focused content clear of it. 390: a white bar fixed to the bottom with the button on the
@@ -58,7 +58,6 @@ export function StickyEnquire({ name, label }: { name: string; label: string }) 
   return (
     <div
       hidden={!show}
-      data-print-hide
       className="anim-fade fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgb(17_24_38/0.08)] md:bottom-auto md:top-0 md:border-b md:border-t-0 md:pb-0 md:shadow-[0_4px_16px_rgb(17_24_38/0.08)]"
     >
       <div className="mx-auto flex h-[72px] max-w-(--page-max) items-center gap-6 pl-[max(1.5rem,env(safe-area-inset-left))] pr-[148px] md:h-16 md:px-10 lg:px-20">

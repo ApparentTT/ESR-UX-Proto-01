@@ -3,7 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { SocialIcon } from "@/components/ui/SocialIcon";
-import { OUTLINE_BTN, PANEL, PANEL_ITEM, usePopover } from "./usePopover";
+import { PANEL, PANEL_ITEM, usePopover } from "./usePopover";
 
 type ShareCopy = { share: string; copy: string; copied: string; email: string; linkedin: string; x: string; line: string };
 
@@ -36,11 +36,23 @@ async function copyText(text: string) {
 }
 
 /**
- * Share (not drawn). On touch devices with the Web Share API it opens the system share sheet; otherwise a small
+ * Share (1507:52111): white, 1px line border, radius 8, Medium 14 with the share icon. The menu is not drawn.
+ * On touch devices with the Web Share API it opens the system share sheet; otherwise a small
  * disclosure menu: Copy link (shows "Link copied", announced politely), Email (mailto with subject and body),
  * LinkedIn, X and LINE (each opens in a new tab). Escape and a click outside close it and focus returns to Share.
  */
-export function ShareMenu({ title, text, copy }: { title: string; text: string; copy: ShareCopy }) {
+export function ShareMenu({
+  title,
+  text,
+  copy,
+  panelClassName = "left-0",
+}: {
+  title: string;
+  text: string;
+  copy: ShareCopy;
+  /** Panel alignment under the button */
+  panelClassName?: string;
+}) {
   const { open, setOpen, close, wrapRef, buttonRef, onPanelKeyDown } = usePopover();
   const panelId = useId();
   const [url, setUrl] = useState("");
@@ -106,19 +118,19 @@ export function ShareMenu({ title, text, copy }: { title: string; text: string; 
   ];
 
   return (
-    <div ref={wrapRef} className="relative" data-print-hide>
+    <div ref={wrapRef} className="relative shrink-0 self-start md:self-auto">
       <button
         ref={buttonRef}
         type="button"
         aria-expanded={open}
         aria-controls={panelId}
         onClick={onShare}
-        className={`${OUTLINE_BTN} min-h-10 px-4 py-2`}
+        className="inline-flex min-h-[46px] items-center gap-2 rounded-control border border-line bg-white px-4 py-[11px] text-[14px] font-medium leading-[1.5] text-ink transition-colors hover:border-ink aria-expanded:border-ink"
       >
         <Icon name="share" size={18} />
         {copy.share}
       </button>
-      <div id={panelId} hidden={!open} onKeyDown={onPanelKeyDown} className={`${PANEL} left-0`}>
+      <div id={panelId} hidden={!open} onKeyDown={onPanelKeyDown} className={`${PANEL} ${panelClassName}`}>
         <ul aria-label={copy.share}>
           <li>
             <button ref={firstRef} type="button" data-popover-item onClick={onCopy} className={PANEL_ITEM}>

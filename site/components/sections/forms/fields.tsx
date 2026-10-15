@@ -69,7 +69,7 @@ export function InputField({
   type = "text",
   placeholder,
   autoComplete,
-}: BaseProps & { type?: "text" | "email"; placeholder?: string; autoComplete?: string }) {
+}: BaseProps & { type?: "text" | "email" | "tel"; placeholder?: string; autoComplete?: string }) {
   const id = useId();
   const errId = `${id}-error`;
   return (

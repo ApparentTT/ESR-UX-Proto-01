@@ -14,6 +14,14 @@ export type ContactEnquiryFormProps = {
   enquiryTypes?: string[];
   /** Company field (default shown; the drawn InvestorEnquiryForm has none) */
   company?: boolean;
+  /** Phone number field after Email (the property detail enquiry) */
+  phone?: boolean;
+  /** Extra content under the intro copy, e.g. the property detail's contact cards */
+  aside?: React.ReactNode;
+  /** Band padding (default 80 / 80) */
+  padClassName?: string;
+  /** Content column classes in place of the shared Container (e.g. the property detail's 67px gutters) */
+  gutterClassName?: string;
   /** Opt-in checkbox label. Omit for no checkbox. */
   optIn?: string;
   submitLabel: string;
@@ -34,9 +42,17 @@ const RULES: FieldRule[] = [
   },
 ];
 
+const GRID = "grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-16";
+
+/** The custom content column when gutterClassName is set (else the Section's Container already wraps it) */
+function Wrap({ gutter, children }: { gutter?: string; children: React.ReactNode }) {
+  return gutter ? <div className={`${gutter} ${GRID}`}>{children}</div> : <>{children}</>;
+}
+
 /**
  * B41 ContactEnquiryForm (CONTACT §3 "Send us a message"), also the drawn InvestorEnquiryForm (fund detail,
- * without the enquiry type, company and opt-in). Surface band, 80/80 padding, two equal columns 64px apart
+ * without the enquiry type, company and opt-in) and the Japan property detail enquiry (1507:52333: phone and
+ * opt-in, no company, contact cards under the intro). Surface band, 80/80 padding, two equal columns 64px apart
  * at 1024+, stacked below, copy top-aligned. Bold 36 heading + 17/1.5 muted body on the left; the "contact"
  * field family on the right (16px gaps) and a dark Submit. First/last name stack at 390 and sit side by side
  * from 768. Submit is full width at 390. States as drawn (Figma 1265:30373): error summary under the body,
@@ -47,6 +63,10 @@ export function ContactEnquiryForm({
   body,
   enquiryTypes,
   company = true,
+  phone = false,
+  aside,
+  padClassName = PAD.data,
+  gutterClassName,
   optIn,
   submitLabel,
   success,
@@ -80,9 +100,11 @@ export function ContactEnquiryForm({
     <Section
       id={id}
       bg="surface"
-      className={PAD.data}
-      containerClassName="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-16"
+      className={padClassName}
+      contained={!gutterClassName}
+      containerClassName={GRID}
     >
+      <Wrap gutter={gutterClassName}>
       {status === "sent" ? (
         <EnquirySuccess copy={success} onReset={startAgain} headingLevel={H} className="lg:col-span-2" />
       ) : (
@@ -93,6 +115,7 @@ export function ContactEnquiryForm({
             </H>
             <p className="text-[16px] leading-[1.5] text-muted-surface lg:text-[17px]">{body}</p>
             <ErrorSummary count={Object.keys(errors).length} />
+            {aside && <div className="pt-3.5 md:pt-1.5">{aside}</div>}
           </div>
           <form
             ref={formRef}
@@ -113,6 +136,7 @@ export function ContactEnquiryForm({
               </div>
               <InputField family="contact" name="email" type="email" label="Email" autoComplete="email" required error={errors.email} />
               {company && <InputField family="contact" name="company" label="Company" autoComplete="organization" />}
+              {phone && <InputField family="contact" name="phone" type="tel" label="Phone number" autoComplete="tel" />}
               <TextAreaField family="contact" name="message" label="Message" />
               {optIn && <CheckboxField family="contact" name="optIn" label={optIn} />}
             </fieldset>
@@ -122,6 +146,7 @@ export function ContactEnquiryForm({
           </form>
         </>
       )}
+      </Wrap>
     </Section>
   );
 }
