@@ -11,14 +11,21 @@
  */
 
 export type NavItem = { icon?: string; title: string; text: string; href: string | null };
-export type NavLinkItem = { label: string; href: string | null };
+export type NavLinkItem = { label: string; href: string | null; /** Local menus: goes to the ESR Group site (open_in_new, named for screen readers) */ external?: boolean };
 export type NavStat = { value: string; label: string; /** Value size in px where one stat is drawn at its own size */ size?: number };
 /** A language name; lang is set for non-English scripts so screen readers pronounce them. */
 export type LangPart = { text: string; lang?: string };
 export type NavRegion = "Asia" | "Oceania" | "Middle East";
 export type NavMarket = { region: NavRegion; name: string; languages: LangPart[]; /** Mobile frame copy where it differs */ mobileLanguages?: LangPart[] };
 
-export type ItemBlock = { type: "item"; item: NavItem; /** Reserve two lines for the description, so Explore links line up */ reserve?: boolean };
+export type ItemBlock = {
+  type: "item";
+  item: NavItem;
+  /** Reserve two lines for the description, so Explore links line up */
+  reserve?: boolean;
+  /** Take the cell's width instead of the drawn 202 (a title that would otherwise wrap) */
+  wide?: boolean;
+};
 export type RegionsBlock = { type: "regions"; heading: string; regions: { name: NavRegion; span?: number }[]; link: NavLinkItem };
 export type GlanceBlock = {
   type: "glance";
@@ -56,8 +63,8 @@ export type MegaCell = {
 export type MegaStrip = { line: boolean; align: "start" | "end"; pad: [number, number]; gap?: number; links: NavLinkItem[] };
 
 export type MegaPanel = {
-  /** Column widths at 1440 (used as fr, so the grid scales down to the 1180 breakpoint) */
-  cols: number[];
+  /** Column widths at 1440 (used as fr, so the grid scales down to the 1180 breakpoint); [fr, min px] keeps a column from narrowing below min px */
+  cols: (number | [number, number])[];
   /** Minimum row heights in px */
   rows: number[];
   cells: MegaCell[];
@@ -112,6 +119,9 @@ export const NAV_MARKETS: NavMarket[] = [
 ];
 
 export const marketsIn = (region: NavRegion) => NAV_MARKETS.filter((m) => m.region === region).map((m) => m.name);
+
+/** "Stay up to date on vacancies" (group and local Our portfolio menus): the job alerts sign-up. */
+export const JOB_ALERTS_HREF = "/about/careers/job-alerts";
 
 /** Every market in Find your market goes to the Japan local site, the one local site in the prototype. */
 export const MARKET_SITE_HREF = "/jp";
@@ -174,7 +184,7 @@ const CHIP_SELECTED = "ERS Group";
 
 const P = {
   group: { icon: "globe_asia", title: "Our group portfolio", text: "Scale and reach across APAC", href: "/portfolio" },
-  properties: { icon: "apartment", title: "Properties", text: "Logistics and industrial", href: "/portfolio/properties" },
+  properties: { icon: "apartment", title: "Properties", text: "Industrial and logistics", href: "/portfolio/properties" },
   developments: { icon: "handyman", title: "Developments", text: "Pipeline, technology and sustainability.", href: "/portfolio/developments" },
   dataCentres: { icon: "database", title: "Data centres", text: "Digital infrastructure capability", href: "/portfolio/data-centres" },
   infrastructure: { icon: "cell_tower", title: "Infrastructure", text: "Lorem ipsum dolor sit amet, consectetur", href: null },
@@ -184,7 +194,7 @@ const PORTFOLIO: NavSection = {
   id: "portfolio",
   label: "Our portfolio",
   labelWidth: [85, 88],
-  groups: [{ items: [P.group, P.properties, P.developments, P.dataCentres, P.infrastructure] }],
+  groups: [{ items: [P.group, P.properties, P.developments, P.infrastructure, P.dataCentres] }],
   panel: {
     cols: [295, 295, 305, 284, 261],
     rows: [200, 337],
@@ -193,8 +203,9 @@ const PORTFOLIO: NavSection = {
       { col: 1, pad: [33, 16, 0, 30], line: "b", blocks: [{ type: "item", item: P.group, reserve: true }] },
       { col: 2, pad: [33, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.properties }] },
       { col: 3, pad: [33, 16, 0, 63], line: "lb", blocks: [{ type: "item", item: P.developments }] },
-      { col: 4, pad: [33, 16, 0, 62], line: "lb", blocks: [{ type: "item", item: P.dataCentres }] },
-      { col: 5, pad: [33, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.infrastructure }] },
+      // Infrastructure and Data centres swapped (reviewer feedback); the cells keep the drawn geometry (both 206 inside)
+      { col: 4, pad: [33, 16, 0, 62], line: "lb", blocks: [{ type: "item", item: P.infrastructure }] },
+      { col: 5, pad: [33, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.dataCentres }] },
       {
         col: 1,
         span: 5,
@@ -207,7 +218,7 @@ const PORTFOLIO: NavSection = {
             type: "regions",
             heading: "Browse properties by region",
             regions: [{ name: "Asia", span: 2 }, { name: "Oceania" }, { name: "Middle East" }],
-            link: { label: "Stay up to date on vacancies", href: null },
+            link: { label: "Stay up to date on vacancies", href: JOB_ALERTS_HREF },
           },
           { type: "glance", variant: "map", heading: GLANCE, stats: PORTFOLIO_STATS, marketStats: MARKET_GLANCE_STATS },
         ],
@@ -262,10 +273,10 @@ const INVESTOR: NavSection = {
 /* --------------------------------------------------------- sustainability */
 
 const S = {
-  approach: { icon: "nest_eco_leaf", title: "Our ESG approach", text: "Strategy, targets and progress", href: "/sustainability" },
+  approach: { icon: "nest_eco_leaf", title: "Sustainability overview", text: "Strategy, targets and progress", href: "/sustainability" },
   // Figma draws video_template as an outline only; view_day is that outline (video_template adds a play mark)
   cases: { icon: "view_day", title: "Sustainability case studies", text: "How it works in practice", href: "/sustainability/case-studies" },
-  governance: { icon: "policy", title: "Sustainability governance", text: "Reports, data packs and policies", href: "/sustainability/governance" },
+  governance: { icon: "policy", title: "Governance and management", text: "Reports, data packs and policies", href: "/sustainability/governance" },
 } satisfies Record<string, NavItem>;
 
 /** Mobile lists these in this order; the desktop 2 x 2 grid fills column by column. */
@@ -287,12 +298,14 @@ const SUSTAINABILITY: NavSection = {
   labelWidth: [91, 94],
   groups: [{ items: [S.approach, S.cases, S.governance] }],
   panel: {
-    cols: [295, 295, 295, 555],
+    // "Governance and management" (renamed from review feedback) is wider than the drawn 202px item, so its
+    // item takes the cell (241 at 1440) and the column holds at 260 toward 1180, keeping the title on one line (the first two hold at 225 / 240 so theirs stay on one line too, and the downloads at 440)
+    cols: [[295, 225], [295, 240], [295, 260], [555, 440]],
     rows: [288],
     cells: [
       { col: 1, pad: [55, 16, 0, 30], blocks: [{ type: "item", item: S.approach, reserve: true }] },
       { col: 2, pad: [55, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.cases, reserve: true }] },
-      { col: 3, pad: [55, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.governance, reserve: true }] },
+      { col: 3, pad: [55, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.governance, reserve: true, wide: true }] },
       { col: 4, pad: [54, 24, 0, 31], surface: true, blocks: [DOWNLOADS] },
     ],
   },
@@ -313,9 +326,9 @@ const LATEST: LatestBlock = {
   type: "latest",
   heading: "Latest",
   cards: [
-    { title: "Press release · Japan", text: LOREM, href: null },
-    { title: "Case study · Australia", text: LOREM, href: null },
-    { title: "News · Group", text: LOREM, href: null },
+    { title: "Press release · Japan", text: LOREM, href: "/news/news-08" },
+    { title: "Case study · Japan", text: LOREM, href: "/news/latest-2" },
+    { title: "News · Group", text: LOREM, href: "/news/latest-4" },
   ],
 };
 const MEDIA_LINKS: NavLinkItem[] = [

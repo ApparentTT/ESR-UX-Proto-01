@@ -64,23 +64,26 @@ export const JP_HOME_LATEST_HEADING = {
   link: { label: "Explore the latest", href: JP.news },
 };
 
-/** 1110:53538: articles are not wireframed, so the cards are inert */
+/** 1110:53538: each card opens its own local article page (data/site/news-detail.ts) */
 export const JP_HOME_LATEST: NewsCardData[] = [
   {
     date: "1 July 2026",
     meta: "Press release · Japan",
     title: "ESR and Mitsubishi Estate Asia expand partnership to develop A$700 million luxury logistics facility in Western Sydney.",
+    href: "/jp/news/latest-1",
   },
-  { date: "1 July 2026", meta: "Case study · Japan", title: "Borem ipsum dolor sit amet, consectetur adipiscing elit." },
+  { date: "1 July 2026", meta: "Case study · Japan", title: "Borem ipsum dolor sit amet, consectetur adipiscing elit.", href: "/jp/news/latest-2" },
   {
     date: "8 April 2026",
     meta: "Press release · Japan",
     title: "ESR expands investment partnership with TPG Asia Real Estate in the Japanese logistics asset sector.",
+    href: "/jp/news/latest-3",
   },
   {
     date: "3 March 2026",
     meta: "Press release · Japan",
     title: "ESR is reimagining a leading logistics facility in Yokohama as the venue for \"Red Bull Tokyo Drift 2026\"",
+    href: "/jp/news/latest-4",
   },
 ];
 

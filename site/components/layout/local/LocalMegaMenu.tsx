@@ -42,7 +42,7 @@ export function LocalMegaMenu({
       <div
         className="mx-auto grid max-w-(--page-max)"
         style={{
-          gridTemplateColumns: panel.cols.map((c) => `minmax(0, ${c}fr)`).join(" "),
+          gridTemplateColumns: panel.cols.map((c) => (typeof c === "number" ? `minmax(0, ${c}fr)` : `minmax(${c[1]}px, ${c[0]}fr)`)).join(" "),
           gridTemplateRows: panel.rows.map((r) => `minmax(${r}px, auto)`).join(" "),
         }}
       >
@@ -116,9 +116,9 @@ function LocalBlock({ block, onSubmitted }: { block: LocalMegaBlock; onSubmitted
 }
 
 /** Icon, Bold title, Regular description, then Explore (icon 24, gaps 20 / 12, 202px wide), as in the group menu. */
-function Item({ block: { item, reserve } }: { block: LocalItemBlock }) {
+function Item({ block: { item, reserve, wide } }: { block: LocalItemBlock }) {
   return (
-    <div className="flex w-[202px] max-w-full flex-col items-start">
+    <div className={`flex max-w-full flex-col items-start ${wide ? "w-full" : "w-[202px]"}`}>
       {item.icon && <Icon name={item.icon} size={24} opsz={24} className="mb-5 text-ink" />}
       <p className={HEADING}>{item.title}</p>
       <p className={`text-[14px] leading-5 text-body ${reserve ? "min-h-10" : ""}`}>{item.text}</p>

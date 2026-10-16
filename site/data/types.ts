@@ -39,7 +39,7 @@ export type Property = {
 };
 
 export const PROPERTY_TYPES: { id: PropertyTypeId; label: string; plural: string }[] = [
-  { id: "logistics", label: "Logistics and industrial", plural: "Logistics and industrial" },
+  { id: "logistics", label: "Industrial and logistics", plural: "Industrial and logistics" },
   { id: "business-park", label: "Business park", plural: "Business parks" },
   { id: "data-centre", label: "Data centres", plural: "Data centres" },
   { id: "cold-storage", label: "Cold storage", plural: "Cold storage" },

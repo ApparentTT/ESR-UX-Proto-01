@@ -19,6 +19,8 @@ export type LocationMapCopy = {
   rows: { title: string; value: string; body: string; mobileOnly?: boolean }[];
   /** "Get directions" (drawn at 390 only; inert) */
   directions: string;
+  /** "Estate page": the outline button to the overall estate page, at every width (not in the prototype: href null) */
+  estate: { label: string; href: string | null };
 };
 
 /**
@@ -27,7 +29,9 @@ export type LocationMapCopy = {
  * muted 15 sentence, 18px padding, line rules), 40px apart and vertically centred. The estate pin is the drawn
  * dark pill with the warehouse icon (labelled with the property name) and the [Feature] pins are white outline
  * pills. 390 (1507:59203): stacked, the map 342 x 280, a fifth row ("Labour catchment") and a dark full-width
- * "Get directions" (inert: directions are not part of the prototype).
+ * "Get directions" (inert: directions are not part of the prototype). Under the rows at every width, the outline
+ * "Estate page" button (review feedback; the property page's outline button style) to the overall estate page:
+ * beside Get directions from 768, under it (both full width) at 390, on its own at 1024+.
  * Zoom: the shared + / − controls (MapZoomControls) scale the map image around the estate pin, so the pin stays
  * where it is; feature pins move outward with the image and keep their size. Buttons are keyboard operable and
  * the new zoom level is announced.
@@ -104,13 +108,22 @@ export function LocationMap({ map, name }: { map: LocationMapCopy; name: string 
               </li>
             ))}
           </ul>
-          <SmartLink
-            href={null}
-            className="inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-btn bg-ink py-3.5 pl-[22px] pr-[18px] text-[15px] font-medium leading-[1.5] text-white transition-colors hover:bg-black lg:hidden"
-          >
-            {map.directions}
-            <Icon name="arrow_forward" size={18} />
-          </SmartLink>
+          <div className="flex flex-col gap-3 md:flex-row lg:mt-8">
+            <SmartLink
+              href={null}
+              className="inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-btn bg-ink py-3.5 pl-[22px] pr-[18px] text-[15px] font-medium leading-[1.5] text-white transition-colors hover:bg-black md:flex-1 lg:hidden"
+            >
+              {map.directions}
+              <Icon name="arrow_forward" size={18} />
+            </SmartLink>
+            <SmartLink
+              href={map.estate.href}
+              className="inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-btn border border-ink bg-white py-3.5 pl-[22px] pr-[18px] text-[15px] font-medium leading-[1.5] text-ink transition-colors hover:bg-surface md:flex-1 lg:w-auto lg:flex-none lg:self-start lg:pl-[26px] lg:pr-[22px]"
+            >
+              {map.estate.label}
+              <Icon name="arrow_forward" size={18} />
+            </SmartLink>
+          </div>
         </div>
       </div>
     </section>

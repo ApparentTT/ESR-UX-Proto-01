@@ -240,6 +240,39 @@ export function CheckboxField({
   );
 }
 
+/**
+ * A labelled group of radio buttons (form family): legend Medium 14 body, then the options in a row (wrapping),
+ * each a 20px ink-bordered circle filled with a 6px ink ring when chosen, label Medium 14. Native radios, so
+ * arrow keys move the choice. Uncontrolled, starting on defaultValue.
+ */
+export function RadioGroupField({
+  label,
+  name,
+  options,
+  defaultValue,
+  className = "",
+}: { label: string; name: string; options: string[]; defaultValue?: string; className?: string }) {
+  return (
+    <fieldset className={`m-0 flex min-w-0 flex-col gap-1 border-0 p-0 ${className}`}>
+      <legend className={`float-left mb-1 p-0 ${LABEL.form}`}>{label}</legend>
+      <div className="clear-left flex flex-wrap gap-x-8">
+        {options.map((o) => (
+          <label key={o} className="group flex min-h-11 cursor-pointer items-center gap-3 text-[14px] font-medium leading-5 text-body">
+            <input
+              type="radio"
+              name={name}
+              value={o}
+              defaultChecked={o === defaultValue}
+              className={`size-5 shrink-0 cursor-pointer appearance-none rounded-full border border-ink bg-white transition-[border-width] checked:border-[6px] ${FOCUS}`}
+            />
+            {o}
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
 /* ------------------------------------------------------------------ validation */
 
 export type FieldRule = {

@@ -279,6 +279,8 @@ export const JP_PROPERTY_DETAIL = {
       { title: "Labour catchment", value: "[XX min]", body: "[One sentence on the surrounding labour catchment]", mobileOnly: true },
     ],
     directions: "Get directions",
+    // Review feedback: links to the estate's own page, which is not in the prototype (inert)
+    estate: { label: "Estate page", href: null },
   },
   /** "ContactAndEnquiry" (1507:52333): contacts beside the form */
   enquiry: {

@@ -13,24 +13,24 @@ export const JP_NEWS_INTRO = {
   body: "Announcements, thought leadership and case studies from ESR Japan.",
 };
 
-/** Same featured article as the group page */
-export const JP_NEWS_FEATURED = NEWS_FEATURED;
+/** Same featured article as the group page, opening its local article page */
+export const JP_NEWS_FEATURED = { ...NEWS_FEATURED, href: "/jp/news/featured" as string | null };
 
 type LocalArticle = Omit<NewsArticle, "market">;
 const H = "Article headline placeholder";
 const H_DC = "Article headline placeholder mentioning data centres";
 
 export const JP_NEWS_ARTICLES: LocalArticle[] = [
-  { id: "jp-news-01", type: "press-release", topic: "development", headline: H, date: "1 July 2026", isoDate: "2026-07-01", href: null },
-  { id: "jp-news-02", type: "thought-leadership", topic: "esg-and-sustainability", headline: H, date: "28 June 2026", isoDate: "2026-06-28", href: null },
-  { id: "jp-news-03", type: "case-study", topic: "development", headline: H, date: "21 June 2026", isoDate: "2026-06-21", href: null },
-  { id: "jp-news-04", type: "press-release", topic: "fund-management", headline: H, date: "14 June 2026", isoDate: "2026-06-14", href: null },
-  { id: "jp-news-05", type: "case-study", topic: "data-centres", headline: H, date: "7 June 2026", isoDate: "2026-06-07", href: null },
-  { id: "jp-news-06", type: "thought-leadership", topic: "development", headline: H, date: "1 June 2026", isoDate: "2026-06-01", href: null },
-  { id: "jp-news-07", type: "press-release", topic: "data-centres", headline: H_DC, date: "1 July 2026", isoDate: "2026-07-01", href: null },
-  { id: "jp-news-08", type: "press-release", topic: "data-centres", headline: H_DC, date: "28 June 2026", isoDate: "2026-06-28", href: null },
-  { id: "jp-news-09", type: "press-release", topic: "data-centres", headline: H_DC, date: "14 June 2026", isoDate: "2026-06-14", href: null },
-  { id: "jp-news-10", type: "press-release", topic: "data-centres", headline: H_DC, date: "2 June 2026", isoDate: "2026-06-02", href: null },
+  { id: "jp-news-01", type: "press-release", topic: "development", headline: H, date: "1 July 2026", isoDate: "2026-07-01", href: "/jp/news/jp-news-01" },
+  { id: "jp-news-02", type: "thought-leadership", topic: "esg-and-sustainability", headline: H, date: "28 June 2026", isoDate: "2026-06-28", href: "/jp/news/jp-news-02" },
+  { id: "jp-news-03", type: "case-study", topic: "development", headline: H, date: "21 June 2026", isoDate: "2026-06-21", href: "/jp/news/jp-news-03" },
+  { id: "jp-news-04", type: "press-release", topic: "fund-management", headline: H, date: "14 June 2026", isoDate: "2026-06-14", href: "/jp/news/jp-news-04" },
+  { id: "jp-news-05", type: "case-study", topic: "data-centres", headline: H, date: "7 June 2026", isoDate: "2026-06-07", href: "/jp/news/jp-news-05" },
+  { id: "jp-news-06", type: "thought-leadership", topic: "development", headline: H, date: "1 June 2026", isoDate: "2026-06-01", href: "/jp/news/jp-news-06" },
+  { id: "jp-news-07", type: "press-release", topic: "data-centres", headline: H_DC, date: "1 July 2026", isoDate: "2026-07-01", href: "/jp/news/jp-news-07" },
+  { id: "jp-news-08", type: "press-release", topic: "data-centres", headline: H_DC, date: "28 June 2026", isoDate: "2026-06-28", href: "/jp/news/jp-news-08" },
+  { id: "jp-news-09", type: "press-release", topic: "data-centres", headline: H_DC, date: "14 June 2026", isoDate: "2026-06-14", href: "/jp/news/jp-news-09" },
+  { id: "jp-news-10", type: "press-release", topic: "data-centres", headline: H_DC, date: "2 June 2026", isoDate: "2026-06-02", href: "/jp/news/jp-news-10" },
 ];
 export type JpNewsArticle = LocalArticle;
 

@@ -4,11 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { SmartLink } from "@/components/ui/SmartLink";
 import { Tag } from "@/components/ui/Tag";
-import { HIT } from "@/components/ui/type";
 import { ExploreLink } from "@/components/layout/nav/parts";
-import { GROUP_SITE_CARD, GROUP_SITE_SUFFIX, type PropertySearchBlock } from "@/config/local-nav";
+import { GROUP_SITE_CARD, type PropertySearchBlock } from "@/config/local-nav";
 
 /** The ESR Japan property search, where "Find available property" submits. */
 export const PROPERTY_SEARCH_PATH = "/properties/search";
@@ -16,36 +14,9 @@ export const PROPERTY_SEARCH_PATH = "/properties/search";
 /** The current market's card in the market panel: a dark border, as drawn (672:26096 / 719:1563). */
 export const CURRENT_MARKET_CARD = "[&_a]:border-ink [&_a:hover]:border-ink";
 
-/**
- * "Explore" (Bold 13 underlined), with the block title as a visually hidden suffix. A link to the ESR Group
- * site (external) carries open_in_new 16 instead of the arrow, as drawn on Data centres, and says so to
- * screen readers. Same tap target and styles as the group ExploreLink.
- */
-export function LocalExploreLink({
-  href,
-  context,
-  external,
-  label,
-  className = "",
-}: {
-  href: string | null;
-  context?: string;
-  external?: boolean;
-  label?: string;
-  className?: string;
-}) {
-  if (!external) return <ExploreLink href={href} context={context} label={label} className={className} />;
-  return (
-    <SmartLink
-      href={href}
-      className={`${HIT} group inline-flex items-center gap-3 text-[13px] font-bold leading-5 text-[#393939] underline underline-offset-2 ${className}`}
-    >
-      {label ?? "Explore"}
-      {context && <span className="sr-only"> {context}</span>}
-      <span className="sr-only"> {GROUP_SITE_SUFFIX}</span>
-      <Icon name="open_in_new" size={16} className="transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
-    </SmartLink>
-  );
+/** "Explore" in the local menus: the group ExploreLink, with open_in_new for a link to the ESR Group site (external). */
+export function LocalExploreLink(props: { href: string | null; context?: string; external?: boolean; label?: string; className?: string }) {
+  return <ExploreLink {...props} />;
 }
 
 /**

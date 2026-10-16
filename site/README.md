@@ -21,6 +21,7 @@ This app lives in `site/`. The repository root holds the original property searc
 | | Governance and management | `/sustainability/governance` |
 | | Sustainability case studies | `/sustainability/case-studies` |
 | News and insights | News and insights | `/news` |
+| | Article detail (same template for every article) | `/news/<article>` |
 | | News search results | `/news/search` (`?q=`, `?type=press-release\|thought-leadership\|case-study`, `?market=`, `?topic=`) |
 | About | About us | `/about` |
 | | Our leadership | `/about/leadership` |
@@ -28,6 +29,7 @@ This app lives in `site/`. The repository root holds the original property searc
 | | Corporate governance | `/about/corporate-governance` |
 | | Our people | `/about/our-people` |
 | | Our customers | `/about/our-customers` |
+| | Stay up to date on vacancies (job alerts sign-up) | `/about/careers/job-alerts` |
 | Contact | Contact us | `/contact` |
 | Search | Site search results | `/search?q=` |
 | Funds | Fund detail (placeholder, same content for every fund) | `/investors/funds/<fund>` |
@@ -44,6 +46,7 @@ Every market in **Find your market** (and the homepage market cards) goes to the
 | Developments | `/jp/developments` |
 | Proven capability | `/jp/proven-capability` |
 | News and insights | `/jp/news` |
+| Article detail (press-release or media layout by type) | `/jp/news/<article>` |
 | About | `/jp/about` |
 | Property detail (same content for every property) | `/jp/properties/<property>` |
 | Our leadership | `/jp/leadership` |
@@ -55,7 +58,7 @@ Use the **Prototype** badge (bottom right) to jump to any page, or to any state 
 
 ## How it behaves
 
-- Links to pages that are not wireframed yet (Infrastructure, articles, case study details, social links, PDFs and downloads) are inert. Clicking one shows a short "This page is not part of the prototype" notice.
+- Links to pages that are not wireframed yet (Infrastructure, case study details, social links, article videos, PDFs and downloads) are inert. Clicking one shows a short "This page is not part of the prototype" notice.
 - Filters on news, case studies and the fund table work over the sample records. Forms validate required fields and show a confirmation without sending anything.
 - The header menus open on click (Enter or Space) and close on Escape, the overlay, or another menu. While one is open, resting the pointer on another section switches to it.
 - The Japan property detail page has Share (copy link, email, LinkedIn, X, LINE), a Downloads menu (brochures and floor plans, placeholders), a photo gallery ("Show all photos" opens the grid with category filters; any photo opens the lightbox, with arrow keys, swipe and thumbnails), a sticky Enquire now bar, working unit filters, and an enquiry form that unit links pre-fill.

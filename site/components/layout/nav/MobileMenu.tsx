@@ -481,7 +481,7 @@ function StripView({ block }: { block: MobileStripBlock }) {
   return (
     <div className="flex min-h-[59px] grow items-start bg-surface px-4 pt-5">
       {block.links.map((l) => (
-        <ExploreLink key={l.label} href={l.href} label={l.label} />
+        <ExploreLink key={l.label} href={l.href} label={l.label} external={l.external} />
       ))}
     </div>
   );

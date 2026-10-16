@@ -13,17 +13,17 @@ const PORTFOLIO: Group = {
     { label: "Our group portfolio", href: "/portfolio" },
     { label: "Properties", href: "/portfolio/properties" },
     { label: "Developments", href: "/portfolio/developments" },
-    { label: "Data centres", href: "/portfolio/data-centres" },
     { label: "Infrastructure" },
+    { label: "Data centres", href: "/portfolio/data-centres" },
   ],
 };
-const INVESTORS: Group = { title: "Investors", links: [{ label: "Investing with ESR", href: "/investors" }, { label: "Funds" }] };
+const INVESTORS: Group = { title: "Investors", links: [{ label: "Investing with ESR", href: "/investors" }, { label: "Our funds", href: "/investors#our-funds" }] };
 const SUSTAINABILITY: Group = {
   title: "Sustainability",
   links: [
-    { label: "Overview", href: "/sustainability" },
+    { label: "Sustainability overview", href: "/sustainability" },
     { label: "Sustainability case studies", href: "/sustainability/case-studies" },
-    { label: "Sustainability governance", href: "/sustainability/governance" },
+    { label: "Governance and management", href: "/sustainability/governance" },
   ],
 };
 const NEWS: Group = {

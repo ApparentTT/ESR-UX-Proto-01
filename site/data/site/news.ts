@@ -1,7 +1,7 @@
 /**
  * News and insights content (NEWS `news.md`, NSR `news-search.md`, inventory B32–B35), verbatim.
  * One 10-record mock set is shared by /news ("All stories" + Load more) and /news/search (filtering).
- * Articles are not wireframed, so every card links nowhere (href null = inert).
+ * Every card opens its article page, /news/<id> (data/site/news-detail.ts).
  */
 
 /** URL param values (NSR "Interactive behaviour"). */
@@ -45,7 +45,7 @@ export type NewsArticle = {
   date: string;
   /** ISO date for sorting */
   isoDate: string;
-  /** Article pages are not wireframed */
+  /** Article page, /news/<id> (data/site/news-detail.ts) */
   href: string | null;
 };
 
@@ -55,16 +55,16 @@ export type NewsArticle = {
  * Tag order on every card: market, content type, topic.
  */
 export const NEWS_ARTICLES: NewsArticle[] = [
-  { id: "news-01", market: "group", type: "press-release", topic: "fund-management", headline: "Article headline placeholder", date: "1 July 2026", isoDate: "2026-07-01", href: null },
-  { id: "news-02", market: "japan", type: "thought-leadership", topic: "data-centres", headline: "Article headline placeholder", date: "28 June 2026", isoDate: "2026-06-28", href: null },
-  { id: "news-03", market: "australia", type: "case-study", topic: "development", headline: "Article headline placeholder", date: "21 June 2026", isoDate: "2026-06-21", href: null },
-  { id: "news-04", market: "group", type: "press-release", topic: "esg-and-sustainability", headline: "Article headline placeholder", date: "14 June 2026", isoDate: "2026-06-14", href: null },
-  { id: "news-05", market: "south-korea", type: "case-study", topic: "data-centres", headline: "Article headline placeholder", date: "7 June 2026", isoDate: "2026-06-07", href: null },
-  { id: "news-06", market: "group", type: "thought-leadership", topic: "development", headline: "Article headline placeholder", date: "1 June 2026", isoDate: "2026-06-01", href: null },
-  { id: "news-07", market: "group", type: "press-release", topic: "data-centres", headline: "Article headline placeholder mentioning data centres", date: "1 July 2026", isoDate: "2026-07-01", href: null },
-  { id: "news-08", market: "japan", type: "press-release", topic: "data-centres", headline: "Article headline placeholder mentioning data centres", date: "28 June 2026", isoDate: "2026-06-28", href: null },
-  { id: "news-09", market: "south-korea", type: "press-release", topic: "data-centres", headline: "Article headline placeholder mentioning data centres", date: "14 June 2026", isoDate: "2026-06-14", href: null },
-  { id: "news-10", market: "group", type: "press-release", topic: "data-centres", headline: "Article headline placeholder mentioning data centres", date: "2 June 2026", isoDate: "2026-06-02", href: null },
+  { id: "news-01", market: "group", type: "press-release", topic: "fund-management", headline: "Article headline placeholder", date: "1 July 2026", isoDate: "2026-07-01", href: "/news/news-01" },
+  { id: "news-02", market: "japan", type: "thought-leadership", topic: "data-centres", headline: "Article headline placeholder", date: "28 June 2026", isoDate: "2026-06-28", href: "/news/news-02" },
+  { id: "news-03", market: "australia", type: "case-study", topic: "development", headline: "Article headline placeholder", date: "21 June 2026", isoDate: "2026-06-21", href: "/news/news-03" },
+  { id: "news-04", market: "group", type: "press-release", topic: "esg-and-sustainability", headline: "Article headline placeholder", date: "14 June 2026", isoDate: "2026-06-14", href: "/news/news-04" },
+  { id: "news-05", market: "south-korea", type: "case-study", topic: "data-centres", headline: "Article headline placeholder", date: "7 June 2026", isoDate: "2026-06-07", href: "/news/news-05" },
+  { id: "news-06", market: "group", type: "thought-leadership", topic: "development", headline: "Article headline placeholder", date: "1 June 2026", isoDate: "2026-06-01", href: "/news/news-06" },
+  { id: "news-07", market: "group", type: "press-release", topic: "data-centres", headline: "Article headline placeholder mentioning data centres", date: "1 July 2026", isoDate: "2026-07-01", href: "/news/news-07" },
+  { id: "news-08", market: "japan", type: "press-release", topic: "data-centres", headline: "Article headline placeholder mentioning data centres", date: "28 June 2026", isoDate: "2026-06-28", href: "/news/news-08" },
+  { id: "news-09", market: "south-korea", type: "press-release", topic: "data-centres", headline: "Article headline placeholder mentioning data centres", date: "14 June 2026", isoDate: "2026-06-14", href: "/news/news-09" },
+  { id: "news-10", market: "group", type: "press-release", topic: "data-centres", headline: "Article headline placeholder mentioning data centres", date: "2 June 2026", isoDate: "2026-06-02", href: "/news/news-10" },
 ];
 
 /** NEWS §1 page intro: `<PageIntro title={NEWS_INTRO.title} body={NEWS_INTRO.body} />` (also on /news/search). */
@@ -89,7 +89,7 @@ export const NEWS_FEATURED = {
   standfirst: "A short standfirst explaining what the article covers and why it matters right now.",
   date: "1 July 2026",
   ctaLabel: "Read the article",
-  href: null as string | null,
+  href: "/news/featured" as string | null,
 };
 
 /** NEWS §4 "All stories". `{shown}` is replaced by the number of cards on screen; "XX" stays verbatim. */

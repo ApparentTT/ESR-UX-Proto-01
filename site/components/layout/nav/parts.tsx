@@ -7,6 +7,8 @@ import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { SmartLink } from "@/components/ui/SmartLink";
 import { Tag } from "@/components/ui/Tag";
 import { TextLink } from "@/components/ui/TextLink";
+import { HIT } from "@/components/ui/type";
+import { GROUP_SITE_SUFFIX } from "@/config/local-nav";
 import { MARKET_SITE_HREF, NAV_COPY, type LangPart, type LatestCard, type NavMarket } from "@/config/nav";
 import { NAV_MAP_DOTS, NAV_MAP_FOCUS, NAV_MAP_H, NAV_MAP_LAND, NAV_MAP_W, navMapPoint } from "./mapArt";
 
@@ -71,8 +73,37 @@ export function useIsDesktop() {
 }
 
 /** "Explore" (Bold 13 underlined + arrow), with the block title as a visually hidden suffix so each link is unique. */
-export function ExploreLink({ href, context, label = NAV_COPY.explore, className = "" }: { href: string | null; context?: string; label?: string; className?: string }) {
+/**
+ * "Explore" (Bold 13 underlined + arrow), with the block title as a visually hidden suffix. external: a link
+ * from a local site to the ESR Group site, drawn with open_in_new 16 instead of the arrow (as on the local
+ * Data centres item) and named so for screen readers.
+ */
+export function ExploreLink({
+  href,
+  context,
+  label = NAV_COPY.explore,
+  external,
+  className = "",
+}: {
+  href: string | null;
+  context?: string;
+  label?: string;
+  external?: boolean;
+  className?: string;
+}) {
   const pathname = usePathname();
+  if (external)
+    return (
+      <SmartLink
+        href={href}
+        className={`${HIT} group inline-flex items-center gap-3 text-[13px] font-bold leading-5 text-[#393939] underline underline-offset-2 ${className}`}
+      >
+        {label}
+        {context && <span className="sr-only"> {context}</span>}
+        <span className="sr-only"> {GROUP_SITE_SUFFIX}</span>
+        <Icon name="open_in_new" size={16} className="transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
+      </SmartLink>
+    );
   return (
     <TextLink variant="explore" href={href} aria-current={isCurrentChild(href, pathname) ? "page" : undefined} className={className}>
       {label}

@@ -29,6 +29,7 @@ import { CGOV_INTRO } from "@/data/site/pages/about-corporate-governance";
 import { PEOPLE_INTRO } from "@/data/site/pages/our-people";
 import { CUSTOMERS_INTRO } from "@/data/site/pages/our-customers";
 import { CONTACT_INTRO } from "@/data/site/pages/contact";
+import { JOB_ALERTS_INTRO } from "@/data/site/pages/job-alerts";
 
 export type SearchType = "page" | "local" | "news" | "case-study" | "leader" | "document" | "fund";
 
@@ -78,9 +79,10 @@ const PAGE_EXCERPTS: Record<string, string> = {
   "/about/our-people": PEOPLE_INTRO.body,
   "/about/our-customers": CUSTOMERS_INTRO.body,
   "/contact": CONTACT_INTRO.body,
+  "/about/careers/job-alerts": JOB_ALERTS_INTRO.body,
 };
 
-/** The header menu's title and line for a page, searched with it ("Logistics and industrial" finds Properties). */
+/** The header menu's title and line for a page, searched with it ("Industrial and logistics" finds Properties). */
 const navWords = (href: string) =>
   NAV_SECTIONS.flatMap((s) => s.groups.flatMap((g) => g.items))
     .filter((i) => i.href === href)

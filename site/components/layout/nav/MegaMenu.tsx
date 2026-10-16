@@ -81,7 +81,7 @@ export function MegaMenu({ section, id, labelledBy, animate }: { section: NavSec
         <div
           className="mx-auto grid max-w-(--page-max)"
           style={{
-            gridTemplateColumns: panel.cols.map((c) => `minmax(0, ${c}fr)`).join(" "),
+            gridTemplateColumns: panel.cols.map((c) => (typeof c === "number" ? `minmax(0, ${c}fr)` : `minmax(${c[1]}px, ${c[0]}fr)`)).join(" "),
             gridTemplateRows: panel.rows.map((r) => `minmax(${r}px, auto)`).join(" "),
           }}
         >
@@ -170,9 +170,9 @@ export function Block({ block }: { block: MegaBlock }) {
 }
 
 /** Icon, Bold title, Regular description, then Explore (icon 24, gaps 20 / 12, 202px wide). */
-function Item({ block: { item, reserve } }: { block: ItemBlock }) {
+function Item({ block: { item, reserve, wide } }: { block: ItemBlock }) {
   return (
-    <div className="flex w-[202px] max-w-full flex-col items-start">
+    <div className={`flex max-w-full flex-col items-start ${wide ? "w-full" : "w-[202px]"}`}>
       {item.icon && <Icon name={item.icon} size={24} opsz={24} className="mb-5 text-ink" />}
       <p className={HEADING}>{item.title}</p>
       <p className={`text-[14px] leading-5 text-body ${reserve ? "min-h-10" : ""}`}>{item.text}</p>
@@ -418,7 +418,7 @@ export function Strip({ strip }: { strip: MegaStrip }) {
         style={{ paddingLeft: px(strip.pad[0]), paddingRight: px(strip.pad[1]), gap: px(strip.gap ?? 24) }}
       >
         {strip.links.map((l) => (
-          <ExploreLink key={l.label} href={l.href} label={l.label} />
+          <ExploreLink key={l.label} href={l.href} label={l.label} external={l.external} />
         ))}
       </div>
     </div>
