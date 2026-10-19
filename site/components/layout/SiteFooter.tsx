@@ -17,7 +17,7 @@ const PORTFOLIO: Group = {
     { label: "Data centres", href: "/portfolio/data-centres" },
   ],
 };
-const INVESTORS: Group = { title: "Investors", links: [{ label: "Investing with ESR", href: "/investors" }, { label: "Our funds", href: "/investors#our-funds" }] };
+const INVESTORS: Group = { title: "Investment management", links: [{ label: "Investing with ESR", href: "/investors" }, { label: "Our funds", href: "/investors#flagship-funds" }] };
 const SUSTAINABILITY: Group = {
   title: "Sustainability",
   links: [

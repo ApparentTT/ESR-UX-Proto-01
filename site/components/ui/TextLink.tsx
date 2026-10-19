@@ -62,7 +62,7 @@ export function TextLink({
     return (
       <SmartLink href={href} className={`${HIT} group inline-flex items-center gap-3 text-[13px] font-bold leading-5 text-[#393939] underline underline-offset-2 ${className}`} {...rest}>
         {children}
-        <Icon name="arrow_forward" size={18} className="transition-transform group-hover:translate-x-1" />
+        <Icon name={icon ?? "arrow_forward"} size={18} className={icon ? "" : "transition-transform group-hover:translate-x-1"} />
       </SmartLink>
     );
   const ic = icon ?? (variant === "external" ? "open_in_new" : "arrow_forward");

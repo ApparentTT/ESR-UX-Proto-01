@@ -2,11 +2,11 @@
 
 import { useId, useEffect, useRef } from "react";
 import { Section } from "@/components/ui/Section";
-import { T, PAD } from "@/components/ui/type";
+import { T } from "@/components/ui/type";
 import { CheckboxField, InputField, RadioGroupField, SelectField, useValidatedForm, type FieldRule } from "./fields";
 import { EnquirySuccess, ErrorSummary, SubmitButton, useEnquiryStatus } from "./FormConfirmation";
 import { EMAIL_INVALID, FORM_FIELD_COPY as COPY } from "./formPresets";
-import { JOB_ALERTS_FORM as F } from "@/data/site/pages/job-alerts";
+import { JOB_ALERTS_FORM as F, JOB_ALERTS_INTRO as INTRO } from "@/data/site/pages/job-alerts";
 
 /* Email (validated) and the consent box are required; the rest are optional, as on a newsletter sign-up. */
 const RULES: FieldRule[] = [
@@ -15,11 +15,11 @@ const RULES: FieldRule[] = [
 ];
 
 /**
- * Job alerts sign-up (/about/careers/job-alerts). Not drawn: the FormBlock (B18) layout and "form" field family,
- * on the grey form band. Medium 40 heading + 18/28 body on the left, the form on the right (two equal columns,
- * 30px gap), stacked below 1024; first/last name side by side from 768. Fields: names, Email, Market and Area
- * of interest selects (side by side from 768), Frequency radios, consent. The shared enquiry states: error
- * summary under the intro, ~1.2s "Sending", then the success card in place of the row. Nothing is sent.
+ * Job alerts sign-up, the whole top of /about/careers/job-alerts (Figma StayUpToDate_Vacancies 1590:9435,
+ * mobile 1590:78286). White band: the page h1 (Medium 40) + 18/28 body on the left, the form on the right (two
+ * equal columns), stacked below 1024. First/last name side by side from 768; Email, Market, Area of interest,
+ * Frequency radios and consent full width. The shared enquiry states: error summary under the intro, ~1.2s
+ * "Sending", then the success card in place of the form. Nothing is sent.
  */
 export function JobAlertsForm({ id }: { id?: string }) {
   const headingId = useId();
@@ -46,16 +46,16 @@ export function JobAlertsForm({ id }: { id?: string }) {
   };
 
   return (
-    <Section id={id} bg="grey" className={PAD.block} containerClassName="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-[30px]">
+    <Section id={id} bg="white" className="pb-12 pt-10 md:pb-16 md:pt-14 lg:pb-[72px] lg:pt-[72px]" containerClassName="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-14">
       {status === "sent" ? (
-        <EnquirySuccess copy={F.success} onReset={startAgain} card="white" className="lg:col-span-2" />
+        <EnquirySuccess copy={F.success} onReset={startAgain} className="lg:col-span-2" />
       ) : (
         <>
           <div>
-            <h2 id={headingId} className={T.h40m}>
-              {F.title}
-            </h2>
-            <p className={`mt-4 lg:mt-5 ${T.bodyLg}`}>{F.body}</p>
+            <h1 id={headingId} className={T.h40m}>
+              {INTRO.title}
+            </h1>
+            <p className={`mt-4 max-w-[620px] lg:mt-5 ${T.bodyLg}`}>{INTRO.body}</p>
             <ErrorSummary count={Object.keys(errors).length} className="mt-4 lg:mt-5" />
           </div>
           <form
@@ -81,10 +81,8 @@ export function JobAlertsForm({ id }: { id?: string }) {
                 required
                 error={errors.email}
               />
-              <div className="grid gap-8 md:grid-cols-2 md:gap-x-6">
-                <SelectField name="market" label={F.market.label} placeholder={F.market.placeholder} options={F.market.options} />
-                <SelectField name="area" label={F.area.label} placeholder={F.area.placeholder} options={F.area.options} />
-              </div>
+              <SelectField name="market" label={F.market.label} placeholder={F.market.placeholder} options={F.market.options} />
+              <SelectField name="area" label={F.area.label} placeholder={F.area.placeholder} options={F.area.options} />
               <RadioGroupField name="frequency" label={F.frequency.label} options={F.frequency.options} defaultValue={F.frequency.defaultValue} />
               <CheckboxField name="consent" label={F.consent} required error={errors.consent} />
             </fieldset>

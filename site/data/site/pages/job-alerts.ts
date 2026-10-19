@@ -11,8 +11,6 @@ export const JOB_ALERTS_INTRO = {
 };
 
 export const JOB_ALERTS_FORM = {
-  title: "Job alerts",
-  body: "Choose the markets and areas you're interested in. You can unsubscribe at any time.",
   market: { label: "Market", placeholder: "Select markets", options: NAV_MARKETS.map((m) => m.name) },
   area: {
     label: "Area of interest",

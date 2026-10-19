@@ -7,8 +7,8 @@ export const PAGES: { group: string; label: string; href: string }[] = [
   { group: "Our portfolio", label: "Properties", href: "/portfolio/properties" },
   { group: "Our portfolio", label: "Developments", href: "/portfolio/developments" },
   { group: "Our portfolio", label: "Data centres", href: "/portfolio/data-centres" },
-  { group: "Investor", label: "Invest with ESR", href: "/investors" },
-  { group: "Investor", label: "Fund detail", href: "/investors/funds/flagship-fund-1" },
+  { group: "Investment management", label: "Invest with ESR", href: "/investors" },
+  { group: "Investment management", label: "Fund detail", href: "/investors/funds/flagship-fund-1" },
   { group: "Sustainability", label: "Sustainability overview", href: "/sustainability" },
   { group: "Sustainability", label: "Governance and management", href: "/sustainability/governance" },
   { group: "Sustainability", label: "Sustainability case studies", href: "/sustainability/case-studies" },
@@ -45,7 +45,7 @@ export const PAGES: { group: string; label: string; href: string }[] = [
 export function activeGroup(pathname: string): string | null {
   if (pathname === "/") return null;
   if (pathname.startsWith("/portfolio") || pathname.startsWith("/properties")) return "Our portfolio";
-  if (pathname.startsWith("/investors")) return "Investor";
+  if (pathname.startsWith("/investors")) return "Investment management";
   if (pathname.startsWith("/sustainability")) return "Sustainability";
   if (pathname.startsWith("/news")) return "News and insights";
   if (pathname.startsWith("/about")) return "About";

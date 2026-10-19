@@ -233,15 +233,15 @@ const PORTFOLIO: NavSection = {
 const I = {
   investing: { icon: "attach_money", title: "Investing with ESR", text: "Strategy and approach", href: "/investors" },
   track: { icon: "area_chart", title: "Track record", text: "Performance and proof points", href: "/investors#track-record" },
-  funds: { icon: "batch_prediction", title: "Our funds", text: "Every asset across the group", href: "/investors#our-funds" },
-  governance: { icon: "analytics", title: "Governance and reporting", text: "Disclosures and policies", href: null },
+  // "Our funds" lands on "Flagship funds across the group" on the Investment management page
+  funds: { icon: "batch_prediction", title: "Our funds", text: "Every asset across the group", href: "/investors#flagship-funds" },
 } satisfies Record<string, NavItem>;
 
 const INVESTOR: NavSection = {
   id: "investor",
-  label: "Investor",
-  labelWidth: [55, 57],
-  groups: [{ items: [I.investing, I.track, I.funds, I.governance] }],
+  label: "Investment management",
+  labelWidth: [160, 164],
+  groups: [{ items: [I.investing, I.track, I.funds] }],
   panel: {
     cols: [295, 295, 850],
     rows: [215, 241],
@@ -250,7 +250,8 @@ const INVESTOR: NavSection = {
       { col: 1, row: 1, pad: [37, 16, 0, 30], line: "b", blocks: [{ type: "item", item: I.investing }] },
       { col: 2, row: 1, pad: [37, 16, 0, 38], line: "lb", blocks: [{ type: "item", item: I.track }] },
       { col: 1, row: 2, pad: [53, 16, 0, 30], blocks: [{ type: "item", item: I.funds }] },
-      { col: 2, row: 2, pad: [53, 16, 0, 38], line: "l", blocks: [{ type: "item", item: I.governance }] },
+      // "Governance and reporting" removed from the group nav: the cell stays empty to keep the column rule
+      { col: 2, row: 2, pad: [53, 16, 0, 38], line: "l", blocks: [] },
       {
         col: 3,
         row: 1,
