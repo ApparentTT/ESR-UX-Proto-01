@@ -91,15 +91,15 @@ export const DEV_CASE_STUDY_CARDS: OverlayCaseCardData[] = [
 
 /** B38 CAP §5 (after SectionHeading "Featured properties"). All inert. Opacity-0 tags are not rendered. */
 export const CAP_FEATURED_PROPERTY: PropertyCardData = {
-  tags: ["Under development", "Solar embedded network"],
+  status: "Under development",
+  tags: ["Solar embedded network"],
   title: "Lorem ipsum dolor",
   type: "Industrial",
   size: "2,500-175,000 sqm",
-  availability: "Available now",
 };
 export const CAP_PROPERTY_CARDS: PropertyCardData[] = [
-  { title: "Lorem ipsum dolor", type: "Industrial", size: "2,500-175,000 sqm", availability: "Available now" },
-  { title: "Lorem ipsum dolor", type: "Industrial", size: "941-1,162 sqm", availability: "Available now" },
-  { tags: ["Under development"], title: "Lorem ipsum dolor", type: "Industrial", size: "2,883-25,309 sqm", availability: "Available now" },
-  { title: "Lorem ipsum dolor", type: "Industrial", size: "5,539-13,850 sqm", availability: "Available now" },
+  { status: "Available now", title: "Lorem ipsum dolor", type: "Industrial", size: "2,500-175,000 sqm" },
+  { status: "Available now", title: "Lorem ipsum dolor", type: "Industrial", size: "941-1,162 sqm" },
+  { status: "Under development", title: "Lorem ipsum dolor", type: "Industrial", size: "2,883-25,309 sqm" },
+  { status: "Available now", title: "Lorem ipsum dolor", type: "Industrial", size: "5,539-13,850 sqm" },
 ];

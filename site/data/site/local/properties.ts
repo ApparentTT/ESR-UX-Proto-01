@@ -2,7 +2,7 @@
  * /jp/properties: Japan properties copy, verbatim from Key wireframes R2Local_Properties (1347:69176; mobile
  * 1347:69177). The frame is drawn for Australia and New Zealand: the market name reads "Japan" (shared search
  * entry) and the five drawn Australian estate names are "[Property name]" placeholders; their tags, types,
- * sizes and availability are as drawn (tags drawn at opacity 0 are not rendered).
+ * sizes and statuses are as drawn (tags drawn at opacity 0 are not rendered; status is a tag chip, not meta).
  */
 import type { ContactCtaBandProps } from "@/components/sections/forms/ContactCtaBand";
 import type { PropertyCardData } from "@/components/sections/cards/PropertyCard";
@@ -45,18 +45,18 @@ const DETAIL = jpPropertyHref(JP_DRAWN_PROPERTY.name);
 export const JP_PROP_FEATURED = {
   title: "Featured properties",
   featured: {
-    tags: ["Under development", "Solar embedded network"],
+    status: "Under development",
+    tags: ["Solar embedded network"],
     title: NAME,
     type: "Industrial",
     size: "2,500-175,000 sqm",
-    availability: "Available now",
     href: DETAIL,
   } satisfies PropertyCardData,
   cards: [
-    { title: NAME, type: "Industrial", size: "2,500-175,000 sqm", availability: "Available now", href: DETAIL },
-    { title: NAME, type: "Industrial", size: "941-1,162 sqm", availability: "Available now", href: DETAIL },
-    { tags: ["Under development"], title: NAME, type: "Industrial", size: "2,883-25,309 sqm", availability: "Available now", href: DETAIL },
-    { title: NAME, type: "Industrial", size: "5,539-13,850 sqm", availability: "Available now", href: DETAIL },
+    { status: "Available now", title: NAME, type: "Industrial", size: "2,500-175,000 sqm", href: DETAIL },
+    { status: "Available now", title: NAME, type: "Industrial", size: "941-1,162 sqm", href: DETAIL },
+    { status: "Under development", title: NAME, type: "Industrial", size: "2,883-25,309 sqm", href: DETAIL },
+    { status: "Available now", title: NAME, type: "Industrial", size: "5,539-13,850 sqm", href: DETAIL },
   ] satisfies PropertyCardData[],
   link: { label: "View all properties", href: JP.findProperties },
 };

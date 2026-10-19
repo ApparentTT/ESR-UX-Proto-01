@@ -58,27 +58,24 @@ export const JP_NEWSLETTER = {
 export function jpFeaturedProperties(sqm: " sqm" | "sqm"): LocalPropertyCardData[] {
   return [
     {
-      tags: ["Japan"],
       title: "Higashi Distribution Centre, Kawasaki, Kanagawa",
       type: "Warehouse",
       size: `8,921,59${sqm}`,
-      availability: "Available now",
+      status: "Available now",
       href: jpPropertyHref("Higashi Distribution Centre"),
     },
     {
-      tags: ["Japan", "CASBEE S"],
       title: "Yokohama Sachiura Distribution Centre 1, Yokohama, Kanagawa",
       type: "Warehouse",
       size: `35,595.27${sqm}`,
-      availability: "Available now",
+      status: "Available now",
       href: jpPropertyHref("Yokohama Sachiura Distribution Centre 1"),
     },
     {
-      tags: ["Japan"],
       title: "Kawanishi Distribution Centre 3, Kawanishi City, Hyogo",
       type: "Logistics",
       size: `433,000${sqm}`,
-      availability: "Under development",
+      status: "Under development",
       href: jpPropertyHref("Kawanishi Distribution Centre 3"),
     },
   ];
