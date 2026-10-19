@@ -15,12 +15,7 @@ const STATES: { n: number; label: string; href: string }[] = [
   { n: 6, label: "No results", href: "/properties/search?q=aomori&type=cold-storage&min=20000" },
 ];
 
-/** A shape drawn around the Kawasaki and Yokohama waterfront, as a worked example of a drawn area. */
-const EXAMPLE_AREA = "35.620_139.600,35.600_139.830,35.450_139.830,35.300_139.690,35.380_139.520";
-
 const MAP_LINKS: { label: string; href: string; icon: string; mobileOnly?: boolean }[] = [
-  { label: "Draw your own area", href: "/properties/search?pref=kanagawa&draw=1", icon: "gesture" },
-  { label: "Results in a drawn area", href: `/properties/search?area=${EXAMPLE_AREA}`, icon: "pentagon" },
   { label: "Map view with card carousel", href: "/properties/search?pref=kanagawa&view=map", icon: "map", mobileOnly: true },
 ];
 

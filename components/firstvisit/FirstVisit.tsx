@@ -70,20 +70,6 @@ export function FirstVisit() {
   const previewRefs = useRef(new Map<string, HTMLElement>());
   const previewPane = useRef<HTMLDivElement>(null);
   const previewMap = useRef<HTMLDivElement>(null);
-  const [drawPending, setDrawPending] = useState(false);
-  const onDrawRequestHandled = useCallback(() => setDrawPending(false), []);
-
-  // Draw your own area from the all-filters panel: keep the panel's other choices; a drawn area
-  // replaces the location. Desktop draws on the preview map, mobile goes to the results map.
-  const startDrawFromPanel = () => {
-    const kept = { ...draft, q: "", pref: [], area: null, bbox: null };
-    setFiltersOpen(false);
-    if (isDesktop) {
-      setChosen(kept);
-      previewMap.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      setDrawPending(true);
-    } else router.push(searchHref(kept, { draw: "1" }));
-  };
 
   return (
     <>
@@ -244,9 +230,6 @@ export function FirstVisit() {
                   if (card && pane) pane.scrollTo({ top: pane.scrollTop + card.getBoundingClientRect().top - pane.getBoundingClientRect().top - 8, behavior: "smooth" });
                 }}
                 onSearchArea={(bbox) => go({ ...chosen, bbox })}
-                onDrawArea={(area) => area && go({ ...chosen, q: "", pref: [], bbox: null, area })}
-                drawRequested={drawPending}
-                onDrawRequestHandled={onDrawRequestHandled}
                 className="h-full rounded-card"
               />
             </div>
@@ -316,7 +299,6 @@ export function FirstVisit() {
         text={panelText}
         onText={setPanelText}
         onClose={() => setFiltersOpen(false)}
-        onStartDraw={startDrawFromPanel}
         footer={{
           resetLabel: "Clear all",
           onReset: () => {

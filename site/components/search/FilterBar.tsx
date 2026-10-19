@@ -17,7 +17,6 @@ import {
   countMatching,
   displayQuery,
   groupCounts,
-  searchHref,
   type Filters,
 } from "@/lib/filters";
 import { SHEET_QUERY, useMediaQuery } from "@/lib/useMediaQuery";
@@ -33,8 +32,6 @@ type Props = {
   /** Mobile and tablet list/map toggle */
   view: "list" | "map";
   onToggleView: () => void;
-  /** Put the map into Draw your own area mode */
-  onStartDraw: () => void;
 };
 
 const TITLES: Record<PanelId, string> = { location: "Location", type: "Property type", size: "Size", avail: "Availability", all: "All filters" };
@@ -60,7 +57,7 @@ export function locationSummary(f: Filters) {
   return { text: names[0] ?? "", extra: Math.max(0, names.length - 1) };
 }
 
-export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onToggleView, onStartDraw }: Props) {
+export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onToggleView }: Props) {
   const isSheet = useMediaQuery(SHEET_QUERY);
   const barRef = useRef<HTMLDivElement>(null);
   const [draft, setDraft] = useState<Filters>(filters);
@@ -80,15 +77,6 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
     onApply(draft);
     onOpenPanel(null);
   }, [draft, onApply, onOpenPanel]);
-
-  // Draw your own area from a panel: keep the panel's other choices (location is about to be
-  // replaced by the drawing), close it and hand over to the map.
-  const startDrawFromPanel = useCallback(() => {
-    const next = { ...draft, q: filters.q, pref: filters.pref, area: filters.area, bbox: filters.bbox };
-    if (searchHref(next) !== searchHref(filters)) onApply(next);
-    onOpenPanel(null);
-    onStartDraw();
-  }, [draft, filters, onApply, onOpenPanel, onStartDraw]);
 
   // When a panel is opened from outside (prototype links), seed the draft.
   const lastOpen = useRef<PanelId | null>(null);
@@ -156,7 +144,6 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
         onText={setText}
         showSearchInput={isSheet}
         inputRef={isSheet ? sheetInput : locationInput}
-        onStartDraw={startDrawFromPanel}
       />
     </PanelFrame>
   );
@@ -333,7 +320,6 @@ export function FilterBar({ filters, onApply, openPanel, onOpenPanel, view, onTo
         onText={setText}
         onClose={close}
         footer={footer("all")}
-        onStartDraw={startDrawFromPanel}
       />
     </div>
   );

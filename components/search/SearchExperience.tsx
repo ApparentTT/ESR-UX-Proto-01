@@ -9,7 +9,6 @@ import { ResultsList } from "./ResultsList";
 import { FakeMap } from "./FakeMap";
 import { MapCarousel, CAROUSEL_HEIGHT } from "./MapCarousel";
 import { EmptyState } from "./EmptyState";
-import type { LatLng } from "@/lib/geo";
 import { EMPTY_FILTERS, filterProperties, filterSummary, nearbyProperties, scopeLabel, sortProperties, type Bbox } from "@/lib/filters";
 import { useSearchState } from "@/lib/useSearchState";
 import { useInfiniteBatches } from "@/lib/useInfiniteBatches";
@@ -23,31 +22,24 @@ export function SearchExperience() {
   const isDesktop = useMediaQuery(DESKTOP_QUERY, true);
 
   // Prototype deep links: ?panel=all|location|type|size|avail opens a panel, ?view=map opens the
-  // mobile map, ?demo=scrolled jumps to the infinite-scroll loading state, ?draw=1 starts drawing an
-  // area on the map. Read once, then stripped so the URL only ever carries the search itself.
+  // mobile map, ?demo=scrolled jumps to the infinite-scroll loading state. Read once, then stripped so the URL only ever carries the search itself.
   const [openPanel, setOpenPanel] = useState<PanelId | null>(null);
   const [view, setView] = useState<"list" | "map">("list");
   const [demoScrolled, setDemoScrolled] = useState(false);
-  const [drawPending, setDrawPending] = useState(false);
   const panelParam = params.get("panel");
   const viewParam = params.get("view");
   const demoParam = params.get("demo");
-  const drawParam = params.get("draw");
   useEffect(() => {
-    if (!panelParam && !viewParam && !demoParam && !drawParam) return;
+    if (!panelParam && !viewParam && !demoParam) return;
     if (panelParam && ["all", "location", "type", "size", "avail"].includes(panelParam)) setOpenPanel(panelParam as PanelId);
     if (viewParam === "map") setView("map");
     if (viewParam === "list") setView("list");
     if (demoParam === "scrolled") setDemoScrolled(true);
-    if (drawParam === "1") {
-      if (!window.matchMedia(DESKTOP_QUERY).matches) setView("map");
-      setDrawPending(true);
-    }
     const next = new URLSearchParams(params.toString());
     PROTOTYPE_PARAMS.forEach((k) => next.delete(k));
     const qs = next.toString().replace(/%2C/gi, ",");
     router.replace(`/properties/search${qs ? `?${qs}` : ""}`, { scroll: false });
-  }, [panelParam, viewParam, demoParam, drawParam, params, router]);
+  }, [panelParam, viewParam, demoParam, params, router]);
 
   // Prototype params never change the search, so they are left out of the reset key.
   const queryKey = useMemo(() => {
@@ -95,15 +87,6 @@ export function SearchExperience() {
 
   // Search this area and a drawn area are both "where": the newer one replaces the older.
   const onSearchArea = useCallback((bbox: Bbox) => setFilters({ ...filters, bbox, area: null }), [filters, setFilters]);
-  const onDrawArea = useCallback(
-    (area: LatLng[] | null) => {
-      setFilters(area ? { ...filters, area, q: "", pref: [], bbox: null } : { ...filters, area: null });
-      // On the mobile and tablet map the chip row changes the bar height; re-park once it has re-measured.
-      if (!window.matchMedia(DESKTOP_QUERY).matches) requestAnimationFrame(() => requestAnimationFrame(() => parkResultsRef.current()));
-    },
-    [filters, setFilters],
-  );
-  const onDrawRequestHandled = useCallback(() => setDrawPending(false), []);
 
   // Bring the map fully into view under the sticky bar: on desktop the results pane sits
   // directly beneath it, on mobile and tablet the map view fills the screen below it.
@@ -124,11 +107,6 @@ export function SearchExperience() {
   const parkResultsRef = useRef(parkResults);
   parkResultsRef.current = parkResults;
 
-  const startDraw = useCallback(() => {
-    if (!window.matchMedia(DESKTOP_QUERY).matches) setView("map");
-    setDrawPending(true);
-    requestAnimationFrame(parkResults);
-  }, [parkResults]);
 
 
   // ?demo=scrolled: park the filter bar at the top, load a second batch, then scroll the list to its end so
@@ -180,10 +158,6 @@ export function SearchExperience() {
       onPinHover={setHoveredId}
       onSearchArea={onSearchArea}
       area={filters.area}
-      onDrawArea={onDrawArea}
-      drawRequested={drawPending}
-      onDrawRequestHandled={onDrawRequestHandled}
-      onDrawStart={parkResults}
       bottomInset={showMobileMap ? CAROUSEL_HEIGHT : 0}
       className={showMobileMap ? "h-[calc(100dvh-var(--bar-h,0px))] min-h-[480px]" : "h-full rounded-card"}
     >
@@ -205,7 +179,6 @@ export function SearchExperience() {
           const main = document.getElementById("main");
           if (main) window.scrollTo({ top: main.offsetTop });
         }}
-        onStartDraw={startDraw}
       />
       {/* The mobile map view opts out of scroll anchoring: when the chip row appears or goes after
           drawing, the page must stay parked with the map directly under the sticky bar. */}
