@@ -409,10 +409,10 @@ export function FakeMap({
 
   const labels = LABELS.filter((l) => view.k >= l.minK);
 
-  // Label layout: pins that would overlap are nudged to the nearest free slot, so every result keeps its own pin.
+  // Pin layout: every pin sits exactly on its property; pins that would overlap fold into a count on the nearest pin.
   const placed = useMemo(() => {
-    const W = 96, H = 34;
-    const OFFSETS = [[0, 0], [0, -H], [0, H], [-W, 0], [W, 0], [-W, -H], [W, -H], [-W, H], [W, H], [0, -2 * H], [0, 2 * H], [-2 * W, 0], [2 * W, 0]];
+    const W = 26, H = 30;
+    const OFFSETS = [[0, 0]];
     const boxes: { x: number; y: number; ax: number; ay: number; extra: number }[] = [];
     const out = new Map<string, { x: number; y: number; ax: number; ay: number }>();
     for (const p of pins) {
@@ -420,7 +420,7 @@ export function FakeMap({
       let pos: { x: number; y: number } | null = null;
       for (const [dx, dy] of OFFSETS) {
         const c = { x: a.x + dx, y: a.y + dy };
-        const inside = c.x > W / 2 && c.x < size.w - W / 2 && c.y > H && c.y < size.h - H;
+        const inside = c.x > W / 2 && c.x < size.w - W / 2 && c.y > H && c.y < size.h;
         if ((dx || dy) && !inside) continue;
         if (!boxes.some((b) => Math.abs(b.x - c.x) < W - 4 && Math.abs(b.y - c.y) < H - 2)) {
           pos = c;
@@ -495,15 +495,6 @@ export function FakeMap({
               <path d={r.d} fill="none" stroke="#FFFFFF" strokeWidth={r.major ? 2.5 : 1.5} strokeLinecap="round" strokeLinejoin="round" />
             </g>
           ))}
-          {pins.map((p) => {
-            const pl = placed.out.get(p.id);
-            if (!pl || (pl.x === pl.ax && pl.y === pl.ay)) return null;
-            return <line key={p.id} x1={pl.ax} y1={pl.ay} x2={pl.x} y2={pl.y} stroke="#111826" strokeOpacity={0.35} strokeWidth={1} />;
-          })}
-          {pins.map((p) => {
-            const pl = placed.out.get(p.id);
-            return pl ? <circle key={p.id} cx={pl.ax} cy={pl.ay} r={2.5} fill="#111826" /> : null;
-          })}
           {labels.map((l) => {
             const { x, y } = project(l.at);
             if (x < -40 || y < -20 || x > size.w + 40 || y > size.h + 20) return null;
@@ -613,7 +604,7 @@ export function FakeMap({
         </span>
       )}
 
-      {/* Pins: one per visible result, labelled with size */}
+      {/* Pins: one per visible result, the tip on the property; name and size in the accessible name */}
       {size.w > 0 &&
         pins.map((p) => {
           const pl = placed.out.get(p.id);
@@ -632,12 +623,15 @@ export function FakeMap({
               aria-label={`${p.name}, ${p.city}. ${pinText(p)}. Show in list`}
               aria-pressed={selectedId === p.id}
               inert={drawing}
-              className={`absolute left-0 top-0 inline-flex h-8 ${drawing ? "pointer-events-none opacity-50" : ""} items-center whitespace-nowrap rounded-full border px-3 text-xs font-medium tabular-nums shadow-sm transition-colors duration-100 ${
-                on ? "border-ink bg-ink text-white" : "border-ink bg-white text-ink hover:bg-surface"
+              className={`absolute left-0 top-0 flex h-9 w-8 origin-bottom items-start justify-center rounded-full ${drawing ? "pointer-events-none opacity-50" : ""} transition-transform duration-100 ${
+                on ? "text-ink" : "text-[#374151] hover:text-ink"
               }`}
-              style={{ transform: `translate(${x}px, ${y}px) translate(-50%, -50%) scale(${on ? 1.08 : 1})`, zIndex: raised === p.id ? 20 : on ? 15 : 10 }}
+              style={{ transform: `translate(${x}px, ${y}px) translate(-50%, -100%) scale(${on ? 1.25 : 1})`, zIndex: raised === p.id ? 20 : on ? 15 : 10 }}
             >
-              {pinText(p)}
+              <svg aria-hidden="true" viewBox="0 0 32 36" className="h-9 w-8 drop-shadow-[0_1px_2px_rgba(17,24,38,0.35)]">
+                <path d="M16 35c-.6 0-1.1-.3-1.5-.8C9.4 27.6 4 20.7 4 13.6 4 6.9 9.4 1.5 16 1.5S28 6.9 28 13.6c0 7.1-5.4 14-10.5 20.6-.4.5-.9.8-1.5.8Z" fill="currentColor" stroke="#fff" strokeWidth="2" />
+                <circle cx="16" cy="13.5" r={on ? 5 : 4.5} fill="#fff" />
+              </svg>
             </button>
           );
         })}
@@ -654,7 +648,7 @@ export function FakeMap({
           }}
           aria-label={`${b.extra} more ${b.extra === 1 ? "property" : "properties"} here. Zoom in`}
           className="absolute left-0 top-0 z-[25] inline-flex h-6 min-w-6 items-center justify-center rounded-full border-2 border-white bg-ink px-1.5 text-[11px] font-semibold tabular-nums text-white"
-          style={{ transform: `translate(${b.x + 40}px, ${b.y - 22}px) translate(-50%, 0)` }}
+          style={{ transform: `translate(${b.x + 10}px, ${b.y - 44}px) translate(-50%, 0)` }}
         >
           +{b.extra}
         </button>
