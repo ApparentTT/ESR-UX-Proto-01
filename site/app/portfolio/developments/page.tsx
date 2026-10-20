@@ -43,7 +43,7 @@ export default function PortfolioDevelopmentsPage() {
       {/* §5 case studies */}
       <SectionHeading title={DEV_CASE_STUDIES_HEADING} />
       <OverlayCaseCards cards={DEV_CASE_STUDY_CARDS} />
-      {/* §6 "What we develop" (the Developments sub-card is the current page) */}
+      {/* §6 "Our asset classes" (the Developments sub-card is the current page) */}
       <BentoAccordion {...DEV_WHAT_WE_DEVELOP} />
       {/* §7 */}
       <SplitBlock {...INVEST_WITH_ESR} />

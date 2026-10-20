@@ -7,6 +7,7 @@ export const PAGES: { group: string; label: string; href: string }[] = [
   { group: "Our portfolio", label: "Properties", href: "/portfolio/properties" },
   { group: "Our portfolio", label: "Developments", href: "/portfolio/developments" },
   { group: "Our portfolio", label: "Data centres", href: "/portfolio/data-centres" },
+  { group: "Our portfolio", label: "Data centre leadership", href: "/portfolio/data-centres/leadership" },
   { group: "Investment management", label: "Invest with ESR", href: "/investors" },
   { group: "Investment management", label: "Fund detail", href: "/investors/funds/flagship-fund-1" },
   { group: "Sustainability", label: "Sustainability overview", href: "/sustainability" },

@@ -1,7 +1,7 @@
 /**
  * /jp: Japan local homepage copy, verbatim from Key wireframes R2_Local_homepage_>10Properties (1347:52640;
  * mobile 1347:52641). Sections the group homepage shares (Who we are) keep the group copy, as drawn;
- * "What we do" is the local Portfolio bento (JP_PORT_OUR_ASSETS).
+ * "Our asset classes" is the local Portfolio bento (JP_PORT_OUR_ASSETS).
  */
 import type { MediaCardData } from "@/components/sections/cards/MediaCard";
 import type { NewsCardData } from "@/components/sections/cards/NewsCard";
@@ -18,8 +18,8 @@ export const JP_HOME_HERO = {
 export const JP_HOME_WHO_WE_ARE = HOME_WHO_WE_ARE;
 
 /**
- * "Key stats / opt 2" (1110:53502). Group is drawn; the Local (Japan) figures are not, so they are
- * placeholders until ESR Japan supplies them.
+ * "Key stats / opt 2" (1110:53502). The toggle shows Local (Japan) first and by default; the Local
+ * figures are placeholders until ESR Japan supplies them.
  */
 export const JP_HOME_STATS: LocalKeyStatsProps = {
   title: "Scale that delivers",

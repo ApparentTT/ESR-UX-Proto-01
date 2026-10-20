@@ -6,7 +6,7 @@ import { Footnotes } from "@/components/ui/DataBits";
 import { StatList, type StatItem } from "@/components/sections/stats/StatRow";
 
 /**
- * "Key stats / opt 2" (About 1348:77195): a pill toggle (Group / Local) over a row of four Medium 48 stats
+ * "Key stats / opt 2" (About 1348:77195): a pill toggle (Local / Group, first option selected) over a row of four Medium 48 stats
  * and a footnote under a #858585 rule. 30 / 30 padding, 30px between the parts at desktop.
  * The toggle is a pair of pressed buttons; the stats below change with it (announced politely).
  */

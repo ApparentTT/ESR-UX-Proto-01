@@ -22,9 +22,8 @@ export const JP_PORT_MAP_STATS: MapStat[] = [
 /** The map's call-outs (1110:63817–63820) */
 export const JP_PORT_MAP_REGIONS = ["Kanto Region", "Kansai Region", "Chubu Region", "Fukuoka Region"];
 
-/** "Explore the portfolio" 1292:60751: the group bento, linked to the local pages */
+/** "Our asset classes" (1292:60751): the group bento, linked to the local pages */
 export const JP_PORT_OUR_ASSETS: BentoAccordionProps = {
-  heading: "Our assets",
   description:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   tiles: [

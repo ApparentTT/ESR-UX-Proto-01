@@ -6,14 +6,12 @@ import { FullWidthImage } from "@/components/sections/blocks/FullWidthImage";
 import { TrackRecord } from "@/components/sections/stats/TrackRecord";
 import { ProductSuite } from "@/components/sections/infocards/ProductSuite";
 import { FundCards } from "@/components/sections/infocards/FundCards";
-import { FundList } from "@/components/sections/listings/FundList";
 import { LogoMarquee } from "@/components/sections/carousels/LogoMarquee";
 import { NewsCardRow } from "@/components/sections/cards/NewsCardRow";
 import { FormBlock } from "@/components/sections/forms/FormBlock";
 import { TRACK_RECORD } from "@/data/site/trackRecord";
 import { INV_PRODUCT_SUITE } from "@/data/site/productSuite";
 import { INV_FLAGSHIP_FUNDS } from "@/data/site/flagshipFunds";
-import { FUND_LIST } from "@/data/site/funds";
 import { INV_INVESTORS } from "@/data/site/logoMarquees";
 import { INV_LATEST, LATEST_HEADINGS } from "@/data/site/latest";
 import { INV_INTRO } from "@/data/site/pages/investors";
@@ -32,10 +30,9 @@ export default function InvestorsPage() {
       <TrackRecord {...TRACK_RECORD} />
       {/* §4 "Investment product suite": asset classes + listed REITs */}
       <ProductSuite {...INV_PRODUCT_SUITE} />
-      {/* §5 "Flagship funds across the group" */}
+      {/* §5 "Flagship funds across the group" (id flagship-funds: the header and footer "Our funds" links land here).
+          The "Our funds" filters and fund table were removed in the client feedback round. */}
       <FundCards {...INV_FLAGSHIP_FUNDS} />
-      {/* §6 "Our funds": filters + fund table */}
-      <FundList {...FUND_LIST} id="our-funds" />
       {/* §7 "Our investors" logo strip */}
       <LogoMarquee {...INV_INVESTORS} />
       {/* §8a–b "The latest from across our markets" */}

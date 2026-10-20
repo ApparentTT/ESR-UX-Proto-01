@@ -3,7 +3,7 @@ import { Footnotes } from "@/components/ui/DataBits";
 import { T } from "@/components/ui/type";
 
 /**
- * StatRow family (inventory B6). One component, nine variants.
+ * StatRow family (inventory B6). One component, eight variants.
  *
  * Section variants (render their own full-bleed band, white by default):
  * - home:   HOME §3b. Tightened after the client walkthrough (60% less space than drawn): 17px from the
@@ -17,7 +17,6 @@ import { T } from "@/components/ui/type";
  *
  * Inner variants (render only the list; the parent block supplies the band):
  * - bold5: inside TrackRecord (INV §3b). 5 columns, Bold 40 values, stat 5 carries a `sideLabel`.
- * - bold4: inside PowerPipeline (DC §3b). 4 columns, Bold 36 values.
  * - map:   inside InteractiveMap (PORT §2a, DEV §4a). Right-aligned group of 146px items, #393939.
  *
  * Responsive: 2 x 2 at 390 with no inset; 4-up from 1024 (bold5: 2 cols with stat 5 spanning,
@@ -34,7 +33,7 @@ export type StatItem = {
   sideLabel?: string;
 };
 
-export type StatRowVariant = "home" | "dev" | "dc" | "sus" | "people" | "about" | "bold5" | "bold4" | "map";
+export type StatRowVariant = "home" | "dev" | "dc" | "sus" | "people" | "about" | "bold5" | "map";
 
 type Stat48Variant = "home" | "dev" | "dc" | "sus" | "people";
 type SectionVariant = Stat48Variant | "about";
@@ -107,7 +106,7 @@ function Label({ stat }: { stat: StatItem }) {
 
 /**
  * The stats list on its own, without the section band. StatRow renders this inside its band for
- * the section variants and on its own for bold5, bold4 and map.
+ * the section variants and on its own for bold5 and map.
  */
 export function StatList({
   stats,
@@ -121,13 +120,13 @@ export function StatList({
   variant: StatRowVariant;
   /** figma: stats 2-4 inset 24px at wide desktop (stat48 variants only) */
   inset?: "figma" | "none";
-  /** Muted text sits on the surface grey: use the darker muted-surface grey. Default true for bold5 / bold4. */
+  /** Muted text sits on the surface grey: use the darker muted-surface grey. Default true for bold5. */
   surface?: boolean;
   className?: string;
   /** Optional accessible name for the list */
   label?: string;
 }) {
-  const onSurface = surface ?? (variant === "bold5" || variant === "bold4");
+  const onSurface = surface ?? variant === "bold5";
   const muted = onSurface ? "text-muted-surface" : "text-muted";
 
   if (variant === "map") {
@@ -167,21 +166,6 @@ export function StatList({
                 <span className="w-[109px] shrink-0 text-[14px] font-semibold leading-none text-black">{s.sideLabel}</span>
               )}
             </span>
-            <span className={`text-[14px] leading-[1.45] ${muted}`}>
-              <Label stat={s} />
-            </span>
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  if (variant === "bold4") {
-    return (
-      <ul role="list" aria-label={label} className={`grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-4 md:gap-0 ${className}`}>
-        {stats.map((s) => (
-          <li key={s.label} className="flex min-w-0 flex-col gap-1.5">
-            <span className={`${T.stat36b} md:whitespace-nowrap`}>{s.value}</span>
             <span className={`text-[14px] leading-[1.45] ${muted}`}>
               <Label stat={s} />
             </span>
@@ -255,8 +239,7 @@ export type StatRowProps = {
 
 /**
  * Stat row (inventory B6). The section variants render a full-bleed band with the variant's own
- * padding; bold5, bold4 and map render only the list, for use inside TrackRecord, PowerPipeline
- * and InteractiveMap.
+ * padding; bold5 and map render only the list, for use inside TrackRecord and InteractiveMap.
  */
 export function StatRow({
   variant,

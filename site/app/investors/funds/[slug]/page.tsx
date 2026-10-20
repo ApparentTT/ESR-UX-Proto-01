@@ -10,7 +10,7 @@ import { FUND_EXPLORE_PORTFOLIO } from "@/data/site/bentoAccordion";
 
 type Params = { params: Promise<{ slug: string }> };
 
-/** One static page per flagship fund and fund row; any other slug is a 404. */
+/** One static page per flagship fund; any other slug is a 404. */
 export const dynamicParams = false;
 export function generateStaticParams() {
   return FUND_PAGES.map(({ slug }) => ({ slug }));
@@ -70,7 +70,7 @@ export default async function FundDetailPage({ params }: Params) {
         <p className="text-[12px] leading-[1.48] text-muted-surface md:text-[13px]">{d.statsNote}</p>
       </Section>
 
-      {/* "Explore the portfolio" */}
+      {/* "Our asset classes" bento */}
       <BentoAccordion {...FUND_EXPLORE_PORTFOLIO} />
 
       {/* InvestorEnquiryForm */}

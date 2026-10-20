@@ -34,7 +34,7 @@ const enquirySuccess = (team: string, primary?: EnquirySuccessCopy["primary"]): 
   resetLabel: "Send another enquiry",
 });
 
-export const INVESTOR_ENQUIRY_SUCCESS = enquirySuccess("our capital partnerships team", { label: "Explore our funds", href: "/investors#our-funds" });
+export const INVESTOR_ENQUIRY_SUCCESS = enquirySuccess("our capital partnerships team", { label: "Explore our funds", href: "/investors#flagship-funds" });
 export const CONTACT_ENQUIRY_SUCCESS = enquirySuccess("our team");
 
 /** Field error for a malformed email (drawn, 1265:33813) */

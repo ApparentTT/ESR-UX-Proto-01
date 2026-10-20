@@ -22,8 +22,8 @@ export type BentoTile = {
 };
 
 export type BentoAccordionProps = {
-  /** "Our assets" / "What we develop" / "Explore the portfolio" */
-  heading: string;
+  /** Every instance reads "Our asset classes" (client feedback round); kept as a prop for future variants */
+  heading?: string;
   /** Text of the open tile (verbatim per page) */
   description: string;
   tiles: BentoTile[];
@@ -37,7 +37,7 @@ export type BentoAccordionProps = {
 const SUB_ICONS: Record<string, string> = { Properties: "apartment", Developments: "handyman" };
 
 /**
- * "Our assets / our portfolio" module (Figma 1455:42800, Explore the portfolio: Open, Open-data, Open-infrastructure).
+ * "Our asset classes" module (Figma 1455:42800, 1246:27352 / 1246:27411, Explore the portfolio: Open, Open-data, Open-infrastructure).
  * One tile is always open and none has a close control; a closed tile opens with its "+" (the whole tile is the hit area).
  * 1024+: the first tile (Industrial and logistics) owns the left column and the others stack on the right, 520 tall
  *   (taller only if content needs it at narrow desktop widths).
@@ -47,7 +47,9 @@ const SUB_ICONS: Record<string, string> = { Properties: "apartment", Development
  * Below 1024: one column in source order, the open tile expanded in place.
  * Each title is a button in an h3 (accordion pattern) that stays in place across states, so focus is never lost.
  */
-export function BentoAccordion({ heading, description, tiles, defaultOpenId, currentHref, headingLevel: H = "h2" }: BentoAccordionProps) {
+export const BENTO_HEADING = "Our asset classes";
+
+export function BentoAccordion({ heading = BENTO_HEADING, description, tiles, defaultOpenId, currentHref, headingLevel: H = "h2" }: BentoAccordionProps) {
   const [openId, setOpenId] = useState(defaultOpenId ?? tiles[0]?.id);
   const pathname = usePathname();
   const current = currentHref ?? pathname;

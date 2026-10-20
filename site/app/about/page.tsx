@@ -3,7 +3,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PageIntro } from "@/components/sections/PageIntro";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { FullWidthImage } from "@/components/sections/blocks/FullWidthImage";
-import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
+import { LeaderGrid } from "@/components/sections/blocks/LeaderGrid";
 import { FeatureBand } from "@/components/sections/blocks/FeatureBand";
 import { StatRow } from "@/components/sections/stats/StatRow";
 import { OutlineTextCardRow } from "@/components/sections/infocards/OutlineTextCardRow";
@@ -28,8 +28,8 @@ export default function AboutPage() {
       {/* §4a–b "Our purpose" */}
       <SectionHeading title={<span id="our-purpose-heading">{ABOUT_PURPOSE_HEADING}</span>} />
       <OutlineTextCardRow items={ABOUT_PURPOSE} labelledBy="our-purpose-heading" />
-      {/* §5 "Our leadership" teaser, image left */}
-      <SplitBlock imageSide="left" {...ABOUT_LEADERSHIP} />
+      {/* §5 "Our leadership": eight leader cards (4 x 2) and a link to the full page */}
+      <LeaderGrid {...ABOUT_LEADERSHIP} />
       {/* §6 "Proven capability" static band; §7 continues the same surface band */}
       <FeatureBand controls="none" {...ABOUT_PROVEN_CAPABILITY} />
       {/* §7 featured cards: Our people / Our customers (inert) / News and insights. No section heading, so the card titles are h2. */}

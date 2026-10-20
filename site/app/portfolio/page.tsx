@@ -24,7 +24,7 @@ export default function PortfolioOverviewPage() {
       <PageIntro title={PORT_INTRO.title} body={PORT_INTRO.body} />
       {/* §2 "We span" stats + interactive map */}
       <InteractiveMap stats={PORT_MAP_STATS} regions={MAP_REGIONS} dots={MAP_DOTS} />
-      {/* §3 "Our assets" bento accordion */}
+      {/* §3 "Our asset classes" bento accordion */}
       <BentoAccordion {...PORT_OUR_ASSETS} />
       {/* §4 case-study carousel */}
       <FeatureBand controls="carousel-lg" {...PORT_CASE_STUDY_BAND} />

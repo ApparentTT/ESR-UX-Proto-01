@@ -40,8 +40,8 @@ export default function JapanHomePage() {
       {/* Featured properties */}
       <SectionHeading title={JP_HOME_FEATURED_HEADING} />
       <LocalPropertyCards cards={jpFeaturedProperties(" sqm")} />
-      {/* What we do: the local Portfolio "Our assets" bento, headed "What we do" */}
-      <BentoAccordion {...JP_PORT_OUR_ASSETS} heading="What we do" currentHref="/jp" />
+      {/* "Our asset classes": the local Portfolio bento */}
+      <BentoAccordion {...JP_PORT_OUR_ASSETS} currentHref="/jp" />
       {/* Invest with ESR */}
       <SplitBlock {...JP_INVEST} />
       {/* The latest from Japan */}

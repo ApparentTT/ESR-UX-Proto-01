@@ -1,5 +1,5 @@
 /**
- * Our assets / our portfolio module content (Figma 1455:42800): PORT §3, DEV §6, DC §8 and the fund page.
+ * "Our asset classes" module content (Figma 1455:42800; every instance shares the heading, BENTO_HEADING): PORT §3, DEV §6, DC §8 and the fund page.
  * Industrial and logistics opens with the Properties and Developments cards; Data centres and Infrastructure open
  * with the section lorem and "Explore now" (Infrastructure is not built, so its link is inert).
  */
@@ -27,33 +27,29 @@ const LOREM_2 =
 const LOREM_4 =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 
-/** PORT §3 "Our assets" */
+/** PORT §3 */
 export const PORT_OUR_ASSETS: BentoAccordionProps = {
-  heading: "Our assets",
   description: LOREM_2,
   tiles: BENTO_TILES,
   currentHref: "/portfolio",
 };
 
-/** DEV §6 "What we develop": the Developments sub-card is the current page */
+/** DEV §6: the Developments sub-card is the current page */
 export const DEV_WHAT_WE_DEVELOP: BentoAccordionProps = {
-  heading: "What we develop",
   description: LOREM_4,
   tiles: BENTO_TILES,
   currentHref: "/portfolio/developments",
 };
 
-/** DC §8 "Explore the portfolio": the Data centres tile is the current page */
+/** DC §8: the Data centres tile is the current page */
 export const DC_EXPLORE_PORTFOLIO: BentoAccordionProps = {
-  heading: "Explore the portfolio",
   description: LOREM_4,
   tiles: BENTO_TILES,
   currentHref: "/portfolio/data-centres",
 };
 
-/** Fund detail "Explore the portfolio" (Figma 1246:27945): no tile is the current page */
+/** Fund detail (Figma 1246:27945): no tile is the current page */
 export const FUND_EXPLORE_PORTFOLIO: BentoAccordionProps = {
-  heading: "Explore the portfolio",
   description: LOREM_4,
   tiles: BENTO_TILES,
 };

@@ -17,26 +17,26 @@ export const JP_ABOUT_INTRO = {
   action: { label: "Discover more about ESR group", href: "/about" },
 };
 
-/** "Key stats / opt 2" (1348:77195): Group / Local toggle over four stats and a footnote */
+/** "Key stats / opt 2" (1348:77195): Local / Group toggle (Local first and shown by default) over four stats and a footnote */
 export const JP_ABOUT_STATS: { label: string; options: { id: string; label: string; stats: StatItem[] }[]; footnotes: string[] } = {
   label: "Show figures for",
   options: [
-    {
-      id: "group",
-      label: "Group",
-      stats: [
-        { value: "US $31.8B", label: "Total assets under management", sup: 1 },
-        { value: "4.7m sqm", label: "Gross floor area" },
-        { value: "XX sqm", label: "Development pipeline" },
-        { value: "XX", label: "In-house experts" },
-      ],
-    },
     {
       id: "local",
       label: "Local",
       stats: [
         { value: "US $XXB", label: "Total assets under management", sup: 1 },
         { value: "XX sqm", label: "Gross floor area" },
+        { value: "XX sqm", label: "Development pipeline" },
+        { value: "XX", label: "In-house experts" },
+      ],
+    },
+    {
+      id: "group",
+      label: "Group",
+      stats: [
+        { value: "US $31.8B", label: "Total assets under management", sup: 1 },
+        { value: "4.7m sqm", label: "Gross floor area" },
         { value: "XX sqm", label: "Development pipeline" },
         { value: "XX", label: "In-house experts" },
       ],

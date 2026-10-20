@@ -39,8 +39,8 @@ export default function HomePage() {
       <SectionHeading variant="eyebrow" {...HOME_SCALE_HEADING} />
       <StatRow variant="home" stats={HOME_STATS} footnotes={HOME_FOOTNOTES} label="Scale that delivers" />
 
-      {/* §4 What we do: the Portfolio "Our assets" bento, headed "What we do" */}
-      <BentoAccordion {...PORT_OUR_ASSETS} heading="What we do" currentHref="/" />
+      {/* §4 "Our asset classes": the Portfolio bento */}
+      <BentoAccordion {...PORT_OUR_ASSETS} currentHref="/" />
 
       {/* §5 Explore our markets */}
       <MarketCards />

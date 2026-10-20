@@ -15,11 +15,12 @@ import { NEWS_ARTICLES, NEWS_INTRO, NEWS_MARKETS, NEWS_TOPICS, NEWS_TYPES } from
 import { CAP_CASE_STUDIES, SCS_CASE_STUDIES } from "@/data/site/caseStudies";
 import { LEADERS } from "@/data/site/leaders";
 import { CGOV_DOCUMENTS, SGOV_POLICIES } from "@/data/site/documents";
-import { FLAGSHIP_FUNDS, FUND_ROWS, REITS, REITS_LABEL } from "@/data/site/funds";
+import { FLAGSHIP_FUNDS, REITS, REITS_LABEL } from "@/data/site/funds";
 import { HOME_WHO_WE_ARE } from "@/data/site/pages/home";
 import { PORT_INTRO, PROP_INTRO } from "@/data/site/pages/portfolio";
 import { DEV_INTRO } from "@/data/site/pages/developments";
 import { DC_INTRO } from "@/data/site/pages/data-centres";
+import { DC_LEAD_INTRO, DC_LEADERS } from "@/data/site/pages/data-centres-leadership";
 import { INV_INTRO } from "@/data/site/pages/investors";
 import { SCS_INTRO, SGOV_INTRO, SUS_INTRO } from "@/data/site/pages/sustainability";
 import { ABOUT_INTRO } from "@/data/site/pages/about";
@@ -67,6 +68,7 @@ const PAGE_EXCERPTS: Record<string, string> = {
   "/portfolio/properties": PROP_INTRO.body,
   "/portfolio/developments": DEV_INTRO.body,
   "/portfolio/data-centres": DC_INTRO.body,
+  "/portfolio/data-centres/leadership": DC_LEAD_INTRO.body,
   "/investors": INV_INTRO.body,
   "/sustainability": SUS_INTRO.body,
   "/sustainability/governance": SGOV_INTRO.body,
@@ -170,6 +172,18 @@ function buildIndex(): SearchEntry[] {
       keywords: [l.group, "Our leadership"],
     });
   }
+  for (const l of DC_LEADERS) {
+    const role = Array.isArray(l.title) ? l.title.join(", ") : l.title;
+    out.push({
+      id: `leader:dc:${l.name}`,
+      type: "leader",
+      title: l.name,
+      excerpt: `${role}. ${l.bio}`,
+      href: "/portfolio/data-centres/leadership",
+      path: "/portfolio/data-centres/leadership",
+      keywords: [l.group, "Data centre leadership", "Data centres"],
+    });
+  }
 
   const docs = [
     { list: CGOV_DOCUMENTS, page: "Corporate governance", path: "/about/corporate-governance" },
@@ -197,17 +211,6 @@ function buildIndex(): SearchEntry[] {
       href: f.cta.href,
       path: f.cta.href ?? "/investors",
       keywords: ["Flagship funds", "Invest with ESR"],
-    }),
-  );
-  FUND_ROWS.forEach((f, i) =>
-    out.push({
-      id: `fund:row-${i}`,
-      type: "fund",
-      title: f.fund,
-      excerpt: [f.strategy, f.markets, f.sector].join(" · "),
-      href: f.link.href,
-      path: f.link.href ?? "/investors#our-funds",
-      keywords: ["Our funds", "Invest with ESR"],
     }),
   );
   for (const r of REITS)

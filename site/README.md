@@ -16,6 +16,7 @@ This app lives in `site/`. The repository root holds the original property searc
 | | Property search | `/properties`, `/properties/search` |
 | | Developments | `/portfolio/developments` |
 | | Data centres | `/portfolio/data-centres` |
+| | Data centre leadership | `/portfolio/data-centres/leadership` |
 | Investor | Invest with ESR | `/investors` |
 | Sustainability | Sustainability overview | `/sustainability` |
 | | Governance and management | `/sustainability/governance` |
@@ -59,7 +60,7 @@ Use the **Prototype** badge (bottom right) to jump to any page, or to any state 
 ## How it behaves
 
 - Links to pages that are not wireframed yet (Infrastructure, case study details, social links, article videos, PDFs and downloads) are inert. Clicking one shows a short "This page is not part of the prototype" notice.
-- Filters on news, case studies and the fund table work over the sample records. Forms validate required fields and show a confirmation without sending anything.
+- Filters on news and case studies work over the sample records. Forms validate required fields and show a confirmation without sending anything.
 - The header menus open on click (Enter or Space) and close on Escape, the overlay, or another menu. While one is open, resting the pointer on another section switches to it.
 - The Japan property detail page has Share (copy link, email, LinkedIn, X, LINE) and Save as PDF (opens the print dialog; the print styles at the end of `app/globals.css` give a clean single-column printout), Enquire now with the Estate brochure, Building brochure and Building floor plan downloads stepped out beside it (placeholders), a photo gallery ("Show all photos" opens the grid with category filters; any photo opens the lightbox, with arrow keys, swipe and thumbnails), working unit filters, and an enquiry form that unit links pre-fill. Once Enquire now scrolls away, a sticky bar with the same actions stays to the bottom of the page (top of the window from 768px; a bottom bar on mobile, where Downloads opens a small sheet with the three files).
 - "Industries we serve" on Our customers is interactive: hover or tap a segment or a sector to open its details.

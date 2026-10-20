@@ -42,7 +42,7 @@ export default function PortfolioDataCentresPage() {
       {/* §7 stories */}
       <SectionHeading title={DC_STORIES_HEADING} />
       <MediaCardGrid variant="story3" cards={DC_STORY_CARDS} />
-      {/* §8 "Explore the portfolio" (the Data centres tile is the current page) */}
+      {/* §8 "Our asset classes" (the Data centres tile is the current page) */}
       <BentoAccordion {...DC_EXPLORE_PORTFOLIO} />
       {/* §9 */}
       <SplitBlock {...DC_LEADERSHIP} />

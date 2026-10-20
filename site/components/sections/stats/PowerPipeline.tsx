@@ -1,202 +1,96 @@
-"use client";
-
-import { useState } from "react";
 import { Section } from "@/components/ui/Section";
-import { Legend, ProgressBar } from "@/components/ui/DataBits";
 import { PAD, T } from "@/components/ui/type";
-import { StatList, type StatItem } from "./StatRow";
+import type { StatItem } from "./StatRow";
 import { PIPELINE_LAND, PIPELINE_MAP_H, PIPELINE_MAP_W, projectPipeline } from "./pipelineMap";
 
 /**
- * "Our group pipeline" (inventory B21, DC §3).
- * Surface band, 80/80, column with a 36px gap: Bold 40 head + sub (max 820), StatRow bold4,
- * then the market list card (white, r12) beside a map frame (646:571, r12): a greyscale Asia Pacific
- * map (pipelineMap.ts) with status dots on their markets (by longitude / latitude), then a 13px footnote.
- *
- * Behaviour: each market row is an aria-pressed toggle. Selecting one tints the row with a 3px ink
- * bar, mutes the other rows, and on the map brings that market's dots to full opacity with a
- * white ring (others fade to 25%). Re-click, or Esc while focus is in the block, clears it.
- * Clicking a dot (mouse) selects its market. Stacks list-then-map below 1024.
+ * "Our group pipeline" (inventory B21, DC §3), group level only (client feedback round): no per-market
+ * figures or selection. Surface band, 80/80. 1024+: Bold 40 heading, short intro and the group headline
+ * stats (2 x 2, Bold 36 values) on the left, a static greyscale Asia Pacific map (pipelineMap.ts, r12 white
+ * frame) on the right with a dot on each market where ESR has a data centre presence. Below 1024 the map
+ * stacks under the stats. The dots are decorative; the markets are also given as a screen-reader list.
  */
-export type PipelineMarket = {
-  name: string;
-  /** Secured value, verbatim, e.g. "XX MW" */
-  secured: string;
-  /** Total value, verbatim, e.g. "XXX MW" */
-  total: string;
-  /** Bar segment widths in percent of the track */
-  securedPct: number;
-  developmentPct: number;
-};
-
-export type PipelineDot = {
-  /** Where the dot sits: longitude / latitude of the market (placed on the Asia Pacific map) ... */
-  lon?: number;
-  lat?: number;
-  /** ... or its centre as % of the map frame */
-  left?: number;
-  top?: number;
-  /** Diameter in px at the 646px desktop frame (scales with the frame) */
-  size: number;
-  status: "secured" | "development";
-  /** Must match a PipelineMarket name */
+export type PipelineLocation = {
+  /** Market the dot belongs to (several dots may share one) */
   market: string;
+  lon: number;
+  lat: number;
 };
 
 export type PowerPipelineProps = {
   title: string;
   sub?: string;
   stats: StatItem[];
-  /** Column heads of the market list */
-  listHead: { market: string; secured: string; total: string };
-  markets: PipelineMarket[];
-  legend: { secured: string; development: string; future: string };
-  dots: PipelineDot[];
-  /** Accessible description of the map frame */
-  mapLabel?: string;
+  /** Markets with a data centre presence, in reading order */
+  markets: string[];
+  /** Dot positions (longitude / latitude) */
+  locations: PipelineLocation[];
+  /** Legend label for the dots */
+  legend: string;
   footnote?: React.ReactNode;
   id?: string;
 };
 
-/** Desktop map frame width the dot sizes are drawn against. */
-const FRAME_W = PIPELINE_MAP_W;
-
-export function PowerPipeline({
-  title,
-  sub,
-  stats,
-  listHead,
-  markets,
-  legend,
-  dots,
-  mapLabel = "Map of the pipeline across Asia Pacific",
-  footnote,
-  id = "pipeline",
-}: PowerPipelineProps) {
-  const [selected, setSelected] = useState<string | null>(null);
+export function PowerPipeline({ title, sub, stats, markets, locations, legend, footnote, id = "pipeline" }: PowerPipelineProps) {
   const headingId = `${id}-heading`;
-  const toggle = (name: string) => setSelected((cur) => (cur === name ? null : name));
-
+  const listId = `${id}-markets`;
   return (
-    <Section bg="surface" id={id} aria-labelledby={headingId} className={PAD.data} containerClassName="flex flex-col gap-8 lg:gap-9">
-      <div className="flex flex-col gap-2.5">
-        <h2 id={headingId} className={T.h40b}>
-          {title}
-        </h2>
-        {sub && <p className="max-w-[820px] text-[16px] leading-[1.45] text-muted-surface lg:text-[18px]">{sub}</p>}
-      </div>
-
-      <StatList variant="bold4" stats={stats} />
-
-      <div
-        className="grid items-start gap-6 lg:grid-cols-[minmax(0,620fr)_minmax(0,646fr)] lg:gap-10"
-        onKeyDown={(e) => {
-          if (e.key === "Escape" && selected) {
-            e.stopPropagation();
-            setSelected(null);
-          }
-        }}
-      >
-        {/* Market list card */}
-        <div className="flex flex-col rounded-card bg-white px-4 py-5 md:px-7 md:py-6">
-          <div className="flex items-center gap-3 border-b border-line pb-3.5 text-[12px] font-medium leading-[1.45] text-muted">
-            <span className="flex-1">{listHead.market}</span>
-            <span>{listHead.secured}</span>
-            <span aria-hidden="true" className="w-4 md:w-7" />
-            <span>{listHead.total}</span>
-          </div>
-          <ul role="list">
-            {markets.map((m) => {
-              const isSel = selected === m.name;
-              const dim = selected !== null && !isSel;
-              return (
-                <li key={m.name} className="border-b border-line">
-                  <button
-                    type="button"
-                    aria-pressed={isSel}
-                    onClick={() => toggle(m.name)}
-                    className={`-mx-3 flex w-[calc(100%+24px)] flex-col gap-2.5 rounded-control px-3 py-4 text-left focus-inset motion-safe:transition-colors ${
-                      isSel ? "bg-surface shadow-[inset_3px_0_0_var(--color-ink)]" : "hover:bg-surface"
-                    }`}
-                  >
-                    <span className="flex w-full items-center gap-3">
-                      <span
-                        className={`min-w-0 flex-1 text-[16px] font-medium leading-[1.45] md:text-[17px] ${dim ? "text-muted" : "text-ink"}`}
-                      >
-                        {m.name}
-                      </span>
-                      <span className={`whitespace-nowrap text-[14px] leading-[1.45] md:text-[15px] ${isSel ? "text-muted-surface" : "text-muted"}`}>
-                        <span className="sr-only">, {listHead.secured.toLowerCase()} </span>
-                        {m.secured}
-                      </span>
-                      <span aria-hidden="true" className="w-4 md:w-7" />
-                      <span
-                        className={`whitespace-nowrap text-[14px] font-medium leading-[1.45] md:text-[15px] ${dim ? "text-muted" : "text-ink"}`}
-                      >
-                        <span className="sr-only">, {listHead.total.toLowerCase()} </span>
-                        {m.total}
-                      </span>
-                    </span>
-                    <span aria-hidden="true" className="block w-full">
-                      <ProgressBar
-                        segments={[m.securedPct, m.developmentPct]}
-                        label={`${m.name} capacity`}
-                        className={`motion-safe:transition-opacity ${dim ? "opacity-50" : ""}`}
-                      />
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          <Legend
-            className="pt-4"
-            items={[
-              { label: legend.secured, tone: "dark" },
-              { label: legend.development, tone: "mid" },
-              { label: legend.future, tone: "track" },
-            ]}
-          />
+    <Section
+      bg="surface"
+      id={id}
+      aria-labelledby={headingId}
+      className={PAD.data}
+      containerClassName="grid items-center gap-8 lg:grid-cols-[minmax(0,560fr)_minmax(0,646fr)] lg:gap-16 xl:gap-20"
+    >
+      <div className="flex flex-col gap-8 lg:gap-10">
+        <div className="flex flex-col gap-2.5">
+          <h2 id={headingId} className={T.h40b}>
+            {title}
+          </h2>
+          {sub && <p className="max-w-[820px] text-[16px] leading-[1.45] text-muted-surface lg:text-[18px]">{sub}</p>}
         </div>
 
-        {/* Map frame */}
-        <figure className="relative aspect-[646/571] w-full overflow-hidden rounded-card bg-white">
-          <svg
-            viewBox={`0 0 ${PIPELINE_MAP_W} ${PIPELINE_MAP_H}`}
-            aria-hidden="true"
-            focusable="false"
-            className="absolute inset-0 block size-full"
-          >
+        <ul role="list" aria-label={`${title}: headline figures`} className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-4 md:gap-x-6 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-8">
+          {stats.map((s) => (
+            <li key={s.label} className="flex min-w-0 flex-col gap-1.5 border-t border-[#C9CDD3] pt-4">
+              <span className={`${T.stat36b} whitespace-nowrap`}>{s.value}</span>
+              <span className="text-[14px] leading-[1.45] text-muted-surface md:text-[15px]">{s.label}</span>
+            </li>
+          ))}
+        </ul>
+
+        {footnote && <p className="hidden text-[13px] leading-[1.45] text-muted-surface lg:block">{footnote}</p>}
+      </div>
+
+      <figure className="flex flex-col gap-3">
+        <div className="relative aspect-[646/571] w-full overflow-hidden rounded-card bg-white">
+          <svg viewBox={`0 0 ${PIPELINE_MAP_W} ${PIPELINE_MAP_H}`} aria-hidden="true" focusable="false" className="absolute inset-0 block size-full">
             <path d={PIPELINE_LAND} fillRule="evenodd" className="fill-[#E1E3E7]" />
           </svg>
-          {dots.map((d, i) => {
-            const isSel = selected === d.market;
-            const pos = d.lon !== undefined && d.lat !== undefined ? projectPipeline(d.lon, d.lat) : { left: d.left ?? 50, top: d.top ?? 50 };
-            const faded = selected !== null && !isSel;
+          {locations.map((d) => {
+            const pos = projectPipeline(d.lon, d.lat);
             return (
-              <button
-                key={i}
-                type="button"
-                tabIndex={-1}
+              <span
+                key={`${d.market}-${d.lon}-${d.lat}`}
                 aria-hidden="true"
-                title={d.market}
-                onClick={() => toggle(d.market)}
-                className={`absolute aspect-square -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded-full motion-safe:transition-[opacity,transform,box-shadow] motion-safe:duration-200 ${
-                  d.status === "secured" ? "bg-ink" : "bg-[#A1A6AD]"
-                } ${isSel ? "scale-115 opacity-100 shadow-[0_0_0_2px_#fff,0_2px_8px_rgb(17_24_38/0.3)]" : faded ? "opacity-25" : "opacity-90 shadow-[0_0_0_1.5px_#fff]"}`}
-                style={{ left: `${pos.left}%`, top: `${pos.top}%`, width: `${(d.size / FRAME_W) * 100}%` }}
+                className="absolute aspect-square w-[2.8%] min-w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink shadow-[0_0_0_2px_#fff]"
+                style={{ left: `${pos.left}%`, top: `${pos.top}%` }}
               />
             );
           })}
-          <figcaption className="sr-only">{mapLabel}</figcaption>
-        </figure>
-      </div>
+        </div>
+        <figcaption className="flex items-center gap-2 text-[13px] leading-[1.45] text-muted-surface">
+          <span aria-hidden="true" className="size-3 rounded-full bg-ink" />
+          <span id={listId}>{legend}</span>
+          <ul role="list" aria-labelledby={listId} className="sr-only">
+            {markets.map((m) => (
+              <li key={m}>{m}</li>
+            ))}
+          </ul>
+        </figcaption>
+      </figure>
 
-      <p className="sr-only" aria-live="polite">
-        {selected ? `${selected} selected and highlighted on the map.` : ""}
-      </p>
-
-      {footnote && <p className="text-[13px] leading-[1.45] text-muted-surface">{footnote}</p>}
+      {footnote && <p className="text-[13px] leading-[1.45] text-muted-surface lg:hidden">{footnote}</p>}
     </Section>
   );
 }

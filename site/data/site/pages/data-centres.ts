@@ -26,5 +26,5 @@ export const DC_STORIES_HEADING = "Featured sustainability stories";
 export const DC_LEADERSHIP: { title: string; body: string; cta: SplitBlockCta } = {
   title: "Data centre leadership",
   body: "The team running our digital infrastructure business across Asia Pacific.",
-  cta: { label: "Meet our leadership", href: "/about/leadership" },
+  cta: { label: "Meet our leadership", href: "/portfolio/data-centres/leadership" },
 };

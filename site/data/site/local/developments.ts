@@ -57,9 +57,8 @@ export const JP_DEV_SUSTAINABILITY: { title: string; body: string; actions: Feat
   actions: [{ label: "View case study", href: null }],
 };
 
-/** "What we develop": the shared assets module (Figma 1455:42800), linked to the local pages; Data centres goes to the group page */
+/** "Our asset classes": the shared assets module (Figma 1455:42800), linked to the local pages; Data centres goes to the group page */
 export const JP_DEV_WHAT_WE_DEVELOP: BentoAccordionProps = {
-  heading: "What we develop",
   description:
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
   tiles: [
