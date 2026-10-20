@@ -1,12 +1,12 @@
 /**
  * /jp: Japan local homepage copy, verbatim from Key wireframes R2_Local_homepage_>10Properties (1347:52640;
- * mobile 1347:52641). Sections the group homepage shares (Who we are, What we do) keep the group copy, as drawn.
+ * mobile 1347:52641). Sections the group homepage shares (Who we are) keep the group copy, as drawn;
+ * "What we do" is the local Portfolio bento (JP_PORT_OUR_ASSETS).
  */
-import type { FeatureCardData } from "@/components/sections/blocks/FeatureCard";
 import type { MediaCardData } from "@/components/sections/cards/MediaCard";
 import type { NewsCardData } from "@/components/sections/cards/NewsCard";
 import type { LocalKeyStatsProps } from "@/components/sections/local/LocalKeyStats";
-import { HOME_WHAT_WE_DO, HOME_WHO_WE_ARE } from "@/data/site/pages/home";
+import { HOME_WHO_WE_ARE } from "@/data/site/pages/home";
 import { JP, JP_AUM_FOOTNOTE } from "./shared";
 
 export const JP_HOME_HERO = {
@@ -44,18 +44,6 @@ export const JP_HOME_STATS: LocalKeyStatsProps = {
 
 /** 1110:53380 */
 export const JP_HOME_FEATURED_HEADING = "Featured properties";
-
-/** 1274:39951 "What we do": the group cards, linked to the local pages */
-const [properties, developments, dataCentres, infrastructure] = HOME_WHAT_WE_DO.cards;
-export const JP_HOME_WHAT_WE_DO: { eyebrow: string; body: string; cards: FeatureCardData[] } = {
-  ...HOME_WHAT_WE_DO,
-  cards: [
-    { ...properties, href: JP.properties },
-    { ...developments, href: JP.developments },
-    { ...dataCentres, href: JP.dataCentres },
-    { ...infrastructure, href: null },
-  ],
-};
 
 /** 1110:53530 */
 export const JP_HOME_LATEST_HEADING = {

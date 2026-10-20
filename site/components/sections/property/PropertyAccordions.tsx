@@ -9,7 +9,7 @@ export type PropertyAccordionItem = { label: string; content: React.ReactNode };
  * "Features and amenities" groups (1507:52174): Amenities, Sustainability and Property features between line
  * rules, each a Medium 20 label (19 at 390) with a muted 24px arrow on the right, drawn open (arrow up). Every
  * group starts open; the labels toggle them independently and the arrow turns when closed. 20px padding
- * (18 at 390), 16px (14) between the label and the panel.
+ * (18 at 390), 16px (14) between the label and the panel. Printed open (data-print="expand", app/globals.css).
  */
 export function PropertyAccordions({ items }: { items: PropertyAccordionItem[] }) {
   const base = useId();
@@ -36,11 +36,11 @@ export function PropertyAccordions({ items }: { items: PropertyAccordionItem[] }
                 <Icon
                   name="keyboard_arrow_up"
                   size={24}
-                  className={`text-muted transition-transform motion-reduce:transition-none ${isOpen ? "" : "rotate-180"}`}
+                  className={`text-muted transition-transform motion-reduce:transition-none print:hidden ${isOpen ? "" : "rotate-180"}`}
                 />
               </button>
             </h3>
-            <div id={panelId} role="region" aria-labelledby={btnId} hidden={!isOpen} className="anim-fade pb-2 pt-2.5 md:pt-3">
+            <div id={panelId} role="region" aria-labelledby={btnId} hidden={!isOpen} data-print="expand" className="anim-fade pb-2 pt-2.5 md:pt-3">
               {item.content}
             </div>
           </div>

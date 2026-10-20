@@ -5,11 +5,10 @@ import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { SmartLink } from "@/components/ui/SmartLink";
-import { Tag } from "@/components/ui/Tag";
 import { TextLink } from "@/components/ui/TextLink";
 import { HIT } from "@/components/ui/type";
 import { GROUP_SITE_SUFFIX } from "@/config/local-nav";
-import { MARKET_SITE_HREF, NAV_COPY, type LangPart, type LatestCard, type NavMarket } from "@/config/nav";
+import { NAV_COPY, marketLanguageHref, type CaseStudyCard, type LangPart, type LatestCard } from "@/config/nav";
 import { NAV_MAP_DOTS, NAV_MAP_FOCUS, NAV_MAP_H, NAV_MAP_LAND, NAV_MAP_W, navMapPoint } from "./mapArt";
 
 /** Desktop nav (header items, mega menus, market panel) from this width. */
@@ -72,35 +71,38 @@ export function useIsDesktop() {
   return useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP_QUERY).matches, () => true);
 }
 
-/** "Explore" (Bold 13 underlined + arrow), with the block title as a visually hidden suffix so each link is unique. */
 /**
  * "Explore" (Bold 13 underlined + arrow), with the block title as a visually hidden suffix. external: a link
  * from a local site to the ESR Group site, drawn with open_in_new 16 instead of the arrow (as on the local
- * Data centres item) and named so for screen readers.
+ * Data centres item) and named so for screen readers. offsite: a link to a separate website (Infrastructure),
+ * drawn the same way, named "(opens external site)" and opened in a new tab.
  */
 export function ExploreLink({
   href,
   context,
   label = NAV_COPY.explore,
   external,
+  offsite,
   className = "",
 }: {
   href: string | null;
   context?: string;
   label?: string;
   external?: boolean;
+  offsite?: boolean;
   className?: string;
 }) {
   const pathname = usePathname();
-  if (external)
+  if (external || offsite)
     return (
       <SmartLink
         href={href}
+        {...(offsite && href ? { target: "_blank", rel: "noopener noreferrer" } : {})}
         className={`${HIT} group inline-flex items-center gap-3 text-[13px] font-bold leading-5 text-[#393939] underline underline-offset-2 ${className}`}
       >
         {label}
         {context && <span className="sr-only"> {context}</span>}
-        <span className="sr-only"> {GROUP_SITE_SUFFIX}</span>
+        <span className="sr-only"> {offsite ? NAV_COPY.offsite : GROUP_SITE_SUFFIX}</span>
         <Icon name="open_in_new" size={16} className="transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
       </SmartLink>
     );
@@ -122,35 +124,73 @@ export function CurrentLink({ href, className = "", children }: { href: string |
   );
 }
 
-/** Language names joined with " · ", non-English names tagged with their language. */
-export function Languages({ parts }: { parts: LangPart[] }) {
+/**
+ * Find your market row (group and local panels, desktop columns and the mobile list): the market name (Medium),
+ * then each language version as its own link, "Greater China — 简体中文 · English". Each link carries the market
+ * name for screen readers ("Greater China: English"); non-English names are tagged with their language.
+ * current: the language version being viewed (Bold, aria-current).
+ */
+export function MarketRow({
+  name,
+  languages,
+  hrefFor = marketLanguageHref,
+  current,
+}: {
+  name: string;
+  languages: LangPart[];
+  hrefFor?: (part: LangPart) => string | null;
+  current?: string;
+}) {
   return (
-    <>
-      {parts.map((p, i) => (
-        <Fragment key={p.text}>
-          {i > 0 && " · "}
-          <span lang={p.lang}>{p.text}</span>
-        </Fragment>
-      ))}
-    </>
+    <p className="flex flex-wrap items-baseline gap-x-2 text-[14px] leading-5">
+      <span className="font-medium text-ink">{name}</span>
+      <span aria-hidden="true" className="text-muted">
+        —
+      </span>
+      <span className="inline-flex flex-wrap items-baseline gap-x-2">
+        {languages.map((p, i) => {
+          const isCurrent = p.text === current;
+          return (
+            <Fragment key={p.text}>
+              {i > 0 && (
+                <span aria-hidden="true" className="text-muted">
+                  ·
+                </span>
+              )}
+              <SmartLink
+                href={hrefFor(p)}
+                hrefLang={p.lang ?? "en"}
+                aria-current={isCurrent ? "true" : undefined}
+                className={`${HIT} rounded-[2px] decoration-1 underline-offset-2 hover:text-ink hover:underline ${isCurrent ? "font-bold text-ink underline" : "text-body"}`}
+              >
+                <span className="sr-only">{name}: </span>
+                <span lang={p.lang} dir={p.dir}>
+                  {p.text}
+                </span>
+              </SmartLink>
+            </Fragment>
+          );
+        })}
+      </span>
+    </p>
   );
 }
 
-/** A market site card (desktop 4-column grid and mobile list). Every market goes to the Japan local site (MARKET_SITE_HREF). */
-export function MarketCard({ market, compact = false }: { market: NavMarket; compact?: boolean }) {
+/**
+ * A "Featured case studies" card (Sustainability, desktop and mobile): 16:9 image, "Case study · Market",
+ * Bold title, then "Read the case study" with an arrow. The whole card is one link.
+ */
+export function CaseStudyCardLink({ card, className = "" }: { card: CaseStudyCard; className?: string }) {
   return (
-    <SmartLink
-      href={MARKET_SITE_HREF}
-      className={`group flex h-full items-start gap-6 rounded-card border border-line bg-white hover:border-ink/30 ${
-        compact ? "py-2 pl-3 pr-6" : "min-h-24 px-3 py-6"
-      }`}
-    >
-      {/* The spaces keep the parts apart in the link's accessible name ("Asia Greater China 简体中文 · English") */}
-      <Tag className={compact ? "w-[73px] shrink-0 justify-center whitespace-nowrap px-1!" : "shrink-0 whitespace-nowrap"}>{market.region}</Tag>{" "}
-      <span className="flex min-w-0 flex-col gap-1.5">
-        <span className="text-[15px] font-bold leading-5 text-ink group-hover:underline">{market.name}</span>{" "}
-        <span className="text-[14px] font-medium leading-5 text-muted">
-          <Languages parts={(compact && market.mobileLanguages) || market.languages} />
+    <SmartLink href={card.href} className={`group flex flex-col overflow-clip rounded-[4px] border border-line bg-white hover:border-ink/30 ${className}`}>
+      <ImagePlaceholder iconSize={24} className="aspect-video w-full shrink-0" />
+      <span className="flex flex-1 flex-col px-3 pb-3 pt-2.5">
+        <span className="block text-[12px] font-medium leading-[18px] text-muted">{card.eyebrow}</span>{" "}
+        <span className="mt-1 block text-[14px] font-bold leading-5 text-body group-hover:underline">{card.title}</span>{" "}
+        {/* The arrow runs on after the last word, so a narrow card wraps the line with it */}
+        <span className="mt-auto block pt-2.5 text-[13px] font-bold leading-5 text-[#393939]">
+          <span className="underline underline-offset-2">{card.cta}</span>
+          <Icon name="arrow_forward" size={16} className="ml-1.5 inline-block align-[-3px] transition-transform group-hover:translate-x-0.5" />
         </span>
       </span>
     </SmartLink>

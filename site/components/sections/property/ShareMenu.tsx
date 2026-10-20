@@ -3,9 +3,10 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { SocialIcon } from "@/components/ui/SocialIcon";
+import { ACTION_BUTTON, type ActionVariant } from "./actionStyles";
 import { PANEL, PANEL_ITEM, usePopover } from "./usePopover";
 
-type ShareCopy = { share: string; copy: string; copied: string; email: string; linkedin: string; x: string; line: string };
+export type ShareCopy = { share: string; copy: string; copied: string; email: string; linkedin: string; x: string; line: string };
 
 /** A plain "X" mark for the X (Twitter) row: Material Symbols has no brand glyphs */
 function XMark() {
@@ -40,18 +41,21 @@ async function copyText(text: string) {
  * On touch devices with the Web Share API it opens the system share sheet; otherwise a small
  * disclosure menu: Copy link (shows "Link copied", announced politely), Email (mailto with subject and body),
  * LinkedIn, X and LINE (each opens in a new tab). Escape and a click outside close it and focus returns to Share.
+ * `variant` gives the sticky bar's compact and icon-only looks (see actionStyles).
  */
 export function ShareMenu({
   title,
   text,
   copy,
   panelClassName = "left-0",
+  variant = "outline",
 }: {
   title: string;
   text: string;
   copy: ShareCopy;
   /** Panel alignment under the button */
   panelClassName?: string;
+  variant?: ActionVariant;
 }) {
   const { open, setOpen, close, wrapRef, buttonRef, onPanelKeyDown } = usePopover();
   const panelId = useId();
@@ -118,17 +122,17 @@ export function ShareMenu({
   ];
 
   return (
-    <div ref={wrapRef} className="relative shrink-0 self-start md:self-auto">
+    <div ref={wrapRef} className="relative shrink-0">
       <button
         ref={buttonRef}
         type="button"
         aria-expanded={open}
         aria-controls={panelId}
         onClick={onShare}
-        className="inline-flex min-h-[46px] items-center gap-2 rounded-control border border-line bg-white px-4 py-[11px] text-[14px] font-medium leading-[1.5] text-ink transition-colors hover:border-ink aria-expanded:border-ink"
+        className={ACTION_BUTTON[variant]}
       >
-        <Icon name="share" size={18} />
-        {copy.share}
+        <Icon name="share" size={variant === "icon" ? 20 : 18} />
+        <span className={variant === "icon" ? "sr-only" : undefined}>{copy.share}</span>
       </button>
       <div id={panelId} hidden={!open} onKeyDown={onPanelKeyDown} className={`${PANEL} ${panelClassName}`}>
         <ul aria-label={copy.share}>

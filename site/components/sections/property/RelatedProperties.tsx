@@ -74,7 +74,7 @@ export function RelatedProperties({ title, cards }: { title: string; cards: Rela
         <h2 id={headingId} className={SECTION_H2}>
           {title}
         </h2>
-        <div ref={wrapRef} className="mt-4 lg:mt-6">
+        <div ref={wrapRef} data-print="grid" className="mt-4 lg:mt-6">
           <ScrollRow className="no-scrollbar -mx-6 flex snap-x snap-mandatory scroll-px-6 gap-4 overflow-x-auto px-6 md:-mx-10 md:scroll-px-10 md:px-10 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-5 lg:overflow-visible lg:px-0">
             {cards.map((c) => (
               <li key={c.title} className="w-[272px] shrink-0 snap-start lg:w-auto">
@@ -84,7 +84,7 @@ export function RelatedProperties({ title, cards }: { title: string; cards: Rela
           </ScrollRow>
         </div>
         {overflow && (
-          <div aria-hidden="true" className="mt-4 flex items-center gap-2 lg:hidden">
+          <div aria-hidden="true" data-print="hide" className="mt-4 flex items-center gap-2 lg:hidden">
             {cards.map((c, i) => (
               <span key={c.title} className={`h-2 rounded-full transition-[width,background-color] motion-reduce:transition-none ${i === active ? "w-5 bg-ink" : "w-2 bg-line"}`} />
             ))}

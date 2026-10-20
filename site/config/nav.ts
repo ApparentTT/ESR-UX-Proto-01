@@ -10,13 +10,23 @@
  * - mobile: what follows the rows in the mobile menu
  */
 
-export type NavItem = { icon?: string; title: string; text: string; href: string | null };
+export type NavItem = {
+  icon?: string;
+  title: string;
+  text: string;
+  href: string | null;
+  /** The call to action, where it is not "Explore" */
+  cta?: string;
+  /** Goes to a separate website (Infrastructure): open_in_new instead of the arrow, named "(opens external site)" for screen readers */
+  offsite?: boolean;
+};
 export type NavLinkItem = { label: string; href: string | null; /** Local menus: goes to the ESR Group site (open_in_new, named for screen readers) */ external?: boolean };
 export type NavStat = { value: string; label: string; /** Value size in px where one stat is drawn at its own size */ size?: number };
 /** A language name; lang is set for non-English scripts so screen readers pronounce them. */
-export type LangPart = { text: string; lang?: string };
+export type LangPart = { text: string; lang?: string; dir?: "rtl" };
 export type NavRegion = "Asia" | "Oceania" | "Middle East";
-export type NavMarket = { region: NavRegion; name: string; languages: LangPart[]; /** Mobile frame copy where it differs */ mobileLanguages?: LangPart[] };
+/** A market and its site's language versions, local language first (each version is its own link in Find your market). */
+export type NavMarket = { region: NavRegion; name: string; languages: LangPart[] };
 
 export type ItemBlock = {
   type: "item";
@@ -25,6 +35,8 @@ export type ItemBlock = {
   reserve?: boolean;
   /** Take the cell's width instead of the drawn 202 (a title that would otherwise wrap) */
   wide?: boolean;
+  /** Icon beside the text instead of above it (Investment management's stacked rows) */
+  layout?: "row";
 };
 export type RegionsBlock = { type: "regions"; heading: string; regions: { name: NavRegion; span?: number }[]; link: NavLinkItem };
 export type GlanceBlock = {
@@ -36,11 +48,14 @@ export type GlanceBlock = {
   marketStats?: NavStat[];
 };
 export type MarketListBlock = { type: "markets"; heading: string; columns: NavRegion[][]; /** Column widths in px */ widths: number[] };
-export type DownloadsBlock = { type: "downloads"; heading: string; items: NavLinkItem[]; link: NavLinkItem };
+/** "Case study · Australia" card: 16:9 image, eyebrow, title and a "Read the case study" line; the whole card is one link. */
+export type CaseStudyCard = { eyebrow: string; title: string; cta: string; href: string | null };
+/** "Featured case studies" (Sustainability): two small cards side by side, with "View all case studies". */
+export type CaseStudiesBlock = { type: "caseStudies"; heading: string; cards: CaseStudyCard[]; link: NavLinkItem };
 export type LatestCard = { title: string; text: string; href: string | null };
 export type LatestBlock = { type: "latest"; heading: string; cards: LatestCard[] };
 export type PeopleBlock = { type: "people"; heading: NavLinkItem; text: string; stats: NavStat[]; link: NavLinkItem };
-export type MegaBlock = ItemBlock | RegionsBlock | GlanceBlock | MarketListBlock | DownloadsBlock | LatestBlock | PeopleBlock;
+export type MegaBlock = ItemBlock | RegionsBlock | GlanceBlock | MarketListBlock | CaseStudiesBlock | LatestBlock | PeopleBlock;
 
 export type MegaCell = {
   /** 1-based grid column and row, with spans */
@@ -54,6 +69,13 @@ export type MegaCell = {
   line?: "l" | "b" | "lb";
   surface?: boolean;
   eyebrow?: string;
+  /**
+   * A group label over the cells below it (Our portfolio's "Industrial and logistics" over Properties and
+   * Developments): the cell holds the label only, and its bottom line is the rule under it
+   */
+  label?: string;
+  /** Blocks centred in the cell's height (Investment management's item rows) */
+  center?: boolean;
   /** Blocks side by side (row) or stacked (column, default), with a gap (px, or a CSS length) */
   flow?: "row" | "column";
   gap?: number | string;
@@ -85,7 +107,9 @@ export type ChipsBlock = {
 };
 export type MobileStripBlock = { type: "strip"; links: NavLinkItem[] };
 export type MobileLatestBlock = LatestBlock & { links: NavLinkItem[] };
-export type MobileBlock = ChipsBlock | DownloadsBlock | MobileLatestBlock | PeopleBlock | MobileStripBlock;
+export type MobileBlock = ChipsBlock | CaseStudiesBlock | MobileLatestBlock | PeopleBlock | MobileStripBlock;
+
+export type NavGroup = { eyebrow?: string; nested?: boolean; items: NavItem[] };
 
 export type NavSection = {
   id: string;
@@ -93,7 +117,8 @@ export type NavSection = {
   label: string;
   /** Width of the header label's text box in the 1440 frame: Medium (closed) and Bold (its menu open) */
   labelWidth: [number, number];
-  groups: { eyebrow?: string; items: NavItem[] }[];
+  /** nested: rows of a group within the section (Industrial and logistics), indented under their label; else eyebrow groups as on About */
+  groups: NavGroup[];
   panel: MegaPanel;
   mobile: MobileBlock[];
 };
@@ -102,12 +127,15 @@ export type NavSection = {
 
 const EN: LangPart = { text: "English" };
 
-/** Find your market (desktop 672:25832, mobile 715:30298), in design order. */
+/**
+ * Find your market (desktop 672:25832, mobile 715:30298), in design order. Language versions from the
+ * presentation feedback: Greater China, Japan, South Korea and Saudi Arabia have a local-language site
+ * beside English; the others are English only (Indonesia's drawn "한국어" was a copy slip).
+ */
 export const NAV_MARKETS: NavMarket[] = [
   { region: "Asia", name: "Greater China", languages: [{ text: "简体中文", lang: "zh-Hans" }, EN] },
   { region: "Asia", name: "India", languages: [EN] },
-  // Korean as drawn on both breakpoints (likely a copy slip in the design; flagged to the client)
-  { region: "Asia", name: "Indonesia", languages: [{ text: "한국어", lang: "ko" }, EN] },
+  { region: "Asia", name: "Indonesia", languages: [EN] },
   { region: "Asia", name: "Japan", languages: [{ text: "日本語", lang: "ja" }, EN] },
   { region: "Asia", name: "Malaysia", languages: [EN] },
   { region: "Asia", name: "Singapore", languages: [EN] },
@@ -115,7 +143,7 @@ export const NAV_MARKETS: NavMarket[] = [
   { region: "Asia", name: "Thailand", languages: [EN] },
   { region: "Asia", name: "Vietnam", languages: [EN] },
   { region: "Oceania", name: "Australia & New Zealand", languages: [EN] },
-  { region: "Middle East", name: "Saudi Arabia", languages: [{ text: "Arabic" }, EN], mobileLanguages: [EN] },
+  { region: "Middle East", name: "Saudi Arabia", languages: [{ text: "العربية", lang: "ar", dir: "rtl" }, EN] },
 ];
 
 export const marketsIn = (region: NavRegion) => NAV_MARKETS.filter((m) => m.region === region).map((m) => m.name);
@@ -125,6 +153,25 @@ export const JOB_ALERTS_HREF = "/about/careers/job-alerts";
 
 /** Every market in Find your market goes to the Japan local site, the one local site in the prototype. */
 export const MARKET_SITE_HREF = "/jp";
+
+/**
+ * Where a market's language link goes: its English site goes where the market went before (MARKET_SITE_HREF);
+ * the other language versions are not part of the prototype (inert).
+ */
+export const marketLanguageHref = (part: LangPart): string | null => (part.lang ? null : MARKET_SITE_HREF);
+
+/**
+ * The group site's language switcher (header, next to Find your market; mobile: a row in the menu's pinned
+ * bar). English is the site being viewed; the other three group languages are not part of the prototype.
+ */
+export type GroupLanguage = LangPart & { code: string; current?: boolean };
+export const GROUP_LANGUAGES: GroupLanguage[] = [
+  { code: "EN", text: "English", current: true },
+  { code: "中文", text: "简体中文", lang: "zh-Hans" },
+  { code: "日本語", text: "日本語", lang: "ja" },
+  { code: "한국어", text: "한국어", lang: "ko" },
+];
+export const LANGUAGE_COPY = { label: "Language", icon: "language" };
 
 export const MARKET_PANEL = {
   title: "Choose your market",
@@ -139,6 +186,8 @@ export const NAV_COPY = {
   findMarket: "Find your market",
   contact: "Contact us",
   explore: "Explore",
+  /** Screen-reader suffix on a link to a separate website (Infrastructure) */
+  offsite: "(opens external site)",
   searchPlaceholder: "Search ESR.com by market, region, property",
   searchPlaceholderMobile: "Search by market, region, property",
 };
@@ -187,29 +236,37 @@ const P = {
   properties: { icon: "apartment", title: "Properties", text: "Industrial and logistics", href: "/portfolio/properties" },
   developments: { icon: "handyman", title: "Developments", text: "Pipeline, technology and sustainability.", href: "/portfolio/developments" },
   dataCentres: { icon: "database", title: "Data centres", text: "Digital infrastructure capability", href: "/portfolio/data-centres" },
-  infrastructure: { icon: "cell_tower", title: "Infrastructure", text: "Lorem ipsum dolor sit amet, consectetur", href: null },
+  // Infrastructure has its own website (not part of the prototype, so inert): "Visit site" with open_in_new
+  infrastructure: { icon: "cell_tower", title: "Infrastructure", text: "Our infrastructure business, on its own website", href: null, cta: "Visit site", offsite: true },
 } satisfies Record<string, NavItem>;
+
+/** The eyebrow over Properties and Developments (desktop and mobile). */
+export const INDUSTRIAL_GROUP = "Industrial and logistics";
 
 const PORTFOLIO: NavSection = {
   id: "portfolio",
   label: "Our portfolio",
   labelWidth: [85, 88],
-  groups: [{ items: [P.group, P.properties, P.developments, P.infrastructure, P.dataCentres] }],
+  // Presentation feedback: Data centres before Infrastructure, Properties and Developments grouped under Industrial and logistics
+  groups: [{ items: [P.group] }, { eyebrow: INDUSTRIAL_GROUP, nested: true, items: [P.properties, P.developments] }, { items: [P.dataCentres, P.infrastructure] }],
   panel: {
-    cols: [295, 295, 305, 284, 261],
-    rows: [200, 337],
+    // Toward 1180, Developments and Infrastructure hold at 242 / 240 so their descriptions stay on two lines
+    cols: [295, 295, [305, 242], 284, [261, 240]],
+    // Row 1 is the "Industrial and logistics" label (20 + 20 + 10 + its 1px rule); the other items span it, their
+    // icons on the grouped items' line (51 + 22 = 73 down), so all five read as one row
+    rows: [51, 190, 337],
     cells: [
-      // Card 1's description is padded to two lines in Figma; Properties' is one line, so its Explore sits higher (as drawn)
-      { col: 1, pad: [33, 16, 0, 30], line: "b", blocks: [{ type: "item", item: P.group, reserve: true }] },
-      { col: 2, pad: [33, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.properties }] },
-      { col: 3, pad: [33, 16, 0, 63], line: "lb", blocks: [{ type: "item", item: P.developments }] },
-      // Infrastructure and Data centres swapped (reviewer feedback); the cells keep the drawn geometry (both 206 inside)
-      { col: 4, pad: [33, 16, 0, 62], line: "lb", blocks: [{ type: "item", item: P.infrastructure }] },
-      { col: 5, pad: [33, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.dataCentres }] },
+      { col: 1, rowSpan: 2, pad: [73, 16, 0, 30], line: "b", blocks: [{ type: "item", item: P.group, reserve: true }] },
+      { col: 2, span: 2, pad: [20, 16, 10, 39], line: "lb", label: INDUSTRIAL_GROUP, blocks: [] },
+      { col: 2, row: 2, pad: [22, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.properties, reserve: true }] },
+      { col: 3, row: 2, pad: [22, 16, 0, 63], line: "lb", blocks: [{ type: "item", item: P.developments, reserve: true }] },
+      // Data centres and Infrastructure keep the drawn geometry of columns 4 and 5
+      { col: 4, rowSpan: 2, pad: [73, 16, 0, 62], line: "lb", blocks: [{ type: "item", item: P.dataCentres, reserve: true }] },
+      { col: 5, rowSpan: 2, pad: [73, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.infrastructure, reserve: true }] },
       {
         col: 1,
         span: 5,
-        row: 2,
+        row: 3,
         pad: [25, 34, 19, 30],
         flow: "row",
         gap: 10,
@@ -237,35 +294,34 @@ const I = {
   funds: { icon: "batch_prediction", title: "Our funds", text: "Every asset across the group", href: "/investors#flagship-funds" },
 } satisfies Record<string, NavItem>;
 
+/** The three pages stacked as rows in the first column, icon beside the text */
+const row = (item: NavItem): ItemBlock => ({ type: "item", item, layout: "row" });
+
 const INVESTOR: NavSection = {
   id: "investor",
   label: "Investment management",
   labelWidth: [160, 164],
   groups: [{ items: [I.investing, I.track, I.funds] }],
   panel: {
-    cols: [295, 295, 850],
-    rows: [215, 241],
+    // "Governance and reporting" was removed, so the panel is three full-height columns (no empty cell): the
+    // pages as rows split by 1px lines, Invest by Market, and the ESR at a glance card. Toward 1180 the first
+    // two hold at 300 / 320 so the rows and the market columns keep their width and the card (filling its column) gives way.
+    cols: [[400, 300], [400, 320], 640],
+    rows: [147, 147, 147],
     bottomLine: true,
     cells: [
-      { col: 1, row: 1, pad: [37, 16, 0, 30], line: "b", blocks: [{ type: "item", item: I.investing }] },
-      { col: 2, row: 1, pad: [37, 16, 0, 38], line: "lb", blocks: [{ type: "item", item: I.track }] },
-      { col: 1, row: 2, pad: [53, 16, 0, 30], blocks: [{ type: "item", item: I.funds }] },
-      // "Governance and reporting" removed from the group nav: the cell stays empty to keep the column rule
-      { col: 2, row: 2, pad: [53, 16, 0, 38], line: "l", blocks: [] },
+      { col: 1, row: 1, pad: [0, 24, 0, 30], line: "b", center: true, blocks: [row(I.investing)] },
+      { col: 1, row: 2, pad: [0, 24, 0, 30], line: "b", center: true, blocks: [row(I.track)] },
+      { col: 1, row: 3, pad: [0, 24, 0, 30], center: true, blocks: [row(I.funds)] },
       {
-        col: 3,
+        col: 2,
         row: 1,
-        rowSpan: 2,
-        pad: [37, 32, 0, 42],
+        rowSpan: 3,
+        pad: [37, 24, 33, 40],
         line: "l",
-        flow: "row",
-        // 56 at 1440, closing to 24 at 1180 so the glance card keeps its width
-        gap: "clamp(24px, 12.31vw - 121.2px, 56px)",
-        blocks: [
-          { type: "markets", heading: "Invest by Market", columns: [["Asia"], ["Oceania", "Middle East"]], widths: [155, 100] },
-          { type: "glance", variant: "card", heading: GLANCE, stats: INVESTOR_STATS },
-        ],
+        blocks: [{ type: "markets", heading: "Invest by Market", columns: [["Asia"], ["Oceania", "Middle East"]], widths: [155, 100] }],
       },
+      { col: 3, row: 1, rowSpan: 3, pad: [37, 32, 37, 40], line: "l", flow: "row", blocks: [{ type: "glance", variant: "card", heading: GLANCE, stats: INVESTOR_STATS }] },
     ],
   },
   mobile: [{ type: "chips", heading: "Invest by Market", selected: CHIP_SELECTED, stats: INVESTOR_STATS, statCols: 2 }],
@@ -280,18 +336,16 @@ const S = {
   governance: { icon: "policy", title: "Governance and management", text: "Reports, data packs and policies", href: "/sustainability/governance" },
 } satisfies Record<string, NavItem>;
 
-/** Mobile lists these in this order; the desktop 2 x 2 grid fills column by column. */
-const DOWNLOADS: DownloadsBlock = {
-  type: "downloads",
-  heading: "Latest downloads",
-  items: [
-    { label: "Sustainability report", href: null },
-    { label: "ESG data pack", href: null },
-    { label: "Modern slavery statement", href: null },
-    { label: "TCFD disclosure", href: null },
-  ],
-  link: { label: "All reports and policies", href: "/sustainability/governance" },
-};
+/** Featured case studies (replaces "Latest downloads"). Case study pages are not built, so the cards go to the case studies list. */
+const CASE_STUDY_TITLE = "[Sustainability case study title]";
+const CASE_STUDY_CTA = "Read the case study";
+export const caseStudiesBlock = (markets: [string, string], href: string | null): CaseStudiesBlock => ({
+  type: "caseStudies",
+  heading: "Featured case studies",
+  cards: markets.map((m) => ({ eyebrow: `Case study · ${m}`, title: CASE_STUDY_TITLE, cta: CASE_STUDY_CTA, href })),
+  link: { label: "View all case studies", href },
+});
+const CASE_STUDIES = caseStudiesBlock(["Australia", "Japan"], "/sustainability/case-studies");
 
 const SUSTAINABILITY: NavSection = {
   id: "sustainability",
@@ -300,17 +354,17 @@ const SUSTAINABILITY: NavSection = {
   groups: [{ items: [S.approach, S.cases, S.governance] }],
   panel: {
     // "Governance and management" (renamed from review feedback) is wider than the drawn 202px item, so its
-    // item takes the cell (241 at 1440) and the column holds at 260 toward 1180, keeping the title on one line (the first two hold at 225 / 240 so theirs stay on one line too, and the downloads at 440)
+    // item takes the cell (241 at 1440) and the column holds at 260 toward 1180, keeping the title on one line (the first two hold at 225 / 240 so theirs stay on one line too, and the case studies at 440)
     cols: [[295, 225], [295, 240], [295, 260], [555, 440]],
     rows: [288],
     cells: [
       { col: 1, pad: [55, 16, 0, 30], blocks: [{ type: "item", item: S.approach, reserve: true }] },
       { col: 2, pad: [55, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.cases, reserve: true }] },
       { col: 3, pad: [55, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.governance, reserve: true, wide: true }] },
-      { col: 4, pad: [54, 24, 0, 31], surface: true, blocks: [DOWNLOADS] },
+      { col: 4, pad: [54, 24, 32, 31], surface: true, blocks: [CASE_STUDIES] },
     ],
   },
-  mobile: [DOWNLOADS],
+  mobile: [CASE_STUDIES],
 };
 
 /* ------------------------------------------------------------------- news */
@@ -332,10 +386,8 @@ const LATEST: LatestBlock = {
     { title: "News · Group", text: LOREM, href: "/news/latest-4" },
   ],
 };
-const MEDIA_LINKS: NavLinkItem[] = [
-  { label: "Media enquiries", href: "/news#media-enquiries" },
-  { label: "Media kit", href: null },
-];
+/** "Media kit" removed (presentation feedback) */
+const MEDIA_LINKS: NavLinkItem[] = [{ label: "Media enquiries", href: "/news#media-enquiries" }];
 
 const NEWS: NavSection = {
   id: "news",

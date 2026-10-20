@@ -1,4 +1,3 @@
-import type { FeatureCardData } from "@/components/sections/blocks/FeatureCard";
 import type { FeatureBandAction } from "@/components/sections/blocks/FeatureBand";
 
 /** Verbatim HOME copy (specs/home.md). Shared data sets (stats, latest, explore cards, markets) live in their own modules. */
@@ -20,21 +19,6 @@ export const HOME_SCALE_HEADING = {
   title: "Scale that delivers",
   sub: "A leading platform with the scale, expertise and local presence to create value across Asia-Pacific.",
   link: { label: "Explore our group portfolio", href: "/portfolio" },
-};
-
-const WHAT_WE_DO_CARD_BODY =
-  "Quis nis ullarper vestibulum eros. Suspendisse lacus lectus molestie id et, nibh tellus in. Lorem diam eu, diam vel.";
-
-/** §4 What we do */
-export const HOME_WHAT_WE_DO: { eyebrow: string; body: string; cards: FeatureCardData[] } = {
-  eyebrow: "What we do",
-  body: "Worem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eu turpis molestie, dictum est a, mattis tellus. Sed dignissim, metus nec fringilla accumsan, risus sem sollicitudin lacus, ut interdum tellus elit sed risus.",
-  cards: [
-    { tag: "Industrial and logistics", title: "Properties", description: WHAT_WE_DO_CARD_BODY, href: "/portfolio/properties" },
-    { tag: "Industrial and logistics", title: "Developments", description: WHAT_WE_DO_CARD_BODY, href: "/portfolio/developments" },
-    { title: "Data centres", description: WHAT_WE_DO_CARD_BODY, href: "/portfolio/data-centres" },
-    { title: "Infrastructure", description: WHAT_WE_DO_CARD_BODY, href: null },
-  ],
 };
 
 /** §6 Invest with ESR */

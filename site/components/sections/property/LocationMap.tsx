@@ -79,13 +79,15 @@ export function LocationMap({ map, name }: { map: LocationMapCopy; name: string 
             <Icon name="warehouse" size={16} />
             <span className="truncate text-[12px] font-medium leading-[1.5]">{name}</span>
           </span>
-          <MapZoomControls
-            zoom={zoom}
-            min={map.zoom.min}
-            max={map.zoom.max}
-            onZoomIn={() => set(zoom + map.zoom.step)}
-            onZoomOut={() => set(zoom - map.zoom.step)}
-          />
+          <div data-print="hide" className="contents">
+            <MapZoomControls
+              zoom={zoom}
+              min={map.zoom.min}
+              max={map.zoom.max}
+              onZoomIn={() => set(zoom + map.zoom.step)}
+              onZoomOut={() => set(zoom - map.zoom.step)}
+            />
+          </div>
           <p className="sr-only" aria-live="polite">
             {zoom > map.zoom.min ? `Map zoomed to ${Math.round(zoom * 100)}%` : ""}
           </p>
@@ -108,7 +110,7 @@ export function LocationMap({ map, name }: { map: LocationMapCopy; name: string 
               </li>
             ))}
           </ul>
-          <div className="flex flex-col gap-3 md:flex-row lg:mt-8">
+          <div data-print="hide" className="flex flex-col gap-3 md:flex-row lg:mt-8">
             <SmartLink
               href={null}
               className="inline-flex min-h-[50px] w-full items-center justify-center gap-2 rounded-btn bg-ink py-3.5 pl-[22px] pr-[18px] text-[15px] font-medium leading-[1.5] text-white transition-colors hover:bg-black md:flex-1 lg:hidden"

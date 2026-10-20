@@ -3,11 +3,10 @@
 import { createContext, useContext, useId, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { InertLink } from "@/components/ui/InertLink";
-import { SmartLink } from "@/components/ui/SmartLink";
 import {
   ALL_MARKETS,
   marketsIn,
-  type DownloadsBlock,
+  type CaseStudiesBlock,
   type GlanceBlock,
   type ItemBlock,
   type LatestBlock,
@@ -20,7 +19,7 @@ import {
   type PeopleBlock,
   type RegionsBlock,
 } from "@/config/nav";
-import { CurrentLink, ExploreLink, LatestCardLink, NavMap, marketFocusMessage } from "./parts";
+import { CaseStudyCardLink, CurrentLink, ExploreLink, LatestCardLink, NavMap, marketFocusMessage } from "./parts";
 
 const px = (n: number | string) => (typeof n === "number" ? `${n}px` : n);
 const HEADING = "text-[14px] font-bold leading-5 text-body";
@@ -101,7 +100,7 @@ export function MegaMenu({ section, id, labelledBy, animate }: { section: NavSec
 }
 
 function Cell({ cell, lastCol }: { cell: MegaCell; lastCol: number }) {
-  const { col, span = 1, row, rowSpan = 1, pad, line = "", surface, eyebrow, flow = "column", gap = 0, blocks } = cell;
+  const { col, span = 1, row, rowSpan = 1, pad, line = "", surface, eyebrow, label, center, flow = "column", gap = 0, blocks } = cell;
   const uid = useId();
   const lineB = line.includes("b");
   /** Sides that touch the panel edge and carry the grey or the bottom line on to the window edge */
@@ -114,7 +113,7 @@ function Cell({ cell, lastCol }: { cell: MegaCell; lastCol: number }) {
   return (
     <div
       // The column divider is the cell's first pixel column (x 295, 590 ... as drawn), so it takes no space
-      className={`relative min-w-0 ${line.includes("l") ? "shadow-[inset_1px_0_0_var(--color-line)]" : ""} ${lineB ? "border-b border-line" : ""} ${surface ? "bg-surface" : ""}`}
+      className={`relative min-w-0 ${line.includes("l") ? "shadow-[inset_1px_0_0_var(--color-line)]" : ""} ${lineB ? "border-b border-line" : ""} ${surface ? "bg-surface" : ""} ${center ? "flex flex-col justify-center" : ""}`}
       style={{ gridColumn: `${col} / span ${span}`, gridRow: `${row ?? 1} / span ${rowSpan}`, padding: pad.map(px).join(" ") }}
     >
       {bleed.map((side) => (
@@ -124,7 +123,9 @@ function Cell({ cell, lastCol }: { cell: MegaCell; lastCol: number }) {
           className={`pointer-events-none absolute top-0 w-[calc(var(--full-w)/2)] ${side} ${surface ? "bg-surface" : ""} ${lineB ? "-bottom-px border-b border-line" : "bottom-0"}`}
         />
       ))}
-      {eyebrow ? (
+      {label ? (
+        <GroupLabel>{label}</GroupLabel>
+      ) : eyebrow ? (
         // About: each eyebrow names the list of its pages
         <>
           <p id={uid} className="mb-[41px] text-[12px] font-medium leading-5 text-body">
@@ -149,6 +150,14 @@ function Cell({ cell, lastCol }: { cell: MegaCell; lastCol: number }) {
   );
 }
 
+/**
+ * A group label over the cells below it (Our portfolio's "Industrial and logistics"), in the About eyebrow
+ * style; the cell's bottom line is the rule under it. Exported for the local menus.
+ */
+export function GroupLabel({ children }: { children: React.ReactNode }) {
+  return <p className="text-[12px] font-medium leading-5 text-body">{children}</p>;
+}
+
 /** One block of a mega menu cell (exported for the local menus, components/layout/local). */
 export function Block({ block }: { block: MegaBlock }) {
   switch (block.type) {
@@ -160,8 +169,8 @@ export function Block({ block }: { block: MegaBlock }) {
       return <Glance block={block} />;
     case "markets":
       return <MarketList block={block} />;
-    case "downloads":
-      return <Downloads block={block} />;
+    case "caseStudies":
+      return <CaseStudies block={block} />;
     case "latest":
       return <Latest block={block} />;
     case "people":
@@ -169,14 +178,29 @@ export function Block({ block }: { block: MegaBlock }) {
   }
 }
 
-/** Icon, Bold title, Regular description, then Explore (icon 24, gaps 20 / 12, 202px wide). */
-function Item({ block: { item, reserve, wide } }: { block: ItemBlock }) {
+/**
+ * Icon, Bold title, Regular description, then Explore (icon 24, gaps 20 / 12, 202px wide). layout "row": the
+ * icon beside the text (Investment management's stacked rows). An item's own call to action replaces
+ * "Explore"; an offsite item (Infrastructure) gets open_in_new.
+ */
+function Item({ block: { item, reserve, wide, layout } }: { block: ItemBlock }) {
+  if (layout === "row")
+    return (
+      <div className="flex max-w-full items-start gap-4">
+        {item.icon && <Icon name={item.icon} size={24} opsz={24} className="text-ink" />}
+        <div className="flex min-w-0 flex-col items-start">
+          <p className={HEADING}>{item.title}</p>
+          <p className="text-[14px] leading-5 text-body">{item.text}</p>
+          <ExploreLink href={item.href} context={item.title} label={item.cta} offsite={item.offsite} className="mt-2" />
+        </div>
+      </div>
+    );
   return (
     <div className={`flex max-w-full flex-col items-start ${wide ? "w-full" : "w-[202px]"}`}>
       {item.icon && <Icon name={item.icon} size={24} opsz={24} className="mb-5 text-ink" />}
       <p className={HEADING}>{item.title}</p>
       <p className={`text-[14px] leading-5 text-body ${reserve ? "min-h-10" : ""}`}>{item.text}</p>
-      <ExploreLink href={item.href} context={item.title} className="mt-3" />
+      <ExploreLink href={item.href} context={item.title} label={item.cta} offsite={item.offsite} className="mt-3" />
     </div>
   );
 }
@@ -263,7 +287,7 @@ function Stats({ stats, className, valueClass, labelClass, gapClass }: { stats: 
 }
 
 /**
- * "ESR at a glance": with the map (Our portfolio, 760 x 244) or as a grey card (Investor, 465 x 358).
+ * "ESR at a glance": with the map (Our portfolio, 760 x 244) or as a grey card (Investor, 358 high, filling its column).
  * Map variant, with a market chosen in the region list: the map zooms to it, the heading reads
  * "ESR at a glance: {market}" over that market's stats, and "All markets" (top left of the map) goes back.
  */
@@ -300,7 +324,7 @@ function Glance({ block }: { block: GlanceBlock }) {
       </div>
     );
   return (
-    <div className="mt-[7px] h-[358px] min-w-0 max-w-[465px] flex-1 rounded-[4px] bg-surface pl-9 pr-4 pt-[18px]">
+    <div className="mt-[7px] h-[358px] min-w-0 flex-1 rounded-[4px] bg-surface pl-9 pr-4 pt-[18px]">
       <p className="text-[11px] font-bold leading-5 text-body">{block.heading}</p>
       <Stats
         stats={block.stats}
@@ -343,25 +367,24 @@ function MarketList({ block }: { block: MarketListBlock }) {
   );
 }
 
-/** "Latest downloads": 2 x 2 (filled column by column), docs icon + Medium 14/20 label, then the reports link. */
-function Downloads({ block }: { block: DownloadsBlock }) {
+/** "Featured case studies": heading with "View all case studies" at the right, over two 16:9 case study cards. */
+function CaseStudies({ block }: { block: CaseStudiesBlock }) {
+  const uid = useId();
   return (
     <div className="w-full">
-      <p className={HEADING}>{block.heading}</p>
-      {/* Column 2 starts 226px in at 1440; when narrower, column 1 gives way so no label wraps */}
-      <ul className="mt-[22px] grid grid-flow-col grid-cols-[minmax(0,226px)_max-content] grid-rows-2 gap-y-[23px]">
-        {block.items.map((d) => (
-          <li key={d.label}>
-            <SmartLink href={d.href} className="flex w-fit items-center gap-[11px] whitespace-nowrap text-[14px] font-medium leading-5 text-ink hover:underline">
-              <Icon name="docs" size={24} opsz={24} className="text-ink" />
-              {d.label}
-            </SmartLink>
+      <div className="flex items-start justify-between gap-6">
+        <p id={uid} className={HEADING}>
+          {block.heading}
+        </p>
+        <ExploreLink href={block.link.href} label={block.link.label} />
+      </div>
+      <ul aria-labelledby={uid} className="mt-[18px] grid grid-cols-2 gap-4">
+        {block.cards.map((c, i) => (
+          <li key={i}>
+            <CaseStudyCardLink card={c} className="h-full" />
           </li>
         ))}
       </ul>
-      <div className="mt-[39px] flex">
-        <ExploreLink href={block.link.href} label={block.link.label} />
-      </div>
     </div>
   );
 }

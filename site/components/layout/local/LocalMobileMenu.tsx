@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
 import { SmartLink } from "@/components/ui/SmartLink";
-import { BackRow, MobileBlockView } from "@/components/layout/nav/MobileMenu";
+import { BackRow, LinkRow, MobileBlockView, SectionRows } from "@/components/layout/nav/MobileMenu";
 import { ExploreLink, LatestCardLink, isCurrentChild } from "@/components/layout/nav/parts";
 import { NAV_COPY } from "@/config/nav";
 import {
@@ -24,8 +24,6 @@ import { PropertySearchForm } from "./parts";
 
 type View = { level: "root" } | { level: "section"; id: string } | { level: "market"; back: View };
 
-const ROW_TITLE = "text-[14px] font-bold leading-5 text-body";
-const ROW_TEXT = "text-[14px] leading-5 text-body";
 const PANEL_HEADING = "px-4 text-[11px] font-bold leading-5 text-body";
 
 /**
@@ -218,64 +216,18 @@ function RootList({ current, onOpen }: { current: string | null; onOpen: (id: st
   );
 }
 
-/** A page link row: icon (if any), Bold title over Regular text, arrow at the right. The whole row is the link. */
-function LinkRow({ item, className }: { item: LocalNavItem; className: string }) {
-  const pathname = usePathname();
-  const current = isCurrentChild(item.href, pathname);
-  return (
-    <SmartLink
-      href={item.href}
-      aria-current={current ? "page" : undefined}
-      className={`focus-inset group flex items-center pl-4 pr-[30px] hover:bg-surface ${className}`}
-    >
-      {item.icon && <Icon name={item.icon} size={24} opsz={24} className="mr-5 text-ink" />}
-      <span className="mr-1 min-w-0 flex-1">
-        <span className={`block ${ROW_TITLE} ${current ? "underline underline-offset-[3px]" : ""}`}>{item.title}</span>
-        <span className={`block ${ROW_TEXT}`}>{item.text}</span>
-        {item.external && <span className="sr-only"> {GROUP_SITE_SUFFIX}</span>}
-      </span>
-      <Icon name="arrow_forward" size={18} className="text-ink transition-transform group-hover:translate-x-1" />
-    </SmartLink>
-  );
-}
-
 function SectionView({ section, onSubmitted }: { section: LocalSection; onSubmitted: () => void }) {
-  const uid = useId();
   return (
     <>
       {section.mobileTop?.map((b, i) => (
         <LocalMobileBlockView key={i} block={b} onSubmitted={onSubmitted} />
       ))}
       <nav aria-label={section.label} className={section.mobileTop ? "border-t border-line" : undefined}>
-        {section.groups.map((g, gi) =>
-          g.eyebrow ? (
-            // About: text-only rows under eyebrow labels (16/8 and 8/16 padding inside a group)
-            <div key={g.eyebrow}>
-              <p id={`${uid}-${gi}`} className="px-4 pt-2 text-[12px] font-medium leading-5 text-body">
-                {g.eyebrow}
-              </p>
-              <ul aria-labelledby={`${uid}-${gi}`}>
-                {g.items.map((item, i) => {
-                  const last = i === g.items.length - 1;
-                  const pad = `${i === 0 ? "pt-4" : "pt-2"} ${last && g.items.length > 1 ? "pb-4" : "pb-2"} ${last ? "border-b border-line" : ""}`;
-                  return (
-                    <li key={item.title}>
-                      <LinkRow item={item} className={pad} />
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ) : (
-            <ul key={gi}>
-              {g.items.map((item) => (
-                <li key={item.title}>
-                  <LinkRow item={item} className="border-b border-line py-4" />
-                </li>
-              ))}
-            </ul>
-          ),
-        )}
+        {/* The group rows; a link to the ESR Group site is named so for screen readers */}
+        <SectionRows<LocalNavItem>
+          groups={section.groups}
+          row={(item, className) => <LinkRow item={item} className={className} suffix={item.external ? GROUP_SITE_SUFFIX : undefined} />}
+        />
       </nav>
       {section.mobile.map((b, i) => (
         <LocalMobileBlockView key={i} block={b} onSubmitted={onSubmitted} />

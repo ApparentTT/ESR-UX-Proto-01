@@ -1,21 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useId, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { Tag } from "@/components/ui/Tag";
 import { ExploreLink } from "@/components/layout/nav/parts";
-import { GROUP_SITE_CARD, type PropertySearchBlock } from "@/config/local-nav";
+import type { PropertySearchBlock } from "@/config/local-nav";
 
 /** The ESR Japan property search, where "Find available property" submits. */
 export const PROPERTY_SEARCH_PATH = "/properties/search";
 
-/** The current market's card in the market panel: a dark border, as drawn (672:26096 / 719:1563). */
-export const CURRENT_MARKET_CARD = "[&_a]:border-ink [&_a:hover]:border-ink";
-
-/** "Explore" in the local menus: the group ExploreLink, with open_in_new for a link to the ESR Group site (external). */
-export function LocalExploreLink(props: { href: string | null; context?: string; external?: boolean; label?: string; className?: string }) {
+/** "Explore" in the local menus: the group ExploreLink, with open_in_new for a link to the ESR Group site (external) or another website (offsite). */
+export function LocalExploreLink(props: { href: string | null; context?: string; external?: boolean; offsite?: boolean; label?: string; className?: string }) {
   return <ExploreLink {...props} />;
 }
 
@@ -71,25 +66,5 @@ export function PropertySearchForm({ block, onSubmitted, className = "" }: { blo
         <ExploreLink href={block.link.href} label={block.link.label} />
       </div>
     </div>
-  );
-}
-
-/**
- * The ESR Group site as a twelfth card in the market panel (not drawn; see GROUP_SITE_CARD), in the market
- * card design: region tag, Bold name, languages.
- */
-export function GroupSiteCard({ compact = false }: { compact?: boolean }) {
-  const c = GROUP_SITE_CARD;
-  return (
-    <Link
-      href={c.href}
-      className={`group flex h-full items-start gap-6 rounded-card border border-line bg-white hover:border-ink/30 ${compact ? "py-2 pl-3 pr-6" : "min-h-24 px-3 py-6"}`}
-    >
-      <Tag className={compact ? "w-[73px] shrink-0 justify-center whitespace-nowrap px-1!" : "shrink-0 whitespace-nowrap"}>{c.region}</Tag>{" "}
-      <span className="flex min-w-0 flex-col gap-1.5">
-        <span className="text-[15px] font-bold leading-5 text-ink group-hover:underline">{c.name}</span>{" "}
-        <span className="text-[14px] font-medium leading-5 text-muted">{c.languages}</span>
-      </span>
-    </Link>
   );
 }

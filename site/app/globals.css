@@ -204,3 +204,98 @@ input[type="search"]::-webkit-search-decoration {
     scroll-behavior: auto !important;
   }
 }
+
+/*
+  Property detail sticky bar (components/sections/property/StickyEnquire.tsx). While it shows, html carries
+  data-sticky-bar. 768+: the bar is 64px at the top, so focused or scrolled-to content keeps clear of it.
+  Below 768: the bar is 72px at the bottom (plus the safe-area inset), so focused content keeps clear of it,
+  the page end is padded so the footer can scroll clear, and the Prototype badge sits above the bar.
+*/
+@media screen and (min-width: 768px) {
+  html[data-sticky-bar] {
+    scroll-padding-top: 80px;
+  }
+}
+@media screen and (max-width: 767.98px) {
+  html[data-sticky-bar] {
+    scroll-padding-bottom: calc(72px + env(safe-area-inset-bottom) + 16px);
+  }
+  html[data-sticky-bar] body {
+    padding-bottom: calc(73px + env(safe-area-inset-bottom));
+  }
+  html[data-sticky-bar] [data-prototype-badge] {
+    bottom: calc(72px + env(safe-area-inset-bottom) + 12px);
+  }
+}
+
+/* ===================================================================================================== Print
+  "Save as PDF" on the property detail page calls window.print(). The printout is one readable column: the page
+  is set to A4 portrait (so the layouts below 768 apply), the site chrome and interactive-only parts are hidden,
+  accordions print open and cards are not split across pages. Markers on the page:
+    data-print="hide"    left out (actions, sticky bar, gallery, filters, map controls, carousel dots, enquiry form)
+    data-print="expand"  printed even while collapsed (Features and amenities groups)
+    data-print="stack"   printed as one column
+    data-print="grid"    a sideways scroll row printed as a two-column grid (Related properties)
+*/
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 14mm 12mm;
+  }
+  html {
+    zoom: 1 !important;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  :root {
+    --page-max: 100%;
+  }
+  body {
+    padding-bottom: 0 !important;
+  }
+
+  /* Site chrome, the Prototype badge, the inert-link notice, accordion arrows and every [data-print="hide"] part */
+  header:has(~ #main),
+  #main ~ footer,
+  body > footer,
+  [data-prototype-badge],
+  [data-print="hide"],
+  [role="status"].fixed,
+  #main h3 > button[aria-expanded] > .icon {
+    display: none !important;
+  }
+
+  [data-print="expand"][hidden] {
+    display: block !important;
+  }
+  [data-print="stack"] {
+    flex-direction: column !important;
+  }
+  [data-print="stack"] > * {
+    width: 100% !important;
+  }
+  [data-print="grid"] > ul {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  [data-print="grid"] > ul > li {
+    width: auto !important;
+  }
+
+  /* Keep cards, table rows and fact rows whole; keep headings with what follows */
+  #main :is(li, tr, dl > div, figure) {
+    break-inside: avoid;
+  }
+  #main :is(h1, h2, h3) {
+    break-after: avoid;
+  }
+  #main section {
+    padding-top: 24px !important;
+    padding-bottom: 24px !important;
+  }
+}
+/* =================================================================================================== /Print */

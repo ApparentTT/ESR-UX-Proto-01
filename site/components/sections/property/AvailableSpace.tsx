@@ -93,15 +93,18 @@ export function AvailableSpace({ copy, property }: { copy: AvailableSpaceCopy; p
             {unitsLabel}
             <span className="max-md:hidden"> available</span>
           </p>
-          <FilterDropdown label={copy.sizeLabel} options={copy.sizeOptions} value={size} onChange={setFilter(setSize)} allLabel={copy.anySize} align="right" />
-          <FilterDropdown
-            label={copy.availabilityLabel}
-            options={copy.availabilityOptions}
-            value={avail}
-            onChange={setFilter(setAvail)}
-            allLabel={copy.anyAvailability}
-            align="right"
-          />
+          {/* Filters, Enquire links and Show more are left out of the printout (Save as PDF) */}
+          <div data-print="hide" className="contents">
+            <FilterDropdown label={copy.sizeLabel} options={copy.sizeOptions} value={size} onChange={setFilter(setSize)} allLabel={copy.anySize} align="right" />
+            <FilterDropdown
+              label={copy.availabilityLabel}
+              options={copy.availabilityOptions}
+              value={avail}
+              onChange={setFilter(setAvail)}
+              allLabel={copy.anyAvailability}
+              align="right"
+            />
+          </div>
         </div>
 
         {filtered.length === 0 ? (
@@ -127,7 +130,7 @@ export function AvailableSpace({ copy, property }: { copy: AvailableSpaceCopy; p
                 <th scope="col" className="pb-3 font-medium">
                   {copy.columns.available}
                 </th>
-                <th scope="col" className="w-[15.4%] pb-3 text-right font-medium">
+                <th scope="col" data-print="hide" className="w-[15.4%] pb-3 text-right font-medium">
                   <span className="sr-only">{copy.columns.action}</span>
                 </th>
               </tr>
@@ -143,7 +146,7 @@ export function AvailableSpace({ copy, property }: { copy: AvailableSpaceCopy; p
                   </th>
                   <td className="whitespace-nowrap py-4 pr-4 text-muted max-md:sr-only">{sqm(u.sizeSqm)}</td>
                   <td className="py-4 pr-4 text-ink max-md:sr-only">{u.available}</td>
-                  <td className="py-2 text-right max-md:w-[110px]">
+                  <td data-print="hide" className="py-2 text-right max-md:w-[110px]">
                     <button
                       type="button"
                       data-enquire
@@ -174,6 +177,7 @@ export function AvailableSpace({ copy, property }: { copy: AvailableSpaceCopy; p
             </p>
             {remaining > 0 && (
               <button
+                data-print="hide"
                 type="button"
                 onClick={showMore}
                 className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-btn border border-ink bg-white py-3.5 pl-[22px] pr-[18px] text-[15px] font-medium leading-[1.5] text-ink transition-colors hover:bg-surface max-md:w-full md:pl-[26px] md:pr-[22px]"

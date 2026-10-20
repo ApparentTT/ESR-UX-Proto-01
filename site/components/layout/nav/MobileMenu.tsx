@@ -8,22 +8,25 @@ import { InertLink } from "@/components/ui/InertLink";
 import { Logo } from "@/components/ui/Logo";
 import { SmartLink } from "@/components/ui/SmartLink";
 import {
+  GROUP_LANGUAGES,
+  LANGUAGE_COPY,
   MARKET_PANEL,
   NAV_COPY,
   NAV_MARKETS,
   NAV_SECTIONS,
+  type CaseStudiesBlock,
   type ChipsBlock,
-  type DownloadsBlock,
   type MobileBlock,
   type MobileLatestBlock,
   type MobileStripBlock,
+  type NavGroup,
   type NavItem,
   type NavSection,
   type NavStat,
   type PeopleBlock,
 } from "@/config/nav";
-import { CurrentMarket } from "./MarketMenu";
-import { CurrentLink, ExploreLink, LatestCardLink, MarketCard, NavMap, isCurrentChild, marketFocusMessage } from "./parts";
+import { CurrentMarket, MarketColumns } from "./MarketMenu";
+import { CaseStudyCardLink, CurrentLink, ExploreLink, LatestCardLink, MarketRow, NavMap, isCurrentChild, marketFocusMessage } from "./parts";
 
 type View = { level: "root" } | { level: "section"; id: string } | { level: "market"; back: View };
 
@@ -36,7 +39,7 @@ const PANEL_HEADING = "px-4 text-[11px] font-bold leading-5 text-body";
  * header (logo, search, close). The drawn frames are the section views; the top level (the five
  * section names) and the back rows are added so they can be reached. Opens straight into the section
  * of the page being viewed. From 768 the sheet is a 420px right panel over the black/80 overlay.
- * A pinned bar holds Contact us and Find your market.
+ * A pinned bar holds the language row (the group languages), Contact us and Find your market.
  */
 export function MobileMenu({
   current,
@@ -151,7 +154,9 @@ export function MobileMenu({
             )}
           </div>
           {view.level !== "market" && (
-            <div className="flex shrink-0 gap-3 bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+            <div className="shrink-0 bg-white">
+              <LanguageRow />
+              <div className="flex gap-3 p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
               <Link
                 href="/contact"
                 aria-current={pathname === "/contact" ? "page" : undefined}
@@ -167,6 +172,7 @@ export function MobileMenu({
               >
                 {NAV_COPY.findMarket}
               </button>
+              </div>
             </div>
           )}
         </div>
@@ -217,13 +223,46 @@ export function BackRow({ label, onBack }: { label: string; onBack: () => void }
   );
 }
 
-/** A page link row: icon (if any), Bold title over Regular text, arrow at the right. The whole row is the link. */
-function LinkRow({ item, className }: { item: NavItem; className: string }) {
+/**
+ * The language row in the pinned bar (group site): the language icon, then the four group languages as links
+ * (English, the site being viewed, Bold; the others are not part of the prototype).
+ */
+function LanguageRow() {
+  const pathname = usePathname();
+  return (
+    <nav aria-label={LANGUAGE_COPY.label} className="flex items-center gap-3 border-t border-line px-4 pt-3">
+      <Icon name={LANGUAGE_COPY.icon} size={20} className="text-ink" />
+      <ul className="flex flex-wrap items-center gap-x-4 text-[14px] leading-5">
+        {GROUP_LANGUAGES.map((l) => (
+          <li key={l.text}>
+            <SmartLink
+              href={l.current ? pathname : null}
+              lang={l.lang}
+              hrefLang={l.lang ?? "en"}
+              aria-current={l.current ? "true" : undefined}
+              className={`inline-flex min-h-10 items-center decoration-1 underline-offset-[3px] hover:text-ink hover:underline ${l.current ? "font-bold text-ink underline" : "font-medium text-body"}`}
+            >
+              {l.text}
+            </SmartLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/**
+ * A page link row: icon (if any), Bold title over Regular text, arrow at the right. The whole row is the link.
+ * An offsite item (Infrastructure, its own website) has open_in_new instead of the arrow. Exported for the local mobile menu.
+ */
+export function LinkRow({ item, className, suffix }: { item: NavItem; className: string; /** Visually hidden, after the text */ suffix?: string }) {
   const pathname = usePathname();
   const current = isCurrentChild(item.href, pathname);
+  const after = item.offsite ? NAV_COPY.offsite : suffix;
   return (
     <SmartLink
       href={item.href}
+      {...(item.offsite && item.href ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       aria-current={current ? "page" : undefined}
       className={`focus-inset group flex items-center pl-4 pr-[30px] hover:bg-surface ${className}`}
     >
@@ -231,19 +270,38 @@ function LinkRow({ item, className }: { item: NavItem; className: string }) {
       <span className="mr-1 min-w-0 flex-1">
         <span className={`block ${ROW_TITLE} ${current ? "underline underline-offset-[3px]" : ""}`}>{item.title}</span>
         <span className={`block ${ROW_TEXT}`}>{item.text}</span>
+        {after && <span className="sr-only"> {after}</span>}
       </span>
-      <Icon name="arrow_forward" size={18} className="text-ink transition-transform group-hover:translate-x-1" />
+      {item.offsite ? (
+        <Icon name="open_in_new" size={18} className="text-ink transition-transform group-hover:-translate-y-px group-hover:translate-x-px" />
+      ) : (
+        <Icon name="arrow_forward" size={18} className="text-ink transition-transform group-hover:translate-x-1" />
+      )}
     </SmartLink>
   );
 }
 
-function SectionView({ section }: { section: NavSection }) {
+/**
+ * A section's rows. nested groups (Our portfolio's Industrial and logistics): the group label, then its rows
+ * indented on a 1px rule. Eyebrow groups (About): text-only rows under eyebrow labels. Exported for the local mobile menu.
+ */
+export function SectionRows<T extends NavItem>({ groups, row }: { groups: (Omit<NavGroup, "items"> & { items: T[] })[]; row: (item: T, className: string) => React.ReactNode }) {
   const uid = useId();
   return (
     <>
-      <nav aria-label={section.label}>
-        {section.groups.map((g, gi) =>
-          g.eyebrow ? (
+      {groups.map((g, gi) =>
+        g.nested ? (
+          <div key={gi} className="border-b border-line pb-2">
+            <p id={`${uid}-${gi}`} className="px-4 pt-3 text-[12px] font-medium leading-5 text-body">
+              {g.eyebrow}
+            </p>
+            <ul aria-labelledby={`${uid}-${gi}`} className="ml-4 mt-1 border-l border-line">
+              {g.items.map((item, i) => (
+                <li key={item.title}>{row(item, `py-3 ${i < g.items.length - 1 ? "border-b border-line" : ""}`)}</li>
+              ))}
+            </ul>
+          </div>
+        ) : g.eyebrow ? (
             // About: text-only rows under eyebrow labels (16/8 and 8/16 padding inside a group)
             <div key={g.eyebrow}>
               <p id={`${uid}-${gi}`} className="px-4 pt-2 text-[12px] font-medium leading-5 text-body">
@@ -253,24 +311,27 @@ function SectionView({ section }: { section: NavSection }) {
                 {g.items.map((item, i) => {
                   const last = i === g.items.length - 1;
                   const pad = `${i === 0 ? "pt-4" : "pt-2"} ${last && g.items.length > 1 ? "pb-4" : "pb-2"} ${last ? "border-b border-line" : ""}`;
-                  return (
-                    <li key={item.title}>
-                      <LinkRow item={item} className={pad} />
-                    </li>
-                  );
+                  return <li key={item.title}>{row(item, pad)}</li>;
                 })}
               </ul>
             </div>
-          ) : (
-            <ul key={gi}>
-              {g.items.map((item) => (
-                <li key={item.title}>
-                  <LinkRow item={item} className="border-b border-line py-4" />
-                </li>
-              ))}
-            </ul>
-          ),
-        )}
+        ) : (
+          <ul key={gi}>
+            {g.items.map((item) => (
+              <li key={item.title}>{row(item, "border-b border-line py-4")}</li>
+            ))}
+          </ul>
+        ),
+      )}
+    </>
+  );
+}
+
+function SectionView({ section }: { section: NavSection }) {
+  return (
+    <>
+      <nav aria-label={section.label}>
+        <SectionRows groups={section.groups} row={(item, className) => <LinkRow item={item} className={className} />} />
       </nav>
       {section.mobile.map((b, i) => (
         <MobileBlockView key={i} block={b} />
@@ -284,8 +345,8 @@ export function MobileBlockView({ block }: { block: MobileBlock }) {
   switch (block.type) {
     case "chips":
       return <ChipsPanel block={block} />;
-    case "downloads":
-      return <DownloadsPanel block={block} />;
+    case "caseStudies":
+      return <CaseStudiesPanel block={block} />;
     case "latest":
       return <LatestPanel block={block} />;
     case "people":
@@ -388,21 +449,22 @@ function ChipsPanel({ block }: { block: ChipsBlock }) {
   );
 }
 
-function DownloadsPanel({ block }: { block: DownloadsBlock }) {
+/** "Featured case studies": the two cards side by side, then "View all case studies". */
+function CaseStudiesPanel({ block }: { block: CaseStudiesBlock }) {
+  const uid = useId();
   return (
     <div className="grow bg-surface pb-8 pt-[15px]">
-      <p className={PANEL_HEADING}>{block.heading}</p>
-      <ul className="mt-4 flex flex-col items-start gap-[23px] px-4">
-        {block.items.map((d) => (
-          <li key={d.label}>
-            <SmartLink href={d.href} className="flex items-center gap-[11px] text-[14px] font-medium leading-5 text-ink hover:underline">
-              <Icon name="docs" size={24} opsz={24} className="text-ink" />
-              {d.label}
-            </SmartLink>
+      <p id={uid} className={PANEL_HEADING}>
+        {block.heading}
+      </p>
+      <ul aria-labelledby={uid} className="mt-3 grid grid-cols-2 gap-3 px-4">
+        {block.cards.map((c, i) => (
+          <li key={i}>
+            <CaseStudyCardLink card={c} className="h-full" />
           </li>
         ))}
       </ul>
-      <div className="mt-12 flex px-4">
+      <div className="mt-6 flex px-4">
         <ExploreLink href={block.link.href} label={block.link.label} />
       </div>
     </div>
@@ -487,7 +549,7 @@ function StripView({ block }: { block: MobileStripBlock }) {
   );
 }
 
-/** Find your market (Figma 715:30298): intro, current market, one column of market cards. No bottom bar. */
+/** Find your market (Figma 715:30298, reworked): intro, current market, the market rows in one column. No bottom bar. */
 function MarketList() {
   const uid = useId();
   return (
@@ -499,13 +561,13 @@ function MarketList() {
         <p>{MARKET_PANEL.body}</p>
       </div>
       <CurrentMarket className="mt-[21px]" />
-      <ul aria-labelledby={uid} className="mt-5 flex flex-col gap-2">
-        {NAV_MARKETS.map((m) => (
-          <li key={m.name}>
-            <MarketCard market={m} compact />
-          </li>
-        ))}
-      </ul>
+      <div className="mt-3">
+        <MarketColumns labelledBy={uid} columns={1}>
+          {NAV_MARKETS.map((m) => (
+            <MarketRow key={m.name} name={m.name} languages={m.languages} />
+          ))}
+        </MarketColumns>
+      </div>
     </div>
   );
 }

@@ -56,7 +56,7 @@ export function PropertyMedia({ gallery, name }: { gallery: GalleryCopy; name: s
   );
 
   return (
-    <div className="mx-auto max-w-(--page-max) pb-6 md:px-10 lg:px-[67px]">
+    <div data-print="hide" className="mx-auto max-w-(--page-max) pb-6 md:px-10 lg:px-[67px]">
       <div role="group" aria-label={`Photos and video of ${name}`} className="grid gap-2 md:aspect-[1306/460] md:grid-cols-[minmax(0,870fr)_minmax(0,428fr)] md:grid-rows-2">
         <div className="relative h-[300px] md:row-span-2 md:h-auto">
           {photo(1, "md:rounded-card")}

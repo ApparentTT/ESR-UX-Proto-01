@@ -3,7 +3,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { HomeHero } from "@/components/sections/blocks/HomeHero";
 import { SplitStatement } from "@/components/sections/blocks/SplitStatement";
-import { SidebarFeatureGrid } from "@/components/sections/blocks/SidebarFeatureGrid";
+import { BentoAccordion } from "@/components/sections/carousels/BentoAccordion";
 import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
 import { FeatureBand } from "@/components/sections/blocks/FeatureBand";
 import { StatRow } from "@/components/sections/stats/StatRow";
@@ -12,12 +12,12 @@ import { NewsCardRow } from "@/components/sections/cards/NewsCardRow";
 import { MediaCardGrid } from "@/components/sections/cards/MediaCardGrid";
 import { HOME_EXPLORE_CARDS } from "@/components/sections/cards/presets";
 import { HOME_STATS, HOME_FOOTNOTES } from "@/data/site/stats";
+import { PORT_OUR_ASSETS } from "@/data/site/bentoAccordion";
 import { HOME_LATEST, LATEST_HEADINGS } from "@/data/site/latest";
 import {
   HOME_HERO,
   HOME_WHO_WE_ARE,
   HOME_SCALE_HEADING,
-  HOME_WHAT_WE_DO,
   HOME_INVEST,
   HOME_CASE_STUDY,
   HOME_EXPLORE_HEADING,
@@ -39,8 +39,8 @@ export default function HomePage() {
       <SectionHeading variant="eyebrow" {...HOME_SCALE_HEADING} />
       <StatRow variant="home" stats={HOME_STATS} footnotes={HOME_FOOTNOTES} label="Scale that delivers" />
 
-      {/* §4 What we do */}
-      <SidebarFeatureGrid {...HOME_WHAT_WE_DO} />
+      {/* §4 What we do: the Portfolio "Our assets" bento, headed "What we do" */}
+      <BentoAccordion {...PORT_OUR_ASSETS} heading="What we do" currentHref="/" />
 
       {/* §5 Explore our markets */}
       <MarketCards />

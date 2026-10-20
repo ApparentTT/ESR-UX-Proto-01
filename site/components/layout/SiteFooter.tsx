@@ -13,8 +13,9 @@ const PORTFOLIO: Group = {
     { label: "Our group portfolio", href: "/portfolio" },
     { label: "Properties", href: "/portfolio/properties" },
     { label: "Developments", href: "/portfolio/developments" },
-    { label: "Infrastructure" },
     { label: "Data centres", href: "/portfolio/data-centres" },
+    // Its own website, not part of the prototype
+    { label: "Infrastructure" },
   ],
 };
 const INVESTORS: Group = { title: "Investment management", links: [{ label: "Investing with ESR", href: "/investors" }, { label: "Our funds", href: "/investors#flagship-funds" }] };

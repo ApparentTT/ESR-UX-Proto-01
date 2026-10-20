@@ -1,7 +1,8 @@
 /**
  * /jp/properties/[slug]: Japan property detail, verbatim from the Figma section "Property and development detail"
- * (719:1873): "Property detail " 1273:90948 (1440) and "Property detail  mob" 1273:90949 (390), the Downloads menu
- * (1507:59421) and the photo gallery frames (grid 1507:59463 / 1507:59568, lightbox 1507:59500 / 1507:59592).
+ * (719:1873): "Property detail " 1273:90948 (1440) and "Property detail  mob" 1273:90949 (390) and the photo gallery
+ * frames (grid 1507:59463 / 1507:59568, lightbox 1507:59500 / 1507:59592). Presentation feedback: Save as PDF beside
+ * Share, the three downloads stepped out beside Enquire now, and a sticky bar that stays to the bottom of the page.
  *
  * One static page per property below. The drawn page is Higashi-Ogishima Distribution Centre 2; the other pages
  * use the same wireframe content with their own name and address (as the fund detail page does). Only
@@ -9,7 +10,7 @@
  * keeps bracketed TBC placeholders for its tags, About copy and key facts, so no real property is shown with
  * another property's figures.
  *
- * Not drawn, added at the client's request: the Share menu items and the sticky "Enquire now" bar. Their copy is
+ * Not drawn, added at the client's request: the Share menu items and the sticky bar. Their copy is
  * placeholder in the wireframe voice.
  *
  * Plain module (no imports from ./shared, which imports jpPropertyHref from here).
@@ -102,8 +103,6 @@ export function propertyAbout(p: JpProperty): string {
 
 export type DistanceStat = { value: string; label: string };
 export type PropertyContact = { name: string; second: string; secondLang?: string; email: string };
-export type DownloadFile = { label: string; meta: string };
-export type DownloadGroup = { label: string; files: DownloadFile[] };
 export type SpaceUnit = { unit: string; sizeSqm: number; available: string };
 export type FeatureCard = { title: string; body: string };
 export type GalleryCategory = { id: string; label: string };
@@ -150,26 +149,6 @@ const UNITS: SpaceUnit[] = [
   { unit: "Office suite 4", sizeSqm: 2060, available: "Q2 2028" },
 ];
 
-/** Downloads menu (1507:59421): brochures and floor plans in two groups, then "Download all as a zip" */
-const PDF = "PDF · [X] MB";
-const DOWNLOADS: DownloadGroup[] = [
-  {
-    label: "Brochures",
-    files: [
-      { label: "Estate brochure", meta: PDF },
-      { label: "[Building] brochure", meta: PDF },
-    ],
-  },
-  {
-    label: "Floor plans",
-    files: [
-      { label: "[Building A] floor plan", meta: PDF },
-      { label: "[Building B] floor plan", meta: PDF },
-      { label: "[Building C] floor plan", meta: PDF },
-    ],
-  },
-];
-
 /**
  * Photo gallery (1507:59463): 24 placeholder photos across the five drawn categories, in category order (the
  * drawn lightbox shows photo 7 as Exterior). The hero and the two images beside it are photos 1 to 3.
@@ -194,12 +173,17 @@ export const JP_PROPERTY_DETAIL = {
   ],
   distances: DISTANCES,
   aboutTitle: "About",
-  /** "Enquire now" beside Downloads (1507:52149): jumps to the enquiry module */
+  /** "Enquire now" (1507:52149): jumps to the enquiry module */
   enquireNow: "Enquire now",
+  /** Beside Share: prints the page (the print stylesheet in app/globals.css gives a clean single column) */
+  savePdf: "Save as PDF",
+  /**
+   * The three downloads, stepped out beside Enquire now (and in the sticky bar). The files are not part of the
+   * prototype: each is an inert link. `label` titles the mobile sticky bar's Downloads sheet.
+   */
   downloads: {
     label: "Downloads",
-    groups: DOWNLOADS,
-    all: "Download all as a zip",
+    files: ["Estate brochure", "Building brochure", "Building floor plan"],
   },
   /** "Features and amenities" (1507:52171): three groups, drawn open */
   features: {

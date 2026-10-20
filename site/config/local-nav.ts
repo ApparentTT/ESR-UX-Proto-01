@@ -12,14 +12,16 @@
  * differs from the desktop frame it is kept per breakpoint, as drawn.
  *
  * Links go to the local pages under /jp, to the ESR Japan property search (/properties), or, where the
- * design marks a link as leaving the site (Data centres, open_in_new), to the ESR Group page. Infrastructure
- * and "Stay up to date on vacancies" (added from review feedback) go to the group pages the same way.
+ * design marks a link as leaving the site (Data centres, open_in_new), to the ESR Group page. "Stay up to date
+ * on vacancies" (added from review feedback) goes to the group page the same way. Infrastructure has its own
+ * website ("Visit site", as in the group menu; inert in the prototype).
  * href: null renders an inert link ("not part of the prototype" notice).
  */
 
-import { JOB_ALERTS_HREF } from "@/config/nav";
+import { GROUP_LANGUAGES, INDUSTRIAL_GROUP, JOB_ALERTS_HREF, caseStudiesBlock } from "@/config/nav";
 import type {
-  DownloadsBlock,
+  CaseStudiesBlock,
+  GroupLanguage,
   ItemBlock,
   LatestBlock,
   LatestCard,
@@ -27,6 +29,7 @@ import type {
   MegaStrip,
   MobileLatestBlock,
   MobileStripBlock,
+  NavGroup,
   NavItem,
   NavLinkItem,
   PeopleBlock,
@@ -41,7 +44,7 @@ export type PropertySearchBlock = { type: "propertySearch"; heading: string; pla
 /** "Explore key funds": heading with "Explore All funds" beside it, over fund cards (the Latest card design). */
 export type FundsBlock = { type: "funds"; heading: string; cards: LatestCard[]; link: NavLinkItem };
 
-export type LocalMegaBlock = LocalItemBlock | PropertySearchBlock | FundsBlock | DownloadsBlock | LatestBlock | PeopleBlock;
+export type LocalMegaBlock = LocalItemBlock | PropertySearchBlock | FundsBlock | CaseStudiesBlock | LatestBlock | PeopleBlock;
 /** A desktop mega menu cell, as in config/nav.ts (1440 geometry), holding local blocks. */
 export type LocalMegaCell = Omit<MegaCell, "blocks"> & { blocks: LocalMegaBlock[] };
 export type LocalMegaPanel = {
@@ -52,7 +55,7 @@ export type LocalMegaPanel = {
   strip?: MegaStrip;
 };
 
-export type LocalMobileBlock = PropertySearchBlock | FundsBlock | DownloadsBlock | MobileLatestBlock | PeopleBlock | MobileStripBlock;
+export type LocalMobileBlock = PropertySearchBlock | FundsBlock | CaseStudiesBlock | MobileLatestBlock | PeopleBlock | MobileStripBlock;
 
 export type LocalSection = {
   id: string;
@@ -61,7 +64,7 @@ export type LocalSection = {
   /** Width of the label's text box in the 1440 frame: Medium (closed) and Bold (its menu open) */
   labelWidth: [number, number];
   /** Mobile rows in reading order (Figma Local_*_mob) */
-  groups: { eyebrow?: string; items: LocalNavItem[] }[];
+  groups: (Omit<NavGroup, "items"> & { items: LocalNavItem[] })[];
   panel: LocalMegaPanel;
   /** Mobile: blocks above the rows (Our portfolio's property search) */
   mobileTop?: LocalMobileBlock[];
@@ -88,10 +91,11 @@ export const LOCAL_UTILITY: NavLinkItem[] = [
 ];
 
 /**
- * The way back to the ESR Group site from the market panel. Not drawn (the local panel shows the 11 market
- * cards only); added as a twelfth card in the same design so the group site can be reached from a local site.
+ * The way back to the ESR Group site from the market panel. Not drawn (the local panel lists the 11 markets
+ * only); added as a twelfth row in the same design so the group site can be reached from a local site, with
+ * the group's four languages (English goes to the group home, the others are not part of the prototype).
  */
-export const GROUP_SITE_CARD = { region: "Group", name: "ESR Group", languages: "English", href: "/" };
+export const GROUP_SITE_ROW: { name: string; languages: GroupLanguage[]; href: string } = { name: "ESR Group", languages: GROUP_LANGUAGES, href: "/" };
 
 /** A link to an ESR Group page, named for screen readers. */
 export const GROUP_SITE_SUFFIX = "(ESR Group site)";
@@ -109,8 +113,8 @@ export function localActiveSection(pathname: string): string | null {
 
 const PORTFOLIO_PAGE = "/jp/portfolio";
 const DATA_CENTRES_GROUP = "/portfolio/data-centres";
-/** The group Infrastructure page is not wireframed, so this is inert, as in the group menu. */
-const INFRASTRUCTURE_GROUP = null;
+/** Infrastructure's own website is not part of the prototype, so this is inert, as in the group menu. */
+const INFRASTRUCTURE_SITE = null;
 
 const PROPERTY_SEARCH: PropertySearchBlock = {
   type: "propertySearch",
@@ -125,8 +129,8 @@ const VACANCIES: NavLinkItem = { label: "Stay up to date on vacancies", href: JO
 const P = {
   properties: { icon: "apartment", title: "Properties", text: "Industrial, logistics and property management.", href: "/jp/properties" },
   developments: { icon: "handyman", title: "Developments", text: "Pipeline, technology and sustainability.", href: "/jp/developments" },
-  // Not drawn: added from review feedback, with the group menu's icon and line
-  infrastructure: { icon: "cell_tower", title: "Infrastructure", text: "Lorem ipsum dolor sit amet, consectetur", href: INFRASTRUCTURE_GROUP, external: true },
+  // Not drawn: added from review feedback, with the group menu's icon, copy and "Visit site" (its own website)
+  infrastructure: { icon: "cell_tower", title: "Infrastructure", text: "Our infrastructure business, on its own website", href: INFRASTRUCTURE_SITE, cta: "Visit site", offsite: true },
   dataCentres: { icon: "database", title: "Data centres", text: "Explore our group pipeline", href: DATA_CENTRES_GROUP, external: true },
   overview: { icon: "globe_asia", title: "Our portfolio", text: "Everything we own / manage", href: PORTFOLIO_PAGE },
 } satisfies Record<string, LocalNavItem>;
@@ -144,22 +148,27 @@ const PORTFOLIO: LocalSection = {
   id: "portfolio",
   label: "Our portfolio",
   labelWidth: [85, 88],
-  groups: [{ items: [PM.overview, PM.properties, PM.developments, PM.infrastructure, PM.dataCentres] }],
+  // The group menu's order (presentation feedback): overview, Industrial and logistics (Properties, Developments), Data centres, Infrastructure
+  groups: [{ items: [PM.overview] }, { eyebrow: INDUSTRIAL_GROUP, nested: true, items: [PM.properties, PM.developments] }, { items: [PM.dataCentres, PM.infrastructure] }],
   panel: {
     // Drawn with four items (column lines at 485, 727, 969 and 1203, items 202 wide). Infrastructure makes
     // five, so at 1440 the search column narrows to 360 (field 304) and the items share the rest: column lines
     // at 360, 576, 792, 1008 and 1224, each item 20 in from its line and 188 wide. Toward 1180 the item columns
     // hold at 182 (154 of text, so every description stays on two lines and the Explore links line up) and
-    // the search column gives way.
-    cols: [360, [216, 182], [216, 182], [216, 182], [216, 182], [216, 182]],
-    rows: [258],
+    // the search column gives way. The items follow the group menu's order, the overview first; row 1 is the
+    // "Industrial and logistics" label over Properties and Developments (51 with its rule), the other items
+    // span it with their icons on the grouped items' line.
+    // Infrastructure's column holds at 213 (185 of text) so its longer description also stays on two lines.
+    cols: [360, [216, 182], [216, 182], [216, 182], [216, 182], [216, 213]],
+    rows: [51, 229],
     cells: [
-      { col: 1, pad: [42, 24, 0, 32], blocks: [PROPERTY_SEARCH] },
-      { col: 2, pad: [51, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.properties, reserve: true }] },
-      { col: 3, pad: [51, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.developments, reserve: true }] },
-      { col: 4, pad: [51, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.infrastructure, reserve: true }] },
-      { col: 5, pad: [51, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.dataCentres, reserve: true }] },
-      { col: 6, pad: [51, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.overview, reserve: true }] },
+      { col: 1, rowSpan: 2, pad: [42, 24, 0, 32], blocks: [PROPERTY_SEARCH] },
+      { col: 2, rowSpan: 2, pad: [73, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.overview, reserve: true }] },
+      { col: 3, span: 2, pad: [20, 8, 10, 20], line: "lb", label: INDUSTRIAL_GROUP, blocks: [] },
+      { col: 3, row: 2, pad: [22, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.properties, reserve: true }] },
+      { col: 4, row: 2, pad: [22, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.developments, reserve: true }] },
+      { col: 5, rowSpan: 2, pad: [73, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.dataCentres, reserve: true }] },
+      { col: 6, rowSpan: 2, pad: [73, 8, 0, 20], line: "l", blocks: [{ type: "item", item: P.infrastructure, reserve: true }] },
     ],
     strip: { line: true, align: "start", pad: [32, 32], links: [VACANCIES] },
   },
@@ -214,17 +223,8 @@ const S = {
   governance: { icon: "policy", title: "Governance and management", text: "Reports, data packs and policies", href: null },
 } satisfies Record<string, LocalNavItem>;
 
-const DOWNLOADS: DownloadsBlock = {
-  type: "downloads",
-  heading: "Latest downloads",
-  items: [
-    { label: "Sustainability report", href: null },
-    { label: "ESG data pack", href: null },
-    { label: "Modern slavery statement", href: null },
-    { label: "TCFD disclosure", href: null },
-  ],
-  link: { label: "All reports and policies", href: null },
-};
+/** Featured case studies, as in the group menu (replaces "Latest downloads"); inert like the local Sustainability pages. */
+const CASE_STUDIES = caseStudiesBlock(["Japan", "Japan"], null);
 
 const SUSTAINABILITY: LocalSection = {
   id: "sustainability",
@@ -240,10 +240,10 @@ const SUSTAINABILITY: LocalSection = {
       { col: 1, pad: [58, 16, 0, 30], blocks: [{ type: "item", item: S.approach, reserve: true }] },
       { col: 2, pad: [57, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.cases, reserve: true }] },
       { col: 3, pad: [57, 16, 0, 38], line: "l", blocks: [{ type: "item", item: S.governance, reserve: true, wide: true }] },
-      { col: 4, pad: [57, 24, 0, 31], surface: true, blocks: [DOWNLOADS] },
+      { col: 4, pad: [57, 24, 32, 31], surface: true, blocks: [CASE_STUDIES] },
     ],
   },
-  mobile: [DOWNLOADS],
+  mobile: [CASE_STUDIES],
 };
 
 /* ------------------------------------------------------------------- news */
@@ -266,10 +266,8 @@ const LATEST: LatestBlock = {
     { title: "News · Japan", text: LOREM, href: "/jp/news/latest-1" },
   ],
 };
-const MEDIA_LINKS: NavLinkItem[] = [
-  { label: "Media enquiries", href: null },
-  { label: "Media kit", href: null },
-];
+/** "Media kit" removed (presentation feedback) */
+const MEDIA_LINKS: NavLinkItem[] = [{ label: "Media enquiries", href: null }];
 
 const NEWS: LocalSection = {
   id: "news",
@@ -377,8 +375,8 @@ export const LOCAL_FOOTER: Record<"portfolio" | "investors" | "sustainability" |
       { label: "Our group portfolio", href: PORTFOLIO_PAGE },
       { label: "Properties", href: "/jp/properties" },
       { label: "Developments", href: "/jp/developments" },
-      { label: "Infrastructure", href: INFRASTRUCTURE_GROUP, external: true },
       { label: "Data centres", href: DATA_CENTRES_GROUP, external: true },
+      { label: "Infrastructure", href: INFRASTRUCTURE_SITE },
     ],
   },
   investors: {

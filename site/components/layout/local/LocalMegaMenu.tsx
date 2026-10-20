@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { Block, Strip } from "@/components/layout/nav/MegaMenu";
+import { Block, GroupLabel, Strip } from "@/components/layout/nav/MegaMenu";
 import { LatestCardLink } from "@/components/layout/nav/parts";
 import type { FundsBlock, LocalItemBlock, LocalMegaBlock, LocalMegaCell, LocalSection } from "@/config/local-nav";
 import { LocalExploreLink, PropertySearchForm } from "./parts";
@@ -57,7 +57,7 @@ export function LocalMegaMenu({
 
 /** A grid cell, as in the group mega menu: padding, column divider, bottom line and grey carried on to the window edge. */
 function Cell({ cell, lastCol, onSubmitted }: { cell: LocalMegaCell; lastCol: number; onSubmitted: () => void }) {
-  const { col, span = 1, row, rowSpan = 1, pad, line = "", surface, eyebrow, flow = "column", gap = 0, blocks } = cell;
+  const { col, span = 1, row, rowSpan = 1, pad, line = "", surface, eyebrow, label, center, flow = "column", gap = 0, blocks } = cell;
   const uid = useId();
   const lineB = line.includes("b");
   const bleed: string[] = [];
@@ -68,7 +68,7 @@ function Cell({ cell, lastCol, onSubmitted }: { cell: LocalMegaCell; lastCol: nu
   const layout = `flex ${flow === "row" ? "items-start" : "flex-col items-start"}`;
   return (
     <div
-      className={`relative min-w-0 ${line.includes("l") ? "shadow-[inset_1px_0_0_var(--color-line)]" : ""} ${lineB ? "border-b border-line" : ""} ${surface ? "bg-surface" : ""}`}
+      className={`relative min-w-0 ${line.includes("l") ? "shadow-[inset_1px_0_0_var(--color-line)]" : ""} ${lineB ? "border-b border-line" : ""} ${surface ? "bg-surface" : ""} ${center ? "flex flex-col justify-center" : ""}`}
       style={{ gridColumn: `${col} / span ${span}`, gridRow: `${row ?? 1} / span ${rowSpan}`, padding: pad.map(px).join(" ") }}
     >
       {bleed.map((side) => (
@@ -78,7 +78,9 @@ function Cell({ cell, lastCol, onSubmitted }: { cell: LocalMegaCell; lastCol: nu
           className={`pointer-events-none absolute top-0 w-[calc(var(--full-w)/2)] ${side} ${surface ? "bg-surface" : ""} ${lineB ? "-bottom-px border-b border-line" : "bottom-0"}`}
         />
       ))}
-      {eyebrow ? (
+      {label ? (
+        <GroupLabel>{label}</GroupLabel>
+      ) : eyebrow ? (
         <>
           <p id={uid} className="mb-[41px] text-[12px] font-medium leading-5 text-body">
             {eyebrow}
@@ -122,7 +124,7 @@ function Item({ block: { item, reserve, wide } }: { block: LocalItemBlock }) {
       {item.icon && <Icon name={item.icon} size={24} opsz={24} className="mb-5 text-ink" />}
       <p className={HEADING}>{item.title}</p>
       <p className={`text-[14px] leading-5 text-body ${reserve ? "min-h-10" : ""}`}>{item.text}</p>
-      <LocalExploreLink href={item.href} context={item.title} external={item.external} className="mt-3" />
+      <LocalExploreLink href={item.href} context={item.title} label={item.cta} external={item.external} offsite={item.offsite} className="mt-3" />
     </div>
   );
 }

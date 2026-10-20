@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LocalPageShell } from "@/components/layout/local/LocalPageShell";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { SplitStatement } from "@/components/sections/blocks/SplitStatement";
-import { SidebarFeatureGrid } from "@/components/sections/blocks/SidebarFeatureGrid";
+import { BentoAccordion } from "@/components/sections/carousels/BentoAccordion";
 import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
 import { NewsCardRow } from "@/components/sections/cards/NewsCardRow";
 import { MediaCardGrid } from "@/components/sections/cards/MediaCardGrid";
@@ -19,9 +19,9 @@ import {
   JP_HOME_LATEST,
   JP_HOME_LATEST_HEADING,
   JP_HOME_STATS,
-  JP_HOME_WHAT_WE_DO,
   JP_HOME_WHO_WE_ARE,
 } from "@/data/site/local/home";
+import { JP_PORT_OUR_ASSETS } from "@/data/site/local/portfolio";
 
 export const metadata: Metadata = { title: "Home | ESR Japan — website prototype" };
 
@@ -40,8 +40,8 @@ export default function JapanHomePage() {
       {/* Featured properties */}
       <SectionHeading title={JP_HOME_FEATURED_HEADING} />
       <LocalPropertyCards cards={jpFeaturedProperties(" sqm")} />
-      {/* What we do */}
-      <SidebarFeatureGrid {...JP_HOME_WHAT_WE_DO} />
+      {/* What we do: the local Portfolio "Our assets" bento, headed "What we do" */}
+      <BentoAccordion {...JP_PORT_OUR_ASSETS} heading="What we do" currentHref="/jp" />
       {/* Invest with ESR */}
       <SplitBlock {...JP_INVEST} />
       {/* The latest from Japan */}

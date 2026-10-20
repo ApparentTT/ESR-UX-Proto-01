@@ -3,11 +3,12 @@
 import { Button } from "@/components/ui/Button";
 import { goToEnquiry } from "./enquire";
 
-/** Id of the drawn "Enquire now" button: the sticky "Enquire now" bar shows once it scrolls away */
+/** Id of the drawn "Enquire now" button: the sticky bar shows once it scrolls away */
 export const ENQUIRE_BUTTON_ID = "property-enquire-button";
 
 /**
- * "Enquire now" beside Downloads (1507:52149): the dark button (ink, radius 6, Medium 15, full width at 390). The
+ * "Enquire now" (1507:52149), first in the CTA row before the three downloads: the dark button (ink, radius 6,
+ * Medium 15, full width at 390). The
  * canvas arrow takes it to the enquiry module: it scrolls there and focuses the first field.
  */
 export function EnquireButton({ label }: { label: string }) {

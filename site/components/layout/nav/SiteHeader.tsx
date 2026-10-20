@@ -5,16 +5,17 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/ui/Logo";
-import { NAV_COPY, NAV_SECTIONS } from "@/config/nav";
+import { GROUP_LANGUAGES, LANGUAGE_COPY, NAV_COPY, NAV_SECTIONS } from "@/config/nav";
 import { activeGroup } from "@/config/site";
+import { LanguageMenu, focusLanguageOption } from "./LanguageMenu";
 import { MarketMenu } from "./MarketMenu";
 import { MegaMenu } from "./MegaMenu";
 import { MobileMenu } from "./MobileMenu";
 import { SearchPanel } from "./SearchPanel";
 import { DESKTOP_QUERY, isSamePageLink, useIsDesktop, useScrollLock } from "./parts";
 
-/** One header layer open at a time: a section mega menu, the market selector, search, or the mobile menu. */
-type Open = { kind: "mega"; id: string } | { kind: "market" } | { kind: "search" } | { kind: "menu" } | null;
+/** One header layer open at a time: a section mega menu, the market selector, the language dropdown, search, or the mobile menu. */
+type Open = { kind: "mega"; id: string } | { kind: "market" } | { kind: "lang" } | { kind: "search" } | { kind: "menu" } | null;
 const keyOf = (o: NonNullable<Open>) => (o.kind === "mega" ? `mega:${o.id}` : o.kind);
 
 /** Opens another mega menu when the pointer rests on its item while one is already open. */
@@ -22,9 +23,11 @@ const HOVER_SWITCH_MS = 120;
 
 /**
  * Global navigation (Figma "Global Navigation" 672:25100).
- * Desktop (from 1180): logo, the five section items, Find your market, search and Contact us in a
- * 72px bar. Each section item is a disclosure button that opens its full-width mega menu over a
- * black/80 overlay; Find your market and search open their own panels the same way.
+ * Desktop (from 1180): logo, the five section items, Find your market, the language dropdown ("EN"),
+ * search and Contact us in a 72px bar. Each section item is a disclosure button that opens its full-width
+ * mega menu over a black/80 overlay; Find your market and search open their own panels the same way. The
+ * language dropdown is a small list under its button (no overlay or scroll lock; a click outside closes it).
+ * Below 1340 (83.75rem) the bar's paddings and gaps close up so the extra button fits at 1180 (1440 is as drawn).
  * Below 1180: logo, search and menu; search is a full-screen sheet, the menu a modal dialog.
  *
  * Escape closes the open layer and returns focus to its trigger. Clicking the overlay, a link, another
@@ -40,6 +43,7 @@ export function SiteHeader() {
   const [animate, setAnimate] = useState(true);
   const openRef = useRef<Open>(null);
   const triggers = useRef<Record<string, HTMLButtonElement | null>>({});
+  const langRef = useRef<HTMLDivElement>(null);
   const menuCloseRef = useRef<HTMLButtonElement | null>(null);
   const hoverTimer = useRef<number | undefined>(undefined);
   /** true after a pointer press, false after a key press: tells a click on another trigger from tabbing away. */
@@ -111,7 +115,27 @@ export function SiteHeader() {
     };
   }, [open, close, routeId]);
 
-  useScrollLock(open !== null);
+  useScrollLock(open !== null && open.kind !== "lang");
+
+  // The language dropdown has no overlay: a press anywhere outside it closes it.
+  const langOpen = open?.kind === "lang";
+  useEffect(() => {
+    if (!langOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (!langRef.current?.contains(e.target as Node)) close();
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [langOpen, close]);
+  /** Arrow Down / Up on the language button opens the list on its first / last option. */
+  const onLangKey = (e: React.KeyboardEvent) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    if (!langOpen) setOpen({ kind: "lang" });
+    const to = e.key === "ArrowDown" ? "first" : "last";
+    requestAnimationFrame(() => focusLanguageOption(document.getElementById("nav-panel-lang"), to));
+  };
+  const currentLanguage = GROUP_LANGUAGES.find((l) => l.current) ?? GROUP_LANGUAGES[0];
 
   // Below 1180 search is a full-screen sheet: the page under it leaves the tab order and the accessibility tree.
   const desktop = useIsDesktop();
@@ -166,14 +190,14 @@ export function SiteHeader() {
       {desktopLayer && <div aria-hidden="true" onClick={() => close()} className="anim-fade fixed inset-0 hidden bg-black/80 nav:block" />}
 
       <div className={`sb-bleed relative z-[2] bg-white ${searchOpen ? "shadow-[inset_0_-1px_0_#E5E7EB] nav:shadow-none" : "shadow-[inset_0_-1px_0_#E5E7EB]"}`}>
-        <div className="mx-auto flex h-[72px] max-w-(--page-max) items-center justify-between gap-6 px-6 md:px-10 nav:px-[67px]">
+        <div className="mx-auto flex h-[72px] max-w-(--page-max) items-center justify-between gap-6 px-6 md:px-10 nav:gap-4 nav:px-6 min-[83.75rem]:gap-6 min-[83.75rem]:px-[67px]">
           <div className="flex items-center gap-5">
             {/* 71.78 wide as drawn, so the section items sit on the Figma x positions */}
             <Link href="/" aria-label="ESR home" className="inline-flex rounded-btn nav:w-[71.78px]">
               <Logo />
             </Link>
             <nav aria-label="Primary" className="hidden nav:block">
-              <ul className="flex items-center gap-4">
+              <ul className="flex items-center gap-4 nav:gap-3 min-[83.75rem]:gap-4">
                 {NAV_SECTIONS.map((s) => {
                   const isOpen = megaId === s.id;
                   const panelId = `nav-panel-${s.id}`;
@@ -207,7 +231,7 @@ export function SiteHeader() {
             </nav>
           </div>
 
-          <div className="flex items-center nav:gap-4">
+          <div className="flex items-center nav:gap-2 min-[83.75rem]:gap-4">
             <div className="hidden nav:block" onBlur={onGroupBlur} onClick={onPanelClick}>
               <button
                 ref={(el) => {
@@ -219,12 +243,35 @@ export function SiteHeader() {
                 aria-expanded={open?.kind === "market"}
                 aria-controls={open?.kind === "market" ? "nav-panel-market" : undefined}
                 onClick={() => toggle({ kind: "market" })}
-                className="inline-flex h-10 items-center gap-2.5 whitespace-nowrap rounded-btn px-4 text-[14px] font-medium leading-5 text-body hover:text-ink"
+                className="inline-flex h-10 items-center gap-2.5 whitespace-nowrap rounded-btn px-2 text-[14px] font-medium leading-5 text-body hover:text-ink min-[83.75rem]:px-4"
               >
                 {NAV_COPY.findMarket}
                 <Icon name="keyboard_arrow_down" className="text-ink" />
               </button>
               {open?.kind === "market" && <MarketMenu id="nav-panel-market" labelledBy="nav-trigger-market" animate={animate} />}
+            </div>
+
+            {/* Language (group site): globe, the current language's code, chevron */}
+            <div ref={langRef} className="relative hidden nav:block" onBlur={onGroupBlur} onClick={onPanelClick}>
+              <button
+                ref={(el) => {
+                  triggers.current.lang = el;
+                }}
+                id="nav-trigger-lang"
+                type="button"
+                data-nav-trigger
+                aria-expanded={langOpen}
+                aria-controls={langOpen ? "nav-panel-lang" : undefined}
+                onClick={() => toggle({ kind: "lang" })}
+                onKeyDown={onLangKey}
+                className="inline-flex h-10 items-center gap-1 whitespace-nowrap rounded-btn px-2 text-[14px] font-medium leading-5 text-body hover:text-ink"
+              >
+                <Icon name={LANGUAGE_COPY.icon} size={20} className="text-ink" />
+                <span className="sr-only">{LANGUAGE_COPY.label}: </span>
+                {currentLanguage.code}
+                <Icon name="keyboard_arrow_down" size={20} className={`text-ink transition-transform ${langOpen ? "rotate-180" : ""}`} />
+              </button>
+              {langOpen && <LanguageMenu id="nav-panel-lang" labelledBy="nav-trigger-lang" animate={animate} />}
             </div>
 
             <div onBlur={onGroupBlur} onClick={onPanelClick}>
@@ -238,7 +285,7 @@ export function SiteHeader() {
                 aria-expanded={searchOpen}
                 aria-controls={searchOpen ? "nav-panel-search" : undefined}
                 onClick={() => toggle({ kind: "search" })}
-                className="relative inline-flex size-11 items-center justify-center rounded-btn nav:h-10 nav:w-[52px]"
+                className="relative inline-flex size-11 items-center justify-center rounded-btn nav:h-10 nav:w-10 min-[83.75rem]:w-[52px]"
               >
                 {searchOpen && <span aria-hidden="true" className="absolute left-1/2 top-1/2 size-[33px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#D9D9D9] nav:hidden" />}
                 <Icon name="search" className="relative text-ink" />
