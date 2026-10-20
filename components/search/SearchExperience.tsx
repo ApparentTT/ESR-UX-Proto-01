@@ -68,22 +68,43 @@ export function SearchExperience() {
     setSelectedId(null);
   }
 
-  // Clicking a pin scrolls the list to that card and outlines it.
+  // Clicking a pin selects it. On desktop its card moves to the top of the list and expands across both columns
+  // (see the effect below); elsewhere the card is outlined and scrolled into view.
+  const expandedId = isDesktop ? selectedId : null;
+  const clearSelection = useCallback(() => setSelectedId(null), []);
+  // Bumped on every pin click, so pressing the selected pin again brings its card back into view.
+  const [pinTick, setPinTick] = useState(0);
   const onPinClick = useCallback(
     (id: string) => {
       setSelectedId(id);
-      const card = cardRefs.current.get(id);
-      const pane = paneRef.current;
-      if (!card || !pane) return;
-      if (isDesktop) {
-        const top = pane.scrollTop + card.getBoundingClientRect().top - pane.getBoundingClientRect().top - 8;
-        pane.scrollTo({ top, behavior: "smooth" });
-      } else {
-        card.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+      setPinTick((t) => t + 1);
+      if (isDesktop) return;
+      cardRefs.current.get(id)?.scrollIntoView({ behavior: "smooth", block: "center" });
     },
     [isDesktop],
   );
+
+  // Once the selected card has moved to the top and expanded, scroll the list so it is in view.
+  useEffect(() => {
+    if (!expandedId) return;
+    const card = cardRefs.current.get(expandedId);
+    const pane = paneRef.current;
+    if (!card || !pane) return;
+    const top = pane.scrollTop + card.getBoundingClientRect().top - pane.getBoundingClientRect().top - 8;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    pane.scrollTo({ top: Math.max(0, top), behavior: reduce ? "auto" : "smooth" });
+  }, [expandedId, pinTick]);
+
+  // Escape collapses the expanded card. On window, so drawing on the map and open panels handle Escape first.
+  useEffect(() => {
+    if (!expandedId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented || document.querySelector('[role="dialog"]')) return;
+      setSelectedId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [expandedId]);
 
   // Search this area and a drawn area are both "where": the newer one replaces the older.
   const onSearchArea = useCallback((bbox: Bbox) => setFilters({ ...filters, bbox, area: null }), [filters, setFilters]);
@@ -155,6 +176,7 @@ export function SearchExperience() {
       hoveredId={hoveredId}
       selectedId={selectedId}
       onPinClick={onPinClick}
+      onMapClick={isDesktop ? clearSelection : undefined}
       onPinHover={setHoveredId}
       onSearchArea={onSearchArea}
       area={filters.area}
@@ -206,6 +228,8 @@ export function SearchExperience() {
                     cardRefs={cardRefs}
                     hoveredId={hoveredId}
                     selectedId={selectedId}
+                    expandedId={expandedId}
+                    onCloseExpanded={clearSelection}
                     onHover={onHover}
                   />
                 ) : (
@@ -219,6 +243,8 @@ export function SearchExperience() {
                     cardRefs={cardRefs}
                     hoveredId={hoveredId}
                     selectedId={selectedId}
+                    expandedId={expandedId}
+                    onCloseExpanded={clearSelection}
                     onHover={onHover}
                   />
                 )}

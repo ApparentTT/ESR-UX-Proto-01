@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { Icon } from "@/components/ui/Icon";
@@ -9,6 +9,7 @@ import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
 import { AllFiltersPanel } from "@/components/search/panels/AllFiltersPanel";
 import { applySuggestion } from "@/components/search/panels/LocationPanel";
 import { PropertyCard } from "@/components/search/PropertyCard";
+import { withExpandedFirst } from "@/components/search/ResultsList";
 import { FakeMap } from "@/components/search/FakeMap";
 import { PREFECTURES } from "@/data/locations";
 import { PROPERTY_TYPES, type PropertyTypeId } from "@/data/types";
@@ -71,6 +72,26 @@ export function FirstVisit() {
   const previewRefs = useRef(new Map<string, HTMLElement>());
   const previewPane = useRef<HTMLDivElement>(null);
   const previewMap = useRef<HTMLDivElement>(null);
+  // A pin click moves its card to the top of the preview and expands it across both columns, as on the results page.
+  const [selected, setSelected] = useState<string | null>(null);
+  const [pinTick, setPinTick] = useState(0);
+  useEffect(() => {
+    if (!selected) return;
+    const card = previewRefs.current.get(selected);
+    const pane = previewPane.current;
+    if (!card || !pane) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    pane.scrollTo({ top: Math.max(0, pane.scrollTop + (card.getBoundingClientRect().top - pane.getBoundingClientRect().top) / pageScale() - 8), behavior: reduce ? "auto" : "smooth" });
+  }, [selected, pinTick]);
+  useEffect(() => {
+    if (!selected) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || e.defaultPrevented || document.querySelector('[role="dialog"]')) return;
+      setSelected(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selected]);
 
   return (
     <>
@@ -196,11 +217,14 @@ export function FirstVisit() {
             <div ref={previewPane} className="thin-scrollbar -mx-1 h-[600px] overflow-y-auto px-1 py-1">
               <h2 className="sr-only">Newest properties</h2>
               <ul className="grid grid-cols-2 gap-5">
-                {preview.map((p) => (
-                  <li key={p.id} className="flex flex-col [&>article]:flex-1">
+                {withExpandedFirst(preview, selected).map((p) => (
+                  <li key={p.id} className={`flex flex-col [&>article]:flex-1 ${selected === p.id ? "col-span-2" : ""}`}>
                     <PropertyCard
                       property={p}
                       active={hovered === p.id}
+                      selected={selected === p.id}
+                      expanded={selected === p.id}
+                      onClose={() => setSelected(null)}
                       onHover={setHovered}
                       ref={(el) => {
                         if (el) previewRefs.current.set(p.id, el);
@@ -222,14 +246,13 @@ export function FirstVisit() {
                 pins={preview}
                 fitKey="first-visit"
                 hoveredId={hovered}
-                selectedId={null}
+                selectedId={selected}
                 onPinHover={setHovered}
                 onPinClick={(id) => {
-                  setHovered(id);
-                  const card = previewRefs.current.get(id);
-                  const pane = previewPane.current;
-                  if (card && pane) pane.scrollTo({ top: pane.scrollTop + (card.getBoundingClientRect().top - pane.getBoundingClientRect().top) / pageScale() - 8, behavior: "smooth" });
+                  setSelected(id);
+                  setPinTick((t) => t + 1);
                 }}
+                onMapClick={() => setSelected(null)}
                 onSearchArea={(bbox) => go({ ...chosen, bbox })}
                 className="h-full rounded-card"
               />

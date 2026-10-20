@@ -2,8 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import type { Property } from "@/data/types";
+import { Icon } from "@/components/ui/Icon";
 import { ImagePlaceholder } from "@/components/ui/ImagePlaceholder";
-import { sizeText, statusText } from "@/lib/display";
+import { isSummary, sizeText, statusText } from "@/lib/display";
+import { propertyHref } from "@/lib/propertyLinks";
+import { CardLink, SummaryLine } from "./PropertyCard";
 
 type Props = {
   items: Property[];
@@ -13,9 +16,12 @@ type Props = {
   onNearEnd: () => void;
 };
 
-export const CAROUSEL_HEIGHT = 112;
+export const CAROUSEL_HEIGHT = 120;
 
-/** Card carousel along the base of the mobile map. Swiping highlights the matching pin; tapping a pin scrolls here. */
+/**
+ * Card carousel along the base of the mobile map. Swiping highlights the matching pin; tapping a pin scrolls here.
+ * Linked listings are tappable with a chevron; summary listings are plain cards with "Enquire for details".
+ */
 export function MapCarousel({ items, selectedId, onCentre, onNearEnd }: Props) {
   const listRef = useRef<HTMLUListElement>(null);
   const fromScroll = useRef(false);
@@ -66,23 +72,32 @@ export function MapCarousel({ items, selectedId, onCentre, onNearEnd }: Props) {
       className="no-scrollbar absolute inset-x-0 bottom-4 z-30 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4"
       style={{ height: CAROUSEL_HEIGHT - 16 }}
     >
-      {items.map((p) => (
-        <li key={p.id} data-card={p.id} className="w-[min(320px,82vw)] shrink-0 snap-center">
-          <a
-            href="#"
-            onClick={(e) => e.preventDefault()}
-            title="Property pages are not part of this prototype"
-            className={`flex h-full items-center gap-3 rounded-card bg-white p-3 shadow-panel ${selectedId === p.id ? "ring-2 ring-ink" : ""}`}
-          >
+      {items.map((p) => {
+        const ring = selectedId === p.id ? "ring-2 ring-ink" : "";
+        const body = (
+          <>
             <ImagePlaceholder className="size-[72px] shrink-0 rounded-[8px]" iconSize={24} />
             <span className="min-w-0 flex-1">
               <span className="inline-block rounded-[4px] bg-surface px-1.5 py-0.5 text-[11px] font-medium">{statusText(p)}</span>
-              <span className="mt-1 block truncate text-[15px] font-medium">{p.name}</span>
-              <span className="block text-sm text-muted">{sizeText(p)}</span>
+              <span className="mt-0.5 block truncate text-[15px] font-medium leading-5">{p.name}</span>
+              <span className="block truncate text-sm text-muted">{sizeText(p)}</span>
+              {isSummary(p) && <SummaryLine short className="mt-0.5" />}
             </span>
-          </a>
-        </li>
-      ))}
+          </>
+        );
+        return (
+          <li key={p.id} data-card={p.id} data-listing={p.listing} className="w-[min(320px,82vw)] shrink-0 snap-center">
+            {isSummary(p) ? (
+              <div className={`flex h-full items-center gap-3 rounded-card bg-white p-3 shadow-panel ${ring}`}>{body}</div>
+            ) : (
+              <CardLink href={propertyHref(p)} className={`flex h-full items-center gap-3 rounded-card bg-white p-3 shadow-panel ${ring}`}>
+                {body}
+                <Icon name="chevron_right" className="shrink-0 text-muted" />
+              </CardLink>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
 }

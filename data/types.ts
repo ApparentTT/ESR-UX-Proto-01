@@ -15,16 +15,21 @@ export type Property = {
   prefecture: PrefectureId;
   lat: number;
   lng: number;
-  /** Published GFA in sqm. null renders as [GFA TBC]. */
-  gfaSqm: number | null;
-  /** Published site area in sqm. null renders as [Site area TBC]. */
-  siteAreaSqm: number | null;
-  /** Published status or completion. null renders as [Status TBC]. */
-  status: string | null;
+  /** GFA in sqm shown on cards and pins (published for Higashi-Ogishima DC 2, realistic generic values elsewhere). */
+  gfaSqm: number;
+  /** Shown instead of gfaSqm as "min – max sqm" on the few multi-unit listings. max equals gfaSqm. */
+  sizeRangeSqm?: [number, number];
+  /** Site area in sqm */
+  siteAreaSqm: number;
+  /** Status chip: "Available now", "Available Q3 2026", "Available Q1 2027", "Under development" or "2028 onwards" */
+  status: string;
+  /** "linked": the card opens the property detail page. "summary": a top-line listing only, not clickable. */
+  listing: "linked" | "summary";
+  /** Extra facts on the expanded (pin-selected) card, after site area. E.g. Completion 2028, Truck berths 48. */
+  facts: { label: string; value: string }[];
   /**
    * Indicative values that drive filtering, sorting and the size histogram so the
-   * prototype behaves realistically. Not published figures and not shown on cards
-   * unless SHOW_INDICATIVE_FIGURES is switched on in config/prototype.ts.
+   * prototype behaves realistically. sizeSqm equals gfaSqm and availability matches status.
    */
   indicative: {
     sizeSqm: number;

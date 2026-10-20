@@ -16,6 +16,8 @@ type Props = {
   hoveredId: string | null;
   selectedId: string | null;
   onPinClick: (id: string) => void;
+  /** A click (press without a drag) on empty map, outside pins and controls. Clears a pin selection. */
+  onMapClick?: () => void;
   onPinHover: (id: string | null) => void;
   onSearchArea: (bbox: Bbox) => void;
   /** Extra bottom inset in px (mobile carousel) so fitted pins clear it */
@@ -82,6 +84,7 @@ export function FakeMap({
   hoveredId,
   selectedId,
   onPinClick,
+  onMapClick,
   onPinHover,
   onSearchArea,
   bottomInset = 0,
@@ -344,7 +347,9 @@ export function FakeMap({
     // Other fingers lifting do not end the stroke.
     if (drawing && st && e.pointerId !== st.id) return;
     stroke.current = null;
+    const d = drag.current;
     drag.current = null;
+    if (!drawing && d && d.dist <= 4 && e.type === "pointerup") onMapClick?.();
     if (!drawing || !st || st.cancelled) return;
     if (e.type === "pointercancel") {
       // An interrupted freehand stroke leaves nothing behind, so the retry draws freehand again.

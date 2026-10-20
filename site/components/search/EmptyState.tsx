@@ -3,6 +3,7 @@
 import type { Property } from "@/data/types";
 import { Icon } from "@/components/ui/Icon";
 import { PropertyCard } from "./PropertyCard";
+import { withExpandedFirst } from "./ResultsList";
 
 type Props = {
   nearby: Property[];
@@ -10,11 +11,13 @@ type Props = {
   cardRefs: React.MutableRefObject<Map<string, HTMLElement>>;
   hoveredId: string | null;
   selectedId: string | null;
+  expandedId?: string | null;
+  onCloseExpanded?: () => void;
   onHover: (id: string | null) => void;
 };
 
 /** Filters stay applied above so the user can widen; nearby properties keep the page from ever being empty. */
-export function EmptyState({ nearby, onClearAll, cardRefs, hoveredId, selectedId, onHover }: Props) {
+export function EmptyState({ nearby, onClearAll, cardRefs, hoveredId, selectedId, expandedId, onCloseExpanded, onHover }: Props) {
   return (
     <div>
       <div className="flex flex-col items-center rounded-card bg-white px-6 py-12 text-center md:py-14">
@@ -36,11 +39,14 @@ export function EmptyState({ nearby, onClearAll, cardRefs, hoveredId, selectedId
             Nearby properties
           </h2>
           <ul className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5">
-            {nearby.map((p) => (
-              <li key={p.id} className="flex flex-col [&>article]:flex-1">
+            {withExpandedFirst(nearby, expandedId).map((p) => (
+              <li key={p.id} className={`flex flex-col [&>article]:flex-1 ${expandedId === p.id ? "md:col-span-2" : ""}`}>
                 <PropertyCard
                   property={p}
-                  active={hoveredId === p.id || selectedId === p.id}
+                  active={hoveredId === p.id}
+                  selected={selectedId === p.id}
+                  expanded={expandedId === p.id}
+                  onClose={onCloseExpanded}
                   onHover={onHover}
                   ref={(el) => {
                     if (el) cardRefs.current.set(p.id, el);

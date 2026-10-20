@@ -2,7 +2,9 @@
 
 Clickable greyscale prototype of the ESR Japan property search, built from the Figma wireframes for client review. Search only; every other nav link is inert.
 
-Content and imagery are placeholder, figures are indicative and the map is simulated. Only Higashi-Ogishima Distribution Centre 2 carries published figures; every other card shows `[GFA TBC]` / `[Status TBC]`.
+Content and imagery are placeholder, figures are indicative and the map is simulated. Only Higashi-Ogishima Distribution Centre 2 carries published figures; every other card shows realistic generic figures (size, status, site area) that match the filters.
+
+Results come in two card types: linked cards (the whole card is a link, with a "View property" line; detail pages are not part of this prototype, so they do not navigate) and summary cards (a top-line listing only, not clickable, "Summary listing · Enquire for details"). About one in three is a summary card. On desktop, clicking a map pin moves that card to the top of the list and expands it across both columns with more facts; Close, Escape or a click on empty map collapses it.
 
 ## States
 
@@ -31,7 +33,7 @@ Press **Draw your own area** on the map (or the option in the Location and All f
 
 - **Properties:** `data/properties.ts`, one record per line. Regenerate with `node --experimental-strip-types scripts/generate-properties.ts` (this overwrites hand edits).
 - **Market and region label:** `config/market.ts`. Switch `MARKET` to change "prefecture" to state, province or district.
-- **Prototype switches:** `config/prototype.ts`. `SHOW_INDICATIVE_FIGURES` shows the indicative sizes behind the filters instead of `[GFA TBC]`. `PAGE_SIZE` sets the batch size (12), and `LOAD_DELAY_MS` the simulated loading delay.
+- **Prototype switches:** `config/prototype.ts`. `PAGE_SIZE` sets the batch size (12), and `LOAD_DELAY_MS` the simulated loading delay.
 - **Design tokens:** `app/globals.css`.
 
 ## Run locally

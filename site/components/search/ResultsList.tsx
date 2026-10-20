@@ -17,10 +17,32 @@ type Props = {
   cardRefs: React.MutableRefObject<Map<string, HTMLElement>>;
   hoveredId: string | null;
   selectedId: string | null;
+  /** Pin selected on desktop: this card moves to the top and spans both columns */
+  expandedId?: string | null;
+  onCloseExpanded?: () => void;
   onHover: (id: string | null) => void;
 };
 
-export function ResultsList({ items, hasMore, loading, onLoadMore, scrollMode, paneRef, cardRefs, hoveredId, selectedId, onHover }: Props) {
+/** The expanded card first, the rest in their normal order. */
+export function withExpandedFirst<T extends { id: string }>(items: T[], expandedId: string | null | undefined): T[] {
+  const sel = expandedId ? items.find((p) => p.id === expandedId) : undefined;
+  return sel ? [sel, ...items.filter((p) => p !== sel)] : items;
+}
+
+export function ResultsList({
+  items,
+  hasMore,
+  loading,
+  onLoadMore,
+  scrollMode,
+  paneRef,
+  cardRefs,
+  hoveredId,
+  selectedId,
+  expandedId,
+  onCloseExpanded,
+  onHover,
+}: Props) {
   const sentinel = useRef<HTMLDivElement>(null);
   const [showTop, setShowTop] = useState(false);
 
@@ -63,11 +85,14 @@ export function ResultsList({ items, hasMore, loading, onLoadMore, scrollMode, p
     <>
       <h2 className="sr-only">Results</h2>
       <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5" aria-label="Properties">
-        {items.map((p) => (
-          <li key={p.id} className="flex flex-col [&>article]:flex-1">
+        {withExpandedFirst(items, expandedId).map((p) => (
+          <li key={p.id} className={`flex flex-col [&>article]:flex-1 ${expandedId === p.id ? "md:col-span-2" : ""}`}>
             <PropertyCard
               property={p}
-              active={hoveredId === p.id || selectedId === p.id}
+              active={hoveredId === p.id}
+              selected={selectedId === p.id}
+              expanded={expandedId === p.id}
+              onClose={onCloseExpanded}
               onHover={onHover}
               ref={(el) => {
                 if (el) cardRefs.current.set(p.id, el);

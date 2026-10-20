@@ -4,8 +4,12 @@
  *
  * Content rules: only the five real ESR Japan property names are used, repeated
  * to make 248 results. Only Higashi-Ogishima Distribution Centre 2 has published
- * figures; every other record keeps null (rendered as a bracketed TBC placeholder).
- * Sizes, availability and features on repeats are indicative and drive filters only.
+ * figures (kept exactly). Every other record gets realistic generic figures (GFA,
+ * site area, status, completion and one type-specific fact) derived from its
+ * indicative values, so cards, map pins and the preview never show a placeholder.
+ * About a third of the records are summary listings (top-line only, no detail page).
+ * Display values are derived after the seeded run from a hash of each id, so the
+ * records, filters and order are unchanged from earlier versions.
  */
 import { writeFileSync } from "node:fs";
 import { LOCALITIES, type PrefectureId } from "../data/locations.ts";
@@ -125,7 +129,58 @@ const [flag] = rows.splice(flagIdx, 1);
 (flag.indicative as Row).listed = "2026-10-01";
 rows.unshift(flag);
 
-const lines = rows.map((r, i) => `  ${JSON.stringify({ id: `p${String(i + 1).padStart(3, "0")}`, ...r })},`);
+// Display figures. Derived from a hash of the id (not the seeded PRNG above) so adding them never
+// reshuffles the records. Sizes match the indicative size the filters use; status matches availability.
+const hash = (s: string) => {
+  let h = 2166136261;
+  for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return h >>> 0;
+};
+const FEATURE: Record<string, (gfa: number, h: number) => { label: string; value: string }> = {
+  logistics: (g) => ({ label: "Truck berths", value: String(Math.min(240, Math.max(6, Math.round(g / 1100)))) }),
+  "cold-storage": (g) => ({ label: "Truck berths", value: String(Math.min(120, Math.max(4, Math.round(g / 900)))) }),
+  "data-centre": (g) => ({ label: "IT capacity", value: `${Math.min(60, Math.max(4, Math.round(g / 700)))} MW` }),
+  "business-park": (g) => ({ label: "Car spaces", value: String(Math.min(900, Math.max(20, Math.round(g / 120)))) }),
+  office: (g) => ({ label: "Car spaces", value: String(Math.min(400, Math.max(12, Math.round(g / 140)))) }),
+  land: (_g, h) => ({ label: "Building coverage", value: `${[50, 60, 60, 70][h % 4]}%` }),
+};
+const homeOf = new Map<string, string>(REAL.map((r) => [r.name, r.city]));
+const withId = rows.map((r, i) => {
+  const id = `p${String(i + 1).padStart(3, "0")}`;
+  const ind = r.indicative as { sizeSqm: number; availability: string; preLease: boolean };
+  const h = hash(id);
+  const h2 = hash(`${id}:size`);
+  const h3 = hash(`${id}:listing`);
+  const published = r.status != null;
+  const type = String(r.type);
+  const status = published
+    ? String(r.status)
+    : ind.availability === "now"
+      ? h % 4 === 0 ? "Available Q3 2026" : "Available now"
+      : ind.availability === "6m"
+        ? "Available Q1 2027"
+        : ind.availability === "12m"
+          ? "Under development"
+          : ind.preLease ? "2028 onwards" : "Under development";
+  const completion =
+    status === "Available now" ? `Completed ${2017 + (h % 9)}`
+    : status === "Available Q3 2026" ? "Completed 2026"
+    : status === "Available Q1 2027" || ind.availability === "12m" ? "Completion 2027"
+    : "Completion 2028";
+  const gfa = published ? Number(r.gfaSqm) : ind.sizeSqm;
+  const ranged = !published && ["logistics", "business-park", "land"].includes(type) && h2 % 8 === 0 && gfa >= 8000;
+  const sizeRangeSqm = ranged ? [Math.max(1000, Math.round((gfa * (0.12 + (h2 % 20) / 100)) / 100) * 100), gfa] : undefined;
+  const siteAreaSqm = published ? Number(r.siteAreaSqm) : Math.round(gfa * (type === "land" ? 1 : 1.35 + (h2 % 90) / 100) + (h % 97));
+  // The real properties at their real addresses always open a detail page; others are a third summary listings.
+  const home = homeOf.get(String(r.name)) === r.city;
+  const listing = !home && h3 % 3 === 0 ? "summary" : "linked";
+  return {
+    id, ...r, gfaSqm: gfa, ...(sizeRangeSqm ? { sizeRangeSqm } : {}), siteAreaSqm, status, listing,
+    facts: [type === "land" ? { label: "Zoning", value: "Industrial" } : { label: completion.split(" ")[0], value: completion.split(" ").slice(1).join(" ") }, FEATURE[type](gfa, h)],
+  };
+});
+
+const lines = withId.map((r) => `  ${JSON.stringify(r)},`);
 
 const out = `/**
  * Property data for the search prototype. Edit freely.
@@ -134,11 +189,14 @@ const out = `/**
  * - Only the five real ESR Japan property names. Do not add new names.
  * - Only Higashi-Ogishima Distribution Centre 2 has published figures
  *   (66,155 sqm site, 306,000 sqm GFA, completion 2028 onwards, Kawasaki, Kanagawa).
- * - Every other record keeps gfaSqm, siteAreaSqm and status as null, which render as
- *   [GFA TBC], [Site area TBC] and [Status TBC]. Keep the brackets visible.
+ * - Every other record carries realistic generic figures (GFA or a GFA range, site area,
+ *   status, completion and one type-specific fact) for the cards, pins and preview.
+ *   They match the "indicative" block that drives the filters, sort and map, and are
+ *   prototype values, not published figures.
+ * - listing: "linked" cards open a property detail page; "summary" cards are a
+ *   top-line listing only (about one in three, never the real properties at their
+ *   real addresses).
  * - The four other names are repeated across prefectures to populate 248 results.
- *   Their type, location and "indicative" block are prototype values that drive the
- *   filters, sort and map. They are not published figures.
  *
  * Generated by scripts/generate-properties.ts. Hand edits are fine; regenerating overwrites them.
  */
