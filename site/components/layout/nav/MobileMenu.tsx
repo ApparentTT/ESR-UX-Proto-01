@@ -382,7 +382,7 @@ function StatGrid({ stats, cols }: { stats: NavStat[]; cols: 2 | 3 }) {
 /**
  * Grey panel: heading, a scrolling row of market chips (first = current scope), stats, and the map (Our portfolio).
  * With the map, the chips are toggle buttons: a market zooms the map to it and shows its stats; choosing it
- * again, or the first chip, returns to all markets. Investor's chips stay inert links.
+ * again, or the first chip, returns to all markets. Investment management's chips switch the stats to that market's figures.
  */
 function ChipsPanel({ block }: { block: ChipsBlock }) {
   const uid = useId();
@@ -394,7 +394,8 @@ function ChipsPanel({ block }: { block: ChipsBlock }) {
   };
   const chip = "flex h-7 items-center whitespace-nowrap rounded-full border px-3 text-[12px] leading-[18px]";
   const chipButton = `focus-inset ${chip} border-line text-body hover:border-ink aria-pressed:border-muted-surface aria-pressed:bg-muted-surface aria-pressed:text-white`;
-  const interactive = Boolean(block.map);
+  // Our portfolio: chips zoom the map; Investment management: chips switch the stats to that market's figures
+  const interactive = Boolean(block.map || block.byMarket);
   return (
     <div className="flex grow flex-col bg-surface">
       <div className={`pt-[15px] ${block.map ? "pb-[21px]" : "pb-6"}`}>
@@ -434,7 +435,7 @@ function ChipsPanel({ block }: { block: ChipsBlock }) {
           ))}
         </ul>
         <div className={block.statCols === 3 ? "mt-[26px]" : "mt-7"}>
-          <StatGrid stats={(market && block.marketStats) || block.stats} cols={block.statCols} />
+          <StatGrid stats={(market && (block.byMarket?.[market] ?? block.marketStats)) || block.stats} cols={block.statCols} />
         </div>
       </div>
       {/* On screens taller than the drawn frame the sea colour continues below the map */}

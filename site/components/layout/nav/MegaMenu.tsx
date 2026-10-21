@@ -36,6 +36,9 @@ type MarketFocus = {
   reset: () => void;
   buttons: React.RefObject<Record<string, HTMLButtonElement | null>>;
   glanceId: string;
+  /** Investment management: the market hovered or focused in "Invest by Market" (null = the group) */
+  hovered: string | null;
+  hover: (market: string | null) => void;
 };
 const MarketFocusContext = createContext<MarketFocus | null>(null);
 
@@ -52,6 +55,7 @@ export function MegaMenu({ section, id, labelledBy, animate }: { section: NavSec
   const hasRegions = panel.cells.some((c) => c.blocks.some((b) => b.type === "regions"));
   const [market, setMarket] = useState<string | null>(null);
   const [message, setMessage] = useState("");
+  const [hovered, setHovered] = useState<string | null>(null);
   const buttons = useRef<Record<string, HTMLButtonElement | null>>({});
   const glanceId = useId();
   const choose = (m: string | null) => {
@@ -68,6 +72,8 @@ export function MegaMenu({ section, id, labelledBy, animate }: { section: NavSec
     },
     buttons,
     glanceId,
+    hovered,
+    hover: setHovered,
   };
   return (
     <MarketFocusContext.Provider value={focus}>
@@ -323,11 +329,15 @@ function Glance({ block }: { block: GlanceBlock }) {
         </div>
       </div>
     );
+  // Card variant (Investment management): while a market is hovered or focused in "Invest by Market",
+  // the card reads "ESR in {market}" over that market's figures; otherwise the group's.
+  const local = (focus?.hovered && block.byMarket?.[focus.hovered]) || null;
   return (
-    <div className="mt-[7px] h-[358px] min-w-0 flex-1 rounded-[4px] bg-surface pl-9 pr-4 pt-[18px]">
-      <p className="text-[11px] font-bold leading-5 text-body">{block.heading}</p>
+    <div id={focus?.glanceId} aria-live="polite" className="mt-[7px] h-[358px] min-w-0 flex-1 rounded-[4px] bg-surface pl-9 pr-4 pt-[18px]">
+      <p className="text-[11px] font-bold leading-5 text-body">{local && focus?.hovered ? `ESR in ${focus.hovered}` : block.heading}</p>
       <Stats
-        stats={block.stats}
+        key={local ? focus?.hovered : "group"}
+        stats={local ?? block.stats}
         className="ml-[7px] mt-[42px] grid grid-cols-[minmax(0,218px)_auto] gap-y-[42px]"
         gapClass="gap-[5px]"
         valueClass="whitespace-nowrap text-[clamp(20px,1.875vw,27px)] font-bold leading-[26px] text-body"
@@ -340,8 +350,16 @@ function Glance({ block }: { block: GlanceBlock }) {
 /** "Invest by Market": region headings inline in each column, Medium 14/20 links, 34px pitch. */
 function MarketList({ block }: { block: MarketListBlock }) {
   const uid = useId();
+  const focus = useContext(MarketFocusContext);
+  // Hover or focus a market to see its figures in "ESR at a glance"; leaving the list returns to the group's.
   return (
-    <div className="shrink-0">
+    <div
+      className="shrink-0"
+      onMouseLeave={() => focus?.hover(null)}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) focus?.hover(null);
+      }}
+    >
       <p className={HEADING}>{block.heading}</p>
       <div className="mt-6 flex">
         {block.columns.map((regions, ci) => (
@@ -354,7 +372,14 @@ function MarketList({ block }: { block: MarketListBlock }) {
                 <ul aria-labelledby={`${uid}-${ci}-${gi}`} className="mt-[14px] flex flex-col gap-[14px] text-[14px] font-medium leading-5 text-ink">
                   {marketsIn(region).map((m) => (
                     <li key={m}>
-                      <InertLink className={MARKET_LINK}>{m}</InertLink>
+                      <InertLink
+                        className={`${MARKET_LINK} ${focus?.hovered === m ? "text-ink underline" : ""}`}
+                        aria-describedby={focus?.glanceId}
+                        onMouseEnter={() => focus?.hover(m)}
+                        onFocus={() => focus?.hover(m)}
+                      >
+                        {m}
+                      </InertLink>
                     </li>
                   ))}
                 </ul>

@@ -46,6 +46,8 @@ export type GlanceBlock = {
   stats: NavStat[];
   /** Map variant: the stats shown while one market is chosen in "Browse properties by region" (heading becomes "{heading}: {market}") */
   marketStats?: NavStat[];
+  /** Card variant (Investment management): each market's own stats, shown while that market is hovered or focused in "Invest by Market" */
+  byMarket?: Record<string, NavStat[]>;
 };
 export type MarketListBlock = { type: "markets"; heading: string; columns: NavRegion[][]; /** Column widths in px */ widths: number[] };
 /** "Case study · Australia" card: 16:9 image, eyebrow, title and a "Read the case study" line; the whole card is one link. */
@@ -104,6 +106,8 @@ export type ChipsBlock = {
   /** With the map (Our portfolio): the chips are buttons that zoom the map to a market and show marketStats; the first chip returns to all markets */
   map?: boolean;
   marketStats?: NavStat[];
+  /** Without the map (Investment management): the chips are buttons that switch the stats to that market's own figures */
+  byMarket?: Record<string, NavStat[]>;
 };
 export type MobileStripBlock = { type: "strip"; links: NavLinkItem[] };
 export type MobileLatestBlock = LatestBlock & { links: NavLinkItem[] };
@@ -225,6 +229,30 @@ const MARKET_GLANCE_STATS: NavStat[] = [
   { value: "XX", label: "APAC markets" },
   { value: "XXMil m²", label: "gross floor area" },
 ];
+/**
+ * Investment management "ESR at a glance" per market (hover a market in "Invest by Market"; tap a chip on mobile).
+ * Indicative figures for the prototype, to be replaced with ESR's own.
+ */
+const investorStats = (aum: string, raised: string, people: string, funds: string): NavStat[] => [
+  { value: aum, label: "Total AUM" },
+  { value: raised, label: "Capital Raised" },
+  { value: people, label: "Employees" },
+  { value: funds, label: "funds and mandates" },
+];
+const INVESTOR_MARKET_STATS: Record<string, NavStat[]> = {
+  "Greater China": investorStats("US$14.2bn", "US$410M", "420+", "28"),
+  India: investorStats("US$3.1bn", "US$95M", "110+", "6"),
+  Indonesia: investorStats("US$0.9bn", "US$30M", "40+", "3"),
+  Japan: investorStats("US$21.6bn", "US$520M", "380+", "34"),
+  Malaysia: investorStats("US$1.2bn", "US$35M", "45+", "4"),
+  Singapore: investorStats("US$6.8bn", "US$180M", "160+", "12"),
+  "South Korea": investorStats("US$11.4bn", "US$300M", "210+", "22"),
+  Thailand: investorStats("US$0.8bn", "US$25M", "35+", "3"),
+  Vietnam: investorStats("US$0.6bn", "US$20M", "30+", "2"),
+  "Australia & New Zealand": investorStats("US$15.9bn", "US$270M", "430+", "24"),
+  "Saudi Arabia": investorStats("US$0.8bn", "US$15M", "25+", "2"),
+};
+
 /** Choosing a market again, or this control, returns the Our portfolio map to all markets. */
 export const ALL_MARKETS = "All markets";
 /** Mobile market chips: the first is the current scope ("ERS Group" as drawn, flagged to the client). */
@@ -322,10 +350,11 @@ const INVESTOR: NavSection = {
         line: "l",
         blocks: [{ type: "markets", heading: "Invest by Market", columns: [["Asia"], ["Oceania", "Middle East"]], widths: [155, 100] }],
       },
-      { col: 3, row: 1, rowSpan: 3, pad: [37, 32, 37, 40], line: "l", flow: "row", blocks: [{ type: "glance", variant: "card", heading: GLANCE, stats: INVESTOR_STATS }] },
+      // No rule between "Invest by Market" and the card: they work as one piece (hovering a market localises the card)
+      { col: 3, row: 1, rowSpan: 3, pad: [37, 32, 37, 40], flow: "row", blocks: [{ type: "glance", variant: "card", heading: GLANCE, stats: INVESTOR_STATS, byMarket: INVESTOR_MARKET_STATS }] },
     ],
   },
-  mobile: [{ type: "chips", heading: "Invest by Market", selected: CHIP_SELECTED, stats: INVESTOR_STATS, statCols: 2 }],
+  mobile: [{ type: "chips", heading: "Invest by Market", selected: CHIP_SELECTED, stats: INVESTOR_STATS, statCols: 2, byMarket: INVESTOR_MARKET_STATS }],
 };
 
 /* --------------------------------------------------------- sustainability */
