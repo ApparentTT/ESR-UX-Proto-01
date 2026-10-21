@@ -1,6 +1,7 @@
 import { Section, type SectionBg } from "@/components/ui/Section";
 import { Footnotes } from "@/components/ui/DataBits";
 import { T } from "@/components/ui/type";
+import { CountUp } from "@/components/ui/CountUp";
 
 /**
  * StatRow family (inventory B6). One component, eight variants.
@@ -138,7 +139,7 @@ export function StatList({
       >
         {stats.map((s) => (
           <li key={s.label} className="flex min-w-0 flex-col gap-2.5 md:w-[146px] md:shrink">
-            <span className="text-[24px] font-bold leading-[25.6px] text-[#393939] lg:text-[26.9px]">{s.value}</span>
+            <span className="text-[24px] font-bold leading-[25.6px] text-[#393939] lg:text-[26.9px]"><CountUp value={s.value} /></span>
             <span className="text-[14px] leading-[1.2] text-[#393939] lg:text-[14.1px]">
               <Label stat={s} />
             </span>
@@ -161,7 +162,7 @@ export function StatList({
             className={`flex min-w-0 flex-col gap-1.5 ${i === 4 && stats.length === 5 ? "col-span-2 md:col-span-1" : ""}`}
           >
             <span className="flex items-center gap-1.5">
-              <span className={`${T.stat40b} whitespace-nowrap`}>{s.value}</span>
+              <span className={`${T.stat40b} whitespace-nowrap`}><CountUp value={s.value} /></span>
               {s.sideLabel && (
                 <span className="w-[109px] shrink-0 text-[14px] font-semibold leading-none text-black">{s.sideLabel}</span>
               )}
@@ -184,7 +185,7 @@ export function StatList({
       >
         {stats.map((s, i) => (
           <li key={`${s.label}-${i}`} className="flex min-w-0 flex-col border-b border-[#858585] py-4 lg:py-6">
-            <span className={VALUE_40}>{s.value}</span>
+            <span className={VALUE_40}><CountUp value={s.value} /></span>
             <span className={`${LABEL_16} ${muted}`}>
               <Label stat={s} />
             </span>
@@ -204,7 +205,7 @@ export function StatList({
     >
       {stats.map((s, i) => (
         <li key={`${s.label}-${i}`} className={`flex min-w-0 flex-col gap-2 lg:gap-3 ${ITEM_PAD[variant]} ${i > 0 ? insetCls : ""}`}>
-          <span className={VALUE_48}>{s.value}</span>
+          <span className={VALUE_48}><CountUp value={s.value} /></span>
           <span className={`${LABEL_16} ${muted} ${variant === "dev" ? "lg:min-h-12" : ""}`}>
             <Label stat={s} />
           </span>

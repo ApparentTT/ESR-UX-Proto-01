@@ -2,6 +2,7 @@ import { Section } from "@/components/ui/Section";
 import { PAD, T } from "@/components/ui/type";
 import type { StatItem } from "./StatRow";
 import { PIPELINE_LAND, PIPELINE_MAP_H, PIPELINE_MAP_W, projectPipeline } from "./pipelineMap";
+import { CountUp } from "@/components/ui/CountUp";
 
 /**
  * "Our group pipeline" (inventory B21, DC §3), group level only (client feedback round): no per-market
@@ -53,7 +54,7 @@ export function PowerPipeline({ title, sub, stats, markets, locations, legend, f
         <ul role="list" aria-label={`${title}: headline figures`} className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-4 md:gap-x-6 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-8">
           {stats.map((s) => (
             <li key={s.label} className="flex min-w-0 flex-col gap-1.5 border-t border-[#C9CDD3] pt-4">
-              <span className={`${T.stat36b} whitespace-nowrap`}>{s.value}</span>
+              <span className={`${T.stat36b} whitespace-nowrap`}><CountUp value={s.value} /></span>
               <span className="text-[14px] leading-[1.45] text-muted-surface md:text-[15px]">{s.label}</span>
             </li>
           ))}

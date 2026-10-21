@@ -1,6 +1,6 @@
 /**
  * /jp/about: R2_Local_About (Key wireframes 1347:77157, mobile 1347:77158), verbatim.
- * The drawn toggle shows the "Group" figures; the "Local" figures are not drawn, so they read "XX".
+ * The figures are indicative until ESR supplies them (Japan figures match the Investment management menu).
  */
 import type { StatItem } from "@/components/sections/stats/StatRow";
 import type { OutlineTextCardItem } from "@/components/sections/infocards/OutlineTextCard";
@@ -26,10 +26,10 @@ export const JP_ABOUT_STATS: { label: string; options: { id: string; label: stri
       id: "local",
       label: "Local",
       stats: [
-        { value: "US $XXB", label: "Total assets under management", sup: 1 },
-        { value: "XX sqm", label: "Gross floor area" },
-        { value: "XX sqm", label: "Development pipeline" },
-        { value: "XX", label: "In-house experts" },
+        { value: "US $21.6B", label: "Total assets under management", sup: 1 },
+        { value: "1.9m sqm", label: "Gross floor area" },
+        { value: "620,000 sqm", label: "Development pipeline" },
+        { value: "380+", label: "In-house experts" },
       ],
     },
     {
@@ -38,8 +38,8 @@ export const JP_ABOUT_STATS: { label: string; options: { id: string; label: stri
       stats: [
         { value: "US $31.8B", label: "Total assets under management", sup: 1 },
         { value: "4.7m sqm", label: "Gross floor area" },
-        { value: "XX sqm", label: "Development pipeline" },
-        { value: "XX", label: "In-house experts" },
+        { value: "2.1m sqm", label: "Development pipeline" },
+        { value: "1,900+", label: "In-house experts" },
       ],
     },
   ],

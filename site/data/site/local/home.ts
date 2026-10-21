@@ -18,8 +18,8 @@ export const JP_HOME_HERO = {
 export const JP_HOME_WHO_WE_ARE = HOME_WHO_WE_ARE;
 
 /**
- * "Key stats / opt 2" (1110:53502). The toggle shows Local (Japan) first and by default; the Local
- * figures are placeholders until ESR Japan supplies them.
+ * "Key stats / opt 2" (1110:53502). The toggle shows Local (Japan) first and by default; the figures are
+ * indicative (Japan figures match the Investment management menu) until ESR supplies them.
  */
 export const JP_HOME_STATS: LocalKeyStatsProps = {
   title: "Scale that delivers",
@@ -29,14 +29,14 @@ export const JP_HOME_STATS: LocalKeyStatsProps = {
     group: [
       { value: "US $31.8B", label: "Total assets under management", sup: 1 },
       { value: "4.7m sqm", label: "Gross floor area" },
-      { value: "XX sqm", label: "Development pipeline" },
-      { value: "XX", label: "In-house experts" },
+      { value: "2.1m sqm", label: "Development pipeline" },
+      { value: "1,900+", label: "In-house experts" },
     ],
     local: [
-      { value: "US $XXB", label: "Total assets under management", sup: 1 },
-      { value: "XX sqm", label: "Gross floor area" },
-      { value: "XX sqm", label: "Development pipeline" },
-      { value: "XX", label: "In-house experts" },
+      { value: "US $21.6B", label: "Total assets under management", sup: 1 },
+      { value: "1.9m sqm", label: "Gross floor area" },
+      { value: "620,000 sqm", label: "Development pipeline" },
+      { value: "380+", label: "In-house experts" },
     ],
   },
   footnotes: [JP_AUM_FOOTNOTE],

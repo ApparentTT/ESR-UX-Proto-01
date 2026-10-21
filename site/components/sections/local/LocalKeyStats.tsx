@@ -5,6 +5,7 @@ import { Container } from "@/components/layout/Container";
 import { Footnotes } from "@/components/ui/DataBits";
 import { TextLink } from "@/components/ui/TextLink";
 import { T } from "@/components/ui/type";
+import { CountUp } from "@/components/ui/CountUp";
 
 export type LocalStat = { value: string; label: string; /** Footnote marker after the label */ sup?: number };
 
@@ -78,7 +79,7 @@ export function LocalKeyStats({ title, sub, link, stats, footnotes }: LocalKeySt
         >
           {list.map((s, i) => (
             <li key={`${s.label}-${i}`} className={`flex min-w-0 flex-col gap-2 lg:gap-3 lg:py-6 ${i > 0 ? "min-[1400px]:px-6" : ""}`}>
-              <span className={VALUE}>{s.value}</span>
+              <span className={VALUE}><CountUp value={s.value} /></span>
               <span className="text-[14px] leading-5 text-muted md:text-[16px] md:leading-6">
                 {s.label}
                 {s.sup !== undefined && <sup className="text-[10px]">{s.sup}</sup>}
