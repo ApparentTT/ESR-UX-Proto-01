@@ -9,11 +9,11 @@ import { PAGES } from "@/config/site";
 /** Direct links so the client can jump to any state without producing it themselves. */
 const STATES: { n: number; label: string; href: string }[] = [
   { n: 1, label: "First visit", href: "/properties" },
-  { n: 2, label: "All filters panel", href: "/properties/search?pref=kanagawa,tokyo&type=logistics,business-park&min=5000&max=20000&avail=12m&panel=all" },
+  { n: 2, label: "All filters panel", href: "/properties/search?pref=kanagawa,tokyo&type=logistics,office&min=5000&max=20000&avail=12m&panel=all" },
   { n: 3, label: "Results", href: "/properties/search" },
-  { n: 4, label: "Results with filters applied", href: "/properties/search?pref=kanagawa,tokyo&type=logistics,business-park&min=5000&max=20000&avail=12m" },
+  { n: 4, label: "Results with filters applied", href: "/properties/search?pref=kanagawa,tokyo&type=logistics,office&min=5000&max=20000&avail=12m" },
   { n: 5, label: "Results scrolled (loading more)", href: "/properties/search?pref=kanagawa&demo=scrolled" },
-  { n: 6, label: "No results", href: "/properties/search?q=aomori&type=cold-storage&min=20000" },
+  { n: 6, label: "No results", href: "/properties/search?q=aomori&type=office&min=20000" },
 ];
 
 const MAP_LINKS: { label: string; href: string; icon: string; mobileOnly?: boolean }[] = [
@@ -22,7 +22,7 @@ const MAP_LINKS: { label: string; href: string; icon: string; mobileOnly?: boole
 
 const PANELS: { label: string; href: string }[] = [
   { label: "Location", href: "/properties/search?panel=location" },
-  { label: "Property type", href: "/properties/search?type=logistics,business-park&panel=type" },
+  { label: "Property type", href: "/properties/search?type=logistics,office&panel=type" },
   { label: "Size", href: "/properties/search?min=5000&max=20000&panel=size" },
   { label: "Availability", href: "/properties/search?avail=now&panel=avail" },
 ];

@@ -15,9 +15,9 @@ Use the **Prototype** badge (bottom right) to jump to any of these:
 | 1. First visit | `/properties` |
 | 2. All filters panel | `/properties/search?…&panel=all` |
 | 3. Results | `/properties/search` |
-| 4. Results with filters applied | `/properties/search?pref=kanagawa,tokyo&type=logistics,business-park&min=5000&max=20000&avail=12m` |
+| 4. Results with filters applied | `/properties/search?pref=kanagawa,tokyo&type=logistics,office&min=5000&max=20000&avail=12m` |
 | 5. Results scrolled | `/properties/search?pref=kanagawa&demo=scrolled` |
-| 6. No results | `/properties/search?q=aomori&type=cold-storage&min=20000` |
+| 6. No results | `/properties/search?q=aomori&type=office&min=20000` |
 
 Filter panels open with `panel=location|type|size|avail`; the mobile map with `view=map`; drawing an area with `draw=1`. These helper params are stripped after opening, so the URL only ever carries the search.
 

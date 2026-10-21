@@ -37,7 +37,7 @@ const POPULAR: { label: string; filters: Partial<Filters> }[] = [
   { label: "Available now", filters: { avail: "now" } },
 ];
 
-const BROWSE_TYPES: PropertyTypeId[] = ["logistics", "business-park", "data-centre", "cold-storage"];
+const BROWSE_TYPES: PropertyTypeId[] = ["logistics", "office"];
 
 export function FirstVisit() {
   const router = useRouter();
@@ -296,7 +296,7 @@ export function FirstVisit() {
           <h2 id="browse-type" className="text-2xl font-semibold tracking-tight md:text-[26px]">
             Browse by property type
           </h2>
-          <ul className="mt-6 grid grid-cols-1 gap-4 md:mt-8 md:grid-cols-2 md:gap-5 lg:grid-cols-4">
+          <ul className="mt-6 grid grid-cols-1 gap-4 md:mt-8 md:grid-cols-2 md:gap-5">
             {BROWSE_TYPES.map((id) => {
               const t = PROPERTY_TYPES.find((x) => x.id === id)!;
               return (

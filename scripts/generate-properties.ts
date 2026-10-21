@@ -10,6 +10,10 @@
  * About a third of the records are summary listings (top-line only, no detail page).
  * Display values are derived after the seeded run from a hash of each id, so the
  * records, filters and order are unchanged from earlier versions.
+ *
+ * Property types: the search offers two, "logistics" (Industrial and logistics) and "office".
+ * Earlier versions drew from six; the draw is kept (as each record's "kind") so the seeded run,
+ * sizes and features stay stable, and each kind maps to one of the two types below.
  */
 import { writeFileSync } from "node:fs";
 import { LOCALITIES, type PrefectureId } from "../data/locations.ts";
@@ -46,24 +50,29 @@ const REPEAT_NAMES = REAL.slice(1).map((r) => r.name);
 // Target mix across all 248 records.
 const HO_REPEATS = 6; // flagship always keeps its real location and published figures
 const prefBag = bag({ kanagawa: 66 - HO_REPEATS - 3, tokyo: 52, osaka: 41, hyogo: 25 - 1, chiba: 16, saitama: 33, aichi: 10, fukuoka: 5 });
-const typeBag = bag({ logistics: 142 - HO_REPEATS - 4, "business-park": 38, "data-centre": 12, "cold-storage": 19, office: 21, land: 16 });
+// Draw mix of the earlier six kinds; TYPE_OF maps each kind to the published type.
+const kindBag = bag({ logistics: 142 - HO_REPEATS - 4, "business-park": 38, "data-centre": 12, "cold-storage": 19, office: 21, land: 16 });
+const TYPE_OF: Record<string, "logistics" | "office"> = {
+  logistics: "logistics", "cold-storage": "logistics", "data-centre": "logistics", land: "logistics",
+  "business-park": "office", office: "office",
+};
 const availBag = bag({ now: 86, "6m": 34, "12m": 52, later: 76 - HO_REPEATS });
 
 const SUS = { "4-star": 0.24, "5-star": 0.12, solar: 0.18, ev: 0.12, rainwater: 0.09 } as const;
 const AMEN = { truck: 0.39, eot: 0.25, parking: 0.57, security: 0.35, rail: 0.03, hardstand: 0.14 } as const;
 
-function size(type: string) {
+function size(kind: string) {
   // Log-normal-ish around 12,000 sqm, nothing indicative over 40,000.
-  const base = { logistics: 13000, "business-park": 7000, "data-centre": 9000, "cold-storage": 8000, office: 4000, land: 18000 }[type] ?? 10000;
+  const base = { logistics: 13000, "business-park": 7000, "data-centre": 9000, "cold-storage": 8000, office: 4000, land: 18000 }[kind] ?? 10000;
   const n = (rand() + rand() + rand() - 1.5) * 1.3;
   const v = base * Math.exp(n);
   return Math.round(Math.min(39500, Math.max(1200, v)) / 50) * 50;
 }
 
-function features(type: string) {
+function features(kind: string) {
   const sustainability = Object.entries(SUS).filter(([, p]) => rand() < p).map(([k]) => k);
   if (sustainability.includes("5-star") && !sustainability.includes("4-star")) sustainability.push("4-star");
-  const amenities = Object.entries(AMEN).filter(([k, p]) => rand() < (type === "land" && k !== "truck" ? p / 3 : p)).map(([k]) => k);
+  const amenities = Object.entries(AMEN).filter(([k, p]) => rand() < (kind === "land" && k !== "truck" ? p / 3 : p)).map(([k]) => k);
   return { sustainability, amenities };
 }
 
@@ -93,31 +102,32 @@ for (const r of REAL.slice(1)) {
     indicative: { sizeSqm: size("logistics"), availability: availBag.pop(), preLease: false, listed: listed(), ...features("logistics") },
   });
 }
-// Repeats of the four, spread across prefectures. Avoid repeating the same name, city and type
-// combination so neighbouring cards never look like duplicates.
+// Repeats of the four, spread across prefectures. Avoid repeating the same name, city and kind
+// combination so neighbouring cards never look like duplicates (keyed on the drawn kind so the run is unchanged).
 const used = new Set<string>(rows.map((r) => `${r.name}|${r.city}|${r.type}`));
 while (rows.length < TOTAL) {
   const prefecture = prefBag.pop() as PrefectureId;
-  const type = typeBag.pop()!;
+  const kind = kindBag.pop()!;
+  const type = TYPE_OF[kind];
   const availability = availBag.pop()!;
   let loc = pick(LOCALITIES.filter((l) => l.prefecture === prefecture));
   let name = pick(REPEAT_NAMES);
-  for (let tries = 0; tries < 40 && used.has(`${name}|${loc.city}|${type}`); tries++) {
+  for (let tries = 0; tries < 40 && used.has(`${name}|${loc.city}|${kind}`); tries++) {
     loc = pick(LOCALITIES.filter((l) => l.prefecture === prefecture));
     name = pick(REPEAT_NAMES);
   }
   // In its own prefecture a repeated name keeps its real city, so "Yokohama Sachiura" never shows in Kawasaki.
   const home = REAL.find((r) => r.name === name)!;
   if (home.prefecture === prefecture) loc = LOCALITIES.find((l) => l.city === home.city && (l.ward ?? "") === ("ward" in home ? home.ward : ""))!;
-  used.add(`${name}|${loc.city}|${type}`);
+  used.add(`${name}|${loc.city}|${kind}`);
   rows.push({
     name, type, city: loc.city, ...(loc.ward ? { ward: loc.ward } : {}), prefecture,
     lat: jitter(loc.lat, 0.08), lng: jitter(loc.lng, 0.1),
     gfaSqm: null, siteAreaSqm: null, status: null,
     indicative: {
-      sizeSqm: size(type), availability,
-      preLease: availability === "later" ? rand() < 0.6 : type === "land" ? rand() < 0.5 : false,
-      listed: listed(), ...features(type),
+      sizeSqm: size(kind), availability,
+      preLease: availability === "later" ? rand() < 0.6 : kind === "land" ? rand() < 0.5 : false,
+      listed: listed(), ...features(kind),
     },
   });
 }
@@ -136,13 +146,9 @@ const hash = (s: string) => {
   for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
   return h >>> 0;
 };
-const FEATURE: Record<string, (gfa: number, h: number) => { label: string; value: string }> = {
+const FEATURE: Record<string, (gfa: number) => { label: string; value: string }> = {
   logistics: (g) => ({ label: "Truck berths", value: String(Math.min(240, Math.max(6, Math.round(g / 1100)))) }),
-  "cold-storage": (g) => ({ label: "Truck berths", value: String(Math.min(120, Math.max(4, Math.round(g / 900)))) }),
-  "data-centre": (g) => ({ label: "IT capacity", value: `${Math.min(60, Math.max(4, Math.round(g / 700)))} MW` }),
-  "business-park": (g) => ({ label: "Car spaces", value: String(Math.min(900, Math.max(20, Math.round(g / 120)))) }),
   office: (g) => ({ label: "Car spaces", value: String(Math.min(400, Math.max(12, Math.round(g / 140)))) }),
-  land: (_g, h) => ({ label: "Building coverage", value: `${[50, 60, 60, 70][h % 4]}%` }),
 };
 const homeOf = new Map<string, string>(REAL.map((r) => [r.name, r.city]));
 const withId = rows.map((r, i) => {
@@ -168,15 +174,15 @@ const withId = rows.map((r, i) => {
     : status === "Available Q1 2027" || ind.availability === "12m" ? "Completion 2027"
     : "Completion 2028";
   const gfa = published ? Number(r.gfaSqm) : ind.sizeSqm;
-  const ranged = !published && ["logistics", "business-park", "land"].includes(type) && h2 % 8 === 0 && gfa >= 8000;
+  const ranged = !published && ["logistics", "office"].includes(type) && h2 % 8 === 0 && gfa >= 8000;
   const sizeRangeSqm = ranged ? [Math.max(1000, Math.round((gfa * (0.12 + (h2 % 20) / 100)) / 100) * 100), gfa] : undefined;
-  const siteAreaSqm = published ? Number(r.siteAreaSqm) : Math.round(gfa * (type === "land" ? 1 : 1.35 + (h2 % 90) / 100) + (h % 97));
+  const siteAreaSqm = published ? Number(r.siteAreaSqm) : Math.round(gfa * (1.35 + (h2 % 90) / 100) + (h % 97));
   // The real properties at their real addresses always open a detail page; others are a third summary listings.
   const home = homeOf.get(String(r.name)) === r.city;
   const listing = !home && h3 % 3 === 0 ? "summary" : "linked";
   return {
     id, ...r, gfaSqm: gfa, ...(sizeRangeSqm ? { sizeRangeSqm } : {}), siteAreaSqm, status, listing,
-    facts: [type === "land" ? { label: "Zoning", value: "Industrial" } : { label: completion.split(" ")[0], value: completion.split(" ").slice(1).join(" ") }, FEATURE[type](gfa, h)],
+    facts: [{ label: completion.split(" ")[0], value: completion.split(" ").slice(1).join(" ") }, FEATURE[type](gfa)],
   };
 });
 

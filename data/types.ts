@@ -1,6 +1,6 @@
 import type { PrefectureId } from "./locations";
 
-export type PropertyTypeId = "logistics" | "business-park" | "data-centre" | "cold-storage" | "office" | "land";
+export type PropertyTypeId = "logistics" | "office";
 export type AvailabilityWindow = "now" | "6m" | "12m" | "later";
 export type SustainabilityId = "4-star" | "5-star" | "solar" | "ev" | "rainwater";
 export type AmenityId = "truck" | "eot" | "parking" | "security" | "rail" | "hardstand";
@@ -44,12 +44,8 @@ export type Property = {
 };
 
 export const PROPERTY_TYPES: { id: PropertyTypeId; label: string; plural: string }[] = [
-  { id: "logistics", label: "Logistics and industrial", plural: "Logistics and industrial" },
-  { id: "business-park", label: "Business park", plural: "Business parks" },
-  { id: "data-centre", label: "Data centres", plural: "Data centres" },
-  { id: "cold-storage", label: "Cold storage", plural: "Cold storage" },
+  { id: "logistics", label: "Industrial and logistics", plural: "Industrial and logistics" },
   { id: "office", label: "Office", plural: "Office" },
-  { id: "land", label: "Land and development sites", plural: "Land and development sites" },
 ];
 
 export const AVAILABILITY_OPTIONS: { id: "now" | "6m" | "12m" | "any"; label: string }[] = [
