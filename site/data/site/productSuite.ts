@@ -23,7 +23,7 @@ export const INV_PRODUCT_SUITE: ProductSuiteProps = {
         title: "Data centres",
         description: "Hyperscale and colocation facilities, with the land, power and delivery capability behind them.",
       },
-      { title: "Infrastructure", description: "[Description to be confirmed with ESR]" },
+      { title: "Adjacent infrastructure", description: "[Description to be confirmed with ESR]" },
     ],
   },
   reits: {

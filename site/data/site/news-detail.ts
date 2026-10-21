@@ -16,6 +16,7 @@ import type { NewsCardData } from "@/components/sections/cards/NewsCard";
 import { HOME_LATEST, INV_LATEST } from "@/data/site/latest";
 import { JP_HOME_LATEST } from "@/data/site/local/home";
 import { JP_NEWS_ARTICLES, JP_NEWS_FEATURED, type JpNewsArticle } from "@/data/site/local/news";
+import { SHARE_COPY } from "@/data/site/share";
 import { NEWS_ARTICLES, NEWS_FEATURED, NEWS_MARKETS, NEWS_TOPICS, NEWS_TYPES, type NewsArticle } from "@/data/site/news";
 
 /* ----------------------------------------------------------------- bodies */
@@ -132,7 +133,7 @@ export const ARTICLE_COPY = {
   /** Breadcrumb root */
   crumb: { label: "News and insights" },
   downloadPdf: "Download PDF",
-  share: { share: "Share", copy: "Copy link", copied: "Link copied", email: "Email", linkedin: "LinkedIn", x: "X", line: "LINE" },
+  share: SHARE_COPY,
   relatedTitle: "Related articles",
   /** "OtherMarkets" 1508:34725 (group only; hidden on the local frames) */
   marketsTitle: "Looking in another market?",

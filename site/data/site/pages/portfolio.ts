@@ -47,5 +47,3 @@ export const PROP_MARKETS_HEADING = {
   sub: "Quis nis ullarper vestibulum eros. Suspendisse lacus lectus molestie id et, nibh tellus in.",
 };
 
-/** PROP §8 */
-export const PROP_PORTFOLIO_HEADING = "Explore our portfolio";

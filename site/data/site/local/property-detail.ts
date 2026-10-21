@@ -16,6 +16,7 @@
  * Plain module (no imports from ./shared, which imports jpPropertyHref from here).
  */
 import type { EnquirySuccessCopy } from "@/components/sections/forms/formPresets";
+import { SHARE_COPY } from "@/data/site/share";
 
 /* ------------------------------------------------------------- properties */
 
@@ -284,15 +285,7 @@ export const JP_PROPERTY_DETAIL = {
   marketsTitle: "Looking in another market?",
   /** "OtherMarkets" (1507:52412). Other local sites are not part of the prototype: inert. */
   markets: ["Australia and New Zealand", "Greater China", "South Korea", "Singapore", "India"].map((label) => ({ label, href: null as string | null })),
-  share: {
-    share: "Share",
-    copy: "Copy link",
-    copied: "Link copied",
-    email: "Email",
-    linkedin: "LinkedIn",
-    x: "X",
-    line: "LINE",
-  },
+  share: SHARE_COPY,
   sticky: { cta: "Enquire now" },
 };
 

@@ -125,7 +125,7 @@ export const CAP_LISTING: Omit<CapListingProps, "variant"> = {
         { id: "logistics", label: "Logistics" },
         { id: "industrial", label: "Industrial" },
         { id: "data-centres", label: "Data centres" },
-        { id: "infrastructure", label: "Infrastructure" },
+        { id: "infrastructure", label: "Adjacent infrastructure" },
       ],
     },
   ],

@@ -7,6 +7,7 @@ import type { LocalStat } from "@/components/sections/local/LocalKeyStats";
 import type { BentoAccordionProps } from "@/components/sections/carousels/BentoAccordion";
 import type { FeatureBandAction } from "@/components/sections/blocks/FeatureBand";
 import { JP } from "./shared";
+import { JP_PORT_OUR_ASSETS } from "./portfolio";
 
 export const JP_DEV_INTRO = {
   title: "Developments",
@@ -57,23 +58,11 @@ export const JP_DEV_SUSTAINABILITY: { title: string; body: string; actions: Feat
   actions: [{ label: "View case study", href: null }],
 };
 
-/** "Our asset classes": the shared assets module (Figma 1455:42800), linked to the local pages; Data centres goes to the group page */
+/** "Our asset classes": the Japan bento (JP_PORT_OUR_ASSETS) without this page's own Developments sub-card */
 export const JP_DEV_WHAT_WE_DEVELOP: BentoAccordionProps = {
-  description:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  tiles: [
-    {
-      id: "industrial",
-      title: "Industrial and logistics",
-      links: [
-        { label: "Properties", href: JP.properties },
-        { label: "Developments", href: JP.developments },
-      ],
-    },
-    { id: "data-centres", title: "Data centres", href: JP.dataCentres },
-    { id: "infrastructure", title: "Infrastructure", href: null },
-  ],
+  ...JP_PORT_OUR_ASSETS,
   currentHref: JP.developments,
+  hideHref: JP.developments,
 };
 
 /** Newsletter: no country field, as drawn */

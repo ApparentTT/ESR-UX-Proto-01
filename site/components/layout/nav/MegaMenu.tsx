@@ -181,7 +181,7 @@ export function Block({ block }: { block: MegaBlock }) {
 /**
  * Icon, Bold title, Regular description, then Explore (icon 24, gaps 20 / 12, 202px wide). layout "row": the
  * icon beside the text (Investment management's stacked rows). An item's own call to action replaces
- * "Explore"; an offsite item (Infrastructure) gets open_in_new.
+ * "Explore"; an offsite item (Adjacent infrastructure) gets open_in_new.
  */
 function Item({ block: { item, reserve, wide, layout } }: { block: ItemBlock }) {
   if (layout === "row")

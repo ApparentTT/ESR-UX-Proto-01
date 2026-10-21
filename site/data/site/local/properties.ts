@@ -4,12 +4,14 @@
  * entry) and the five drawn Australian estate names are "[Property name]" placeholders; their tags, types,
  * sizes and statuses are as drawn (tags drawn at opacity 0 are not rendered; status is a tag chip, not meta).
  */
+import type { BentoAccordionProps } from "@/components/sections/carousels/BentoAccordion";
 import type { ContactCtaBandProps } from "@/components/sections/forms/ContactCtaBand";
 import type { PropertyCardData } from "@/components/sections/cards/PropertyCard";
 import type { QuoteCarouselProps, QuoteSlide } from "@/components/sections/carousels/QuoteCarousel";
 import type { ServiceStep } from "@/components/sections/local/ServiceSteps";
 import { PROP_INTRO } from "@/data/site/pages/portfolio";
 import { JP } from "./shared";
+import { JP_PORT_OUR_ASSETS } from "./portfolio";
 import { JP_DRAWN_PROPERTY, jpPropertyHref } from "./property-detail";
 
 /** 1110:72068 (the group intro copy, as drawn) */
@@ -81,5 +83,9 @@ export const JP_PROP_TOURS: ContactCtaBandProps = {
   cta: { label: "Explore more", href: JP.propertyTours },
 };
 
-/** 1110:72385 */
-export const JP_PROP_PORTFOLIO_HEADING = "Explore the portfolio";
+/** "Our asset classes" (R2Local_Properties 1347:69176): replaces "Explore the portfolio"; the page's own Properties sub-card is left out */
+export const JP_PROP_OUR_ASSETS: BentoAccordionProps = {
+  ...JP_PORT_OUR_ASSETS,
+  currentHref: JP.properties,
+  hideHref: JP.properties,
+};

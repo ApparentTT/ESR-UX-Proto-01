@@ -17,13 +17,13 @@ export type NavItem = {
   href: string | null;
   /** The call to action, where it is not "Explore" */
   cta?: string;
-  /** Goes to a separate website (Infrastructure): open_in_new instead of the arrow, named "(opens external site)" for screen readers */
+  /** Goes to a separate website (Adjacent infrastructure): open_in_new instead of the arrow, named "(opens external site)" for screen readers */
   offsite?: boolean;
 };
 export type NavLinkItem = { label: string; href: string | null; /** Local menus: goes to the ESR Group site (open_in_new, named for screen readers) */ external?: boolean };
 export type NavStat = { value: string; label: string; /** Value size in px where one stat is drawn at its own size */ size?: number };
-/** A language name; lang is set for non-English scripts so screen readers pronounce them. */
-export type LangPart = { text: string; lang?: string; dir?: "rtl" };
+/** A language name; lang is set for non-English scripts so screen readers pronounce them. hrefLang (defaults to lang, then "en") is the linked site's language. */
+export type LangPart = { text: string; lang?: string; dir?: "rtl"; hrefLang?: string };
 export type NavRegion = "Asia" | "Oceania" | "Middle East";
 /** A market and its site's language versions, local language first (each version is its own link in Find your market). */
 export type NavMarket = { region: NavRegion; name: string; languages: LangPart[] };
@@ -163,13 +163,14 @@ export const marketLanguageHref = (part: LangPart): string | null => (part.lang 
 /**
  * The group site's language switcher (header, next to Find your market; mobile: a row in the menu's pinned
  * bar). English is the site being viewed; the other three group languages are not part of the prototype.
+ * Client feedback round 2: exactly these four, in this order, named in English only (the design does not pair native names).
  */
-export type GroupLanguage = LangPart & { code: string; current?: boolean };
+export type GroupLanguage = LangPart & { code: string; hrefLang: string; current?: boolean };
 export const GROUP_LANGUAGES: GroupLanguage[] = [
-  { code: "EN", text: "English", current: true },
-  { code: "中文", text: "简体中文", lang: "zh-Hans" },
-  { code: "日本語", text: "日本語", lang: "ja" },
-  { code: "한국어", text: "한국어", lang: "ko" },
+  { code: "EN", text: "English", hrefLang: "en", current: true },
+  { code: "JA", text: "Japanese", hrefLang: "ja" },
+  { code: "KO", text: "Korean", hrefLang: "ko" },
+  { code: "ZH", text: "Chinese", hrefLang: "zh-Hans" },
 ];
 export const LANGUAGE_COPY = { label: "Language", icon: "language" };
 
@@ -186,7 +187,7 @@ export const NAV_COPY = {
   findMarket: "Find your market",
   contact: "Contact us",
   explore: "Explore",
-  /** Screen-reader suffix on a link to a separate website (Infrastructure) */
+  /** Screen-reader suffix on a link to a separate website (Adjacent infrastructure) */
   offsite: "(opens external site)",
   searchPlaceholder: "Search ESR.com by market, region, property",
   searchPlaceholderMobile: "Search by market, region, property",
@@ -236,8 +237,8 @@ const P = {
   properties: { icon: "apartment", title: "Properties", text: "Industrial and logistics", href: "/portfolio/properties" },
   developments: { icon: "handyman", title: "Developments", text: "Pipeline, technology and sustainability.", href: "/portfolio/developments" },
   dataCentres: { icon: "database", title: "Data centres", text: "Digital infrastructure capability", href: "/portfolio/data-centres" },
-  // Infrastructure has its own website (not part of the prototype, so inert): "Visit site" with open_in_new
-  infrastructure: { icon: "cell_tower", title: "Infrastructure", text: "Our infrastructure business, on its own website", href: null, cta: "Visit site", offsite: true },
+  // Adjacent infrastructure has its own website (not part of the prototype, so inert): "Visit site" with open_in_new
+  infrastructure: { icon: "cell_tower", title: "Adjacent infrastructure", text: "Our adjacent infrastructure business, on its own site", href: null, cta: "Visit site", offsite: true },
 } satisfies Record<string, NavItem>;
 
 /** The eyebrow over Properties and Developments (desktop and mobile). */
@@ -247,10 +248,10 @@ const PORTFOLIO: NavSection = {
   id: "portfolio",
   label: "Our portfolio",
   labelWidth: [85, 88],
-  // Presentation feedback: Data centres before Infrastructure, Properties and Developments grouped under Industrial and logistics
+  // Presentation feedback: Data centres before Adjacent infrastructure, Properties and Developments grouped under Industrial and logistics
   groups: [{ items: [P.group] }, { eyebrow: INDUSTRIAL_GROUP, nested: true, items: [P.properties, P.developments] }, { items: [P.dataCentres, P.infrastructure] }],
   panel: {
-    // Toward 1180, Developments and Infrastructure hold at 242 / 240 so their descriptions stay on two lines
+    // Toward 1180, Developments and Adjacent infrastructure hold at 242 / 240 so their descriptions stay on two lines
     cols: [295, 295, [305, 242], 284, [261, 240]],
     // Row 1 is the "Industrial and logistics" label (20 + 20 + 10 + its 1px rule); the other items span it, their
     // icons on the grouped items' line (51 + 22 = 73 down), so all five read as one row
@@ -260,7 +261,7 @@ const PORTFOLIO: NavSection = {
       { col: 2, span: 2, pad: [20, 16, 10, 39], line: "lb", label: INDUSTRIAL_GROUP, blocks: [] },
       { col: 2, row: 2, pad: [22, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.properties, reserve: true }] },
       { col: 3, row: 2, pad: [22, 16, 0, 63], line: "lb", blocks: [{ type: "item", item: P.developments, reserve: true }] },
-      // Data centres and Infrastructure keep the drawn geometry of columns 4 and 5
+      // Data centres and Adjacent infrastructure keep the drawn geometry of columns 4 and 5
       { col: 4, rowSpan: 2, pad: [73, 16, 0, 62], line: "lb", blocks: [{ type: "item", item: P.dataCentres, reserve: true }] },
       { col: 5, rowSpan: 2, pad: [73, 16, 0, 39], line: "lb", blocks: [{ type: "item", item: P.infrastructure, reserve: true }] },
       {

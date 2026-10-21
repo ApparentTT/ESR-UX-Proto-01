@@ -31,6 +31,8 @@ export type BentoAccordionProps = {
   defaultOpenId?: string;
   /** Route of the current page: matching links get aria-current="page" and a highlight. Defaults to the pathname. */
   currentHref?: string;
+  /** Sub-card link to leave out of the first tile: the page you're on (Properties and Developments pages show only the other one) */
+  hideHref?: string;
   headingLevel?: "h2" | "h3";
 };
 
@@ -45,11 +47,12 @@ const SUB_ICONS: Record<string, string> = { Properties: "apartment", Development
  *   Another tile open: 449 / 837 columns, the open right tile 322 tall and the closed one 178, the first tile collapsed.
  *   Columns and rows glide between states (instant under reduced motion).
  * Below 1024: one column in source order, the open tile expanded in place.
+ * `hideHref` drops the current page's own sub-card (R2 Properties / Developments): the remaining card keeps its half width from 768.
  * Each title is a button in an h3 (accordion pattern) that stays in place across states, so focus is never lost.
  */
 export const BENTO_HEADING = "Our asset classes";
 
-export function BentoAccordion({ heading = BENTO_HEADING, description, tiles, defaultOpenId, currentHref, headingLevel: H = "h2" }: BentoAccordionProps) {
+export function BentoAccordion({ heading = BENTO_HEADING, description, tiles, defaultOpenId, currentHref, hideHref, headingLevel: H = "h2" }: BentoAccordionProps) {
   const [openId, setOpenId] = useState(defaultOpenId ?? tiles[0]?.id);
   const pathname = usePathname();
   const current = currentHref ?? pathname;
@@ -77,7 +80,7 @@ export function BentoAccordion({ heading = BENTO_HEADING, description, tiles, de
             return (
               <Tile
                 key={tile.id}
-                tile={tile}
+                tile={hideHref && tile.links ? { ...tile, links: tile.links.filter((l) => l.href !== hideHref) } : tile}
                 open={tile.id === openId}
                 wide={wide}
                 description={tile.description ?? description}

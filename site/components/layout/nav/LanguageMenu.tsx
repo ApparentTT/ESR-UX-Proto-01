@@ -42,8 +42,7 @@ export function LanguageMenu({ id, labelledBy, animate }: { id: string; labelled
           <li key={l.text}>
             <SmartLink
               href={l.current ? pathname : null}
-              lang={l.lang}
-              hrefLang={l.lang ?? "en"}
+              hrefLang={l.hrefLang}
               aria-current={l.current ? "true" : undefined}
               className={`focus-inset flex h-10 items-center justify-between gap-3 px-4 text-[14px] leading-5 hover:bg-surface ${l.current ? "font-bold text-ink" : "font-medium text-body"}`}
             >

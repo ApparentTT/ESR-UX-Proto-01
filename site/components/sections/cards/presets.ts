@@ -24,13 +24,6 @@ export const HOME_EXPLORE_CARDS: MediaCardData[] = [
   { title: "Our people", body: "Description", href: "/about/our-people" },
 ];
 
-/** B13 products3, PROP §9 (after SectionHeading "Explore our portfolio"). */
-export const PROP_PORTFOLIO_CARDS: MediaCardData[] = [
-  { title: "Developments", body: "Description", href: "/portfolio/developments" },
-  { title: "Data centres", body: "Description", href: "/portfolio/data-centres" },
-  { title: "Infrastructure", body: "Description", href: null },
-];
-
 const PILLAR_BODY =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
 

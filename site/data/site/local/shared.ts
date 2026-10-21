@@ -6,7 +6,6 @@
  * are placeholders.
  */
 import type { SplitBlockCta } from "@/components/sections/blocks/SplitBlock";
-import type { MediaCardData } from "@/components/sections/cards/MediaCard";
 import type { LocalPropertyCardData } from "@/components/sections/local/LocalPropertyCards";
 import type { PropertySearchEntryProps } from "@/components/sections/local/PropertySearchEntry";
 import { jpPropertyHref } from "./property-detail";
@@ -80,13 +79,6 @@ export function jpFeaturedProperties(sqm: " sqm" | "sqm"): LocalPropertyCardData
     },
   ];
 }
-
-/** "Explore the portfolio" product cards (PROP 1110:72391), linked to the local pages */
-export const JP_PORTFOLIO_CARDS: MediaCardData[] = [
-  { title: "Developments", body: "Description", href: JP.developments },
-  { title: "Data centres", body: "Description", href: JP.dataCentres },
-  { title: "Infrastructure", body: "Description", href: null },
-];
 
 /** The "Scale that delivers" footnote (HOME 1110:53528, PORT 1290:29670) */
 export const JP_AUM_FOOTNOTE = "Total AUM is comprised of Third-Party AUM plus Balance Sheet Real Estate. Data as at 31 December 2025.";

@@ -237,8 +237,7 @@ function LanguageRow() {
           <li key={l.text}>
             <SmartLink
               href={l.current ? pathname : null}
-              lang={l.lang}
-              hrefLang={l.lang ?? "en"}
+              hrefLang={l.hrefLang}
               aria-current={l.current ? "true" : undefined}
               className={`inline-flex min-h-10 items-center decoration-1 underline-offset-[3px] hover:text-ink hover:underline ${l.current ? "font-bold text-ink underline" : "font-medium text-body"}`}
             >
@@ -253,7 +252,7 @@ function LanguageRow() {
 
 /**
  * A page link row: icon (if any), Bold title over Regular text, arrow at the right. The whole row is the link.
- * An offsite item (Infrastructure, its own website) has open_in_new instead of the arrow. Exported for the local mobile menu.
+ * An offsite item (Adjacent infrastructure, its own website) has open_in_new instead of the arrow. Exported for the local mobile menu.
  */
 export function LinkRow({ item, className, suffix }: { item: NavItem; className: string; /** Visually hidden, after the text */ suffix?: string }) {
   const pathname = usePathname();

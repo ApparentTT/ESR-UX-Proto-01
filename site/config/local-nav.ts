@@ -13,7 +13,7 @@
  *
  * Links go to the local pages under /jp, to the ESR Japan property search (/properties), or, where the
  * design marks a link as leaving the site (Data centres, open_in_new), to the ESR Group page. "Stay up to date
- * on vacancies" (added from review feedback) goes to the group page the same way. Infrastructure has its own
+ * on vacancies" (added from review feedback) goes to the group page the same way. Adjacent infrastructure has its own
  * website ("Visit site", as in the group menu; inert in the prototype).
  * href: null renders an inert link ("not part of the prototype" notice).
  */
@@ -113,7 +113,7 @@ export function localActiveSection(pathname: string): string | null {
 
 const PORTFOLIO_PAGE = "/jp/portfolio";
 const DATA_CENTRES_GROUP = "/portfolio/data-centres";
-/** Infrastructure's own website is not part of the prototype, so this is inert, as in the group menu. */
+/** Adjacent infrastructure's own website is not part of the prototype, so this is inert, as in the group menu. */
 const INFRASTRUCTURE_SITE = null;
 
 const PROPERTY_SEARCH: PropertySearchBlock = {
@@ -130,7 +130,7 @@ const P = {
   properties: { icon: "apartment", title: "Properties", text: "Industrial, logistics and property management.", href: "/jp/properties" },
   developments: { icon: "handyman", title: "Developments", text: "Pipeline, technology and sustainability.", href: "/jp/developments" },
   // Not drawn: added from review feedback, with the group menu's icon, copy and "Visit site" (its own website)
-  infrastructure: { icon: "cell_tower", title: "Infrastructure", text: "Our infrastructure business, on its own website", href: INFRASTRUCTURE_SITE, cta: "Visit site", offsite: true },
+  infrastructure: { icon: "cell_tower", title: "Adjacent infrastructure", text: "Our adjacent infrastructure business, on its own site", href: INFRASTRUCTURE_SITE, cta: "Visit site", offsite: true },
   dataCentres: { icon: "database", title: "Data centres", text: "Explore our group pipeline", href: DATA_CENTRES_GROUP, external: true },
   overview: { icon: "globe_asia", title: "Our portfolio", text: "Everything we own / manage", href: PORTFOLIO_PAGE },
 } satisfies Record<string, LocalNavItem>;
@@ -148,17 +148,17 @@ const PORTFOLIO: LocalSection = {
   id: "portfolio",
   label: "Our portfolio",
   labelWidth: [85, 88],
-  // The group menu's order (presentation feedback): overview, Industrial and logistics (Properties, Developments), Data centres, Infrastructure
+  // The group menu's order (presentation feedback): overview, Industrial and logistics (Properties, Developments), Data centres, Adjacent infrastructure
   groups: [{ items: [PM.overview] }, { eyebrow: INDUSTRIAL_GROUP, nested: true, items: [PM.properties, PM.developments] }, { items: [PM.dataCentres, PM.infrastructure] }],
   panel: {
-    // Drawn with four items (column lines at 485, 727, 969 and 1203, items 202 wide). Infrastructure makes
+    // Drawn with four items (column lines at 485, 727, 969 and 1203, items 202 wide). Adjacent infrastructure makes
     // five, so at 1440 the search column narrows to 360 (field 304) and the items share the rest: column lines
     // at 360, 576, 792, 1008 and 1224, each item 20 in from its line and 188 wide. Toward 1180 the item columns
     // hold at 182 (154 of text, so every description stays on two lines and the Explore links line up) and
     // the search column gives way. The items follow the group menu's order, the overview first; row 1 is the
     // "Industrial and logistics" label over Properties and Developments (51 with its rule), the other items
     // span it with their icons on the grouped items' line.
-    // Infrastructure's column holds at 213 (185 of text) so its longer description also stays on two lines.
+    // Adjacent infrastructure's column holds at 213 (185 of text) so its longer description also stays on two lines.
     cols: [360, [216, 182], [216, 182], [216, 182], [216, 182], [216, 213]],
     rows: [51, 229],
     cells: [
@@ -376,7 +376,7 @@ export const LOCAL_FOOTER: Record<"portfolio" | "investors" | "sustainability" |
       { label: "Properties", href: "/jp/properties" },
       { label: "Developments", href: "/jp/developments" },
       { label: "Data centres", href: DATA_CENTRES_GROUP, external: true },
-      { label: "Infrastructure", href: INFRASTRUCTURE_SITE },
+      { label: "Adjacent infrastructure", href: INFRASTRUCTURE_SITE },
     ],
   },
   investors: {

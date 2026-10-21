@@ -5,9 +5,10 @@
 import type { StatItem } from "@/components/sections/stats/StatRow";
 import type { OutlineTextCardItem } from "@/components/sections/infocards/OutlineTextCard";
 import type { MediaCardData } from "@/components/sections/cards/MediaCard";
-import type { SplitBlockCta } from "@/components/sections/blocks/SplitBlock";
 import type { FeatureBandAction } from "@/components/sections/blocks/FeatureBand";
+import type { LeaderGridItem } from "@/components/sections/blocks/LeaderGrid";
 import { ABOUT_PURPOSE, ABOUT_PURPOSE_HEADING } from "@/data/site/purpose";
+import { JP_LEADERS } from "./leadership";
 import { JP } from "./shared";
 
 export const JP_ABOUT_INTRO = {
@@ -49,11 +50,18 @@ export const JP_ABOUT_STATS: { label: string; options: { id: string; label: stri
 export const JP_ABOUT_PURPOSE_HEADING = ABOUT_PURPOSE_HEADING;
 export const JP_ABOUT_PURPOSE: OutlineTextCardItem[] = ABOUT_PURPOSE.map((c) => ({ ...c, href: null }));
 
-/** The CTA keeps the drawn double space ("Meet  our") */
-export const JP_ABOUT_LEADERSHIP: { title: string; body: string; cta: SplitBlockCta } = {
+/** One-line bios for the first three Japan leaders (same names and roles as /jp/leadership) */
+const JP_LEADER_SUMMARIES = [
+  "Leads ESR's business and strategy in Japan.",
+  "Chairs ESR Japan and guides its long-term direction.",
+  "Leads finance, capital management and reporting in Japan.",
+];
+
+/** Client feedback round 2: the group About leader grid (LeaderGrid), at most three Japan leaders, no LinkedIn */
+export const JP_ABOUT_LEADERSHIP: { title: string; leaders: LeaderGridItem[]; cta: { label: string; href: string } } = {
   title: "Our leadership",
-  body: "[Description about leadership team with ESR]",
-  cta: { label: "Meet  our leadership team", href: JP.leadership },
+  leaders: JP_LEADERS.slice(0, 3).map((l, i) => ({ name: l.name, title: l.title, summary: JP_LEADER_SUMMARIES[i] ?? "" })),
+  cta: { label: "Meet our full leadership team", href: JP.leadership },
 };
 
 export const JP_ABOUT_CAPABILITY: { title: string; body: string; actions: FeatureBandAction[] } = {

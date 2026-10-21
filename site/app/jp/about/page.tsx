@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LocalPageShell } from "@/components/layout/local/LocalPageShell";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { FullWidthImage } from "@/components/sections/blocks/FullWidthImage";
-import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
+import { LeaderGrid } from "@/components/sections/blocks/LeaderGrid";
 import { FeatureBand } from "@/components/sections/blocks/FeatureBand";
 import { OutlineTextCardRow } from "@/components/sections/infocards/OutlineTextCardRow";
 import { MediaCardGrid } from "@/components/sections/cards/MediaCardGrid";
@@ -31,7 +31,8 @@ export default function JapanAboutPage() {
       <ScopeStats {...JP_ABOUT_STATS} />
       <SectionHeading title={<span id="jp-our-purpose">{JP_ABOUT_PURPOSE_HEADING}</span>} />
       <OutlineTextCardRow items={JP_ABOUT_PURPOSE} labelledBy="jp-our-purpose" />
-      <SplitBlock imageSide="left" {...JP_ABOUT_LEADERSHIP} />
+      {/* "Our leadership": the group About leader grid, three Japan leaders, and a link to the Japan leadership page */}
+      <LeaderGrid columns={3} {...JP_ABOUT_LEADERSHIP} />
       <FeatureBand controls="none" {...JP_ABOUT_CAPABILITY} />
       {/* Featured cards, no section heading: the card titles are h2 */}
       <MediaCardGrid variant="featured3" cards={JP_ABOUT_CARDS} cardHeadingLevel="h2" />

@@ -7,20 +7,19 @@ import { MarketCarousel } from "@/components/sections/carousels/MarketCarousel";
 import { QuoteCarousel } from "@/components/sections/carousels/QuoteCarousel";
 import { LogoMarquee } from "@/components/sections/carousels/LogoMarquee";
 import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
-import { MediaCardGrid } from "@/components/sections/cards/MediaCardGrid";
-import { PROP_PORTFOLIO_CARDS } from "@/components/sections/cards/presets";
+import { BentoAccordion } from "@/components/sections/carousels/BentoAccordion";
 import { Accordion } from "@/components/sections/listings/Accordion";
 import { FormBlock } from "@/components/sections/forms/FormBlock";
 import { PROP_MARKET_CAROUSEL } from "@/data/site/marketCarousel";
 import { PROP_CUSTOMER_QUOTES } from "@/data/site/quoteCarousels";
 import { PROP_CUSTOMERS } from "@/data/site/logoMarquees";
 import { PORTFOLIO_FAQ } from "@/data/site/documents";
+import { PROP_OUR_ASSETS } from "@/data/site/bentoAccordion";
 import {
   INVEST_WITH_ESR,
   PROP_INTRO,
   PROP_INTRO_ACTIONS,
   PROP_MARKETS_HEADING,
-  PROP_PORTFOLIO_HEADING,
 } from "@/data/site/pages/portfolio";
 
 export const metadata: Metadata = { title: "Properties | ESR — website prototype" };
@@ -49,9 +48,8 @@ export default function PortfolioPropertiesPage() {
       <LogoMarquee {...PROP_CUSTOMERS} />
       {/* §7 */}
       <SplitBlock {...INVEST_WITH_ESR} />
-      {/* §8–9 */}
-      <SectionHeading title={PROP_PORTFOLIO_HEADING} />
-      <MediaCardGrid variant="products3" cards={PROP_PORTFOLIO_CARDS} />
+      {/* §8 "Our asset classes" (replaces "Explore our portfolio"; without this page's own Properties sub-card) */}
+      <BentoAccordion {...PROP_OUR_ASSETS} />
       {/* §10 */}
       <Accordion {...PORTFOLIO_FAQ} />
       {/* §11 */}

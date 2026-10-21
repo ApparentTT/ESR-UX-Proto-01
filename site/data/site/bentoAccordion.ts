@@ -1,7 +1,7 @@
 /**
  * "Our asset classes" module content (Figma 1455:42800; every instance shares the heading, BENTO_HEADING): PORT §3, DEV §6, DC §8 and the fund page.
- * Industrial and logistics opens with the Properties and Developments cards; Data centres and Infrastructure open
- * with the section lorem and "Explore now" (Infrastructure is not built, so its link is inert).
+ * Industrial and logistics opens with the Properties and Developments cards; Data centres and Adjacent infrastructure open
+ * with the section lorem and "Explore now" (Adjacent infrastructure is not built, so its link is inert).
  */
 import type { BentoAccordionProps, BentoTile } from "@/components/sections/carousels/BentoAccordion";
 
@@ -19,7 +19,7 @@ export const BENTO_TILES: BentoTile[] = [
     title: "Data centres",
     href: "/portfolio/data-centres",
   },
-  { id: "infrastructure", title: "Infrastructure", href: null },
+  { id: "infrastructure", title: "Adjacent infrastructure", href: null },
 ];
 
 const LOREM_2 =
@@ -34,11 +34,20 @@ export const PORT_OUR_ASSETS: BentoAccordionProps = {
   currentHref: "/portfolio",
 };
 
-/** DEV §6: the Developments sub-card is the current page */
+/** PROP §8 (R2_Group_Properties 1698:21152): replaces "Explore our portfolio"; the page's own Properties sub-card is left out */
+export const PROP_OUR_ASSETS: BentoAccordionProps = {
+  description: LOREM_4,
+  tiles: BENTO_TILES,
+  currentHref: "/portfolio/properties",
+  hideHref: "/portfolio/properties",
+};
+
+/** DEV §6: the page's own Developments sub-card is left out */
 export const DEV_WHAT_WE_DEVELOP: BentoAccordionProps = {
   description: LOREM_4,
   tiles: BENTO_TILES,
   currentHref: "/portfolio/developments",
+  hideHref: "/portfolio/developments",
 };
 
 /** DC §8: the Data centres tile is the current page */

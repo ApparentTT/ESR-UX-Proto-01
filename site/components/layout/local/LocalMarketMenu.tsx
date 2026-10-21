@@ -14,7 +14,7 @@ function rows() {
       // This site is Japan in English: that link is marked as the version being viewed
       <MarketRow key={m.name} name={m.name} languages={m.languages} current={m.name === LOCAL_SITE.market ? "English" : undefined} />
     )),
-    <MarketRow key={g.name} name={g.name} languages={g.languages} hrefFor={(p) => (p.lang ? null : g.href)} />,
+    <MarketRow key={g.name} name={g.name} languages={g.languages} hrefFor={(p) => ((p.hrefLang ?? "en") === "en" ? g.href : null)} />,
   ];
 }
 

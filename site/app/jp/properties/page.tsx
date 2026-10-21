@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import { LocalPageShell } from "@/components/layout/local/LocalPageShell";
 import { PageIntro } from "@/components/sections/PageIntro";
-import { SectionHeading } from "@/components/sections/SectionHeading";
 import { QuoteCarousel } from "@/components/sections/carousels/QuoteCarousel";
 import { LogoMarquee } from "@/components/sections/carousels/LogoMarquee";
 import { ContactCtaBand } from "@/components/sections/forms/ContactCtaBand";
-import { MediaCardGrid } from "@/components/sections/cards/MediaCardGrid";
+import { BentoAccordion } from "@/components/sections/carousels/BentoAccordion";
 import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
 import { Accordion } from "@/components/sections/listings/Accordion";
 import { FormBlock } from "@/components/sections/forms/FormBlock";
@@ -14,11 +13,11 @@ import { FeaturedPropertiesBlock } from "@/components/sections/local/FeaturedPro
 import { PropertySearchEntry } from "@/components/sections/local/PropertySearchEntry";
 import { PROP_CUSTOMERS } from "@/data/site/logoMarquees";
 import { PORTFOLIO_FAQ } from "@/data/site/documents";
-import { JP_INVEST, JP_NEWSLETTER, JP_PORTFOLIO_CARDS, JP_SEARCH_ENTRY } from "@/data/site/local/shared";
+import { JP_INVEST, JP_NEWSLETTER, JP_SEARCH_ENTRY } from "@/data/site/local/shared";
 import {
   JP_PROP_FEATURED,
   JP_PROP_INTRO,
-  JP_PROP_PORTFOLIO_HEADING,
+  JP_PROP_OUR_ASSETS,
   JP_PROP_QUOTES,
   JP_PROP_SERVICES,
   JP_PROP_TOURS,
@@ -44,9 +43,8 @@ export default function JapanPropertiesPage() {
       <LogoMarquee {...PROP_CUSTOMERS} />
       {/* Property tours */}
       <ContactCtaBand {...JP_PROP_TOURS} />
-      {/* Explore the portfolio */}
-      <SectionHeading title={JP_PROP_PORTFOLIO_HEADING} />
-      <MediaCardGrid variant="products3" cards={JP_PORTFOLIO_CARDS} />
+      {/* Our asset classes (without this page's own Properties sub-card) */}
+      <BentoAccordion {...JP_PROP_OUR_ASSETS} />
       {/* Invest with ESR */}
       <SplitBlock {...JP_INVEST} />
       {/* FAQ */}

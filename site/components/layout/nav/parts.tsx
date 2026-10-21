@@ -74,7 +74,7 @@ export function useIsDesktop() {
 /**
  * "Explore" (Bold 13 underlined + arrow), with the block title as a visually hidden suffix. external: a link
  * from a local site to the ESR Group site, drawn with open_in_new 16 instead of the arrow (as on the local
- * Data centres item) and named so for screen readers. offsite: a link to a separate website (Infrastructure),
+ * Data centres item) and named so for screen readers. offsite: a link to a separate website (Adjacent infrastructure),
  * drawn the same way, named "(opens external site)" and opened in a new tab.
  */
 export function ExploreLink({
@@ -159,7 +159,7 @@ export function MarketRow({
               )}
               <SmartLink
                 href={hrefFor(p)}
-                hrefLang={p.lang ?? "en"}
+                hrefLang={p.hrefLang ?? p.lang ?? "en"}
                 aria-current={isCurrent ? "true" : undefined}
                 className={`${HIT} rounded-[2px] decoration-1 underline-offset-2 hover:text-ink hover:underline ${isCurrent ? "font-bold text-ink underline" : "text-body"}`}
               >
