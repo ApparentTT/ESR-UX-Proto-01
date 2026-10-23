@@ -8,6 +8,7 @@
  */
 import type { FeatureBandAction } from "@/components/sections/blocks/FeatureBand";
 import type { SplitBlockCta } from "@/components/sections/blocks/SplitBlock";
+import type { NewsCardData } from "@/components/sections/cards/NewsCard";
 
 type Intro = { title: string; body: string };
 type Split = { title: string; body: string; cta: SplitBlockCta };
@@ -38,10 +39,19 @@ export const SUS_REPORTS: Split = {
 };
 
 /** SUS §7 (every slide repeats slide 1; "View case study" is inert: detail pages are not wireframed) */
-export const SUS_STORIES: Band = {
-  title: "Featured sustainability stories",
-  body: "Horem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.",
-  actions: [{ label: "View case study", href: null }],
+/** SUS §7 "Featured sustainability stories": four curated case studies in a grid (like the news cards below), not a carousel */
+export const SUS_STORIES = {
+  heading: {
+    title: "Featured sustainability stories",
+    sub: "Horem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.",
+    link: { label: "View all case studies", href: "/sustainability/case-studies" },
+  },
+  cards: [
+    { date: "12 June 2026", meta: "Case study  ·  Australia", title: "Powering Upparel’s next chapter with a logistics facility built to scale", href: "/sustainability/case-studies" },
+    { date: "28 May 2026", meta: "Case study  ·  Australia", title: "Delivering EV infrastructure in new developments", href: "/sustainability/case-studies" },
+    { date: "14 May 2026", meta: "Case study  ·  Australia", title: "Woody Meadows bringing new life into industrial and logistics facilities", href: "/sustainability/case-studies" },
+    { date: "30 April 2026", meta: "Case study  ·  Australia", title: "Pollinating change through our industrial facilities", href: "/sustainability/case-studies" },
+  ] satisfies NewsCardData[],
 };
 
 /* ---------- /sustainability/case-studies (SCS) ---------- */

@@ -4,7 +4,6 @@ import { PageIntro } from "@/components/sections/PageIntro";
 import { SectionHeading } from "@/components/sections/SectionHeading";
 import { FullWidthImage } from "@/components/sections/blocks/FullWidthImage";
 import { SplitBlock } from "@/components/sections/blocks/SplitBlock";
-import { FeatureBand } from "@/components/sections/blocks/FeatureBand";
 import { MediaCardGrid } from "@/components/sections/cards/MediaCardGrid";
 import { NewsCardRow } from "@/components/sections/cards/NewsCardRow";
 import { SUS_PILLAR_CARDS } from "@/components/sections/cards/presets";
@@ -41,8 +40,9 @@ export default function SustainabilityPage() {
       <StatRow variant="sus" stats={SUS_STATS} footnotes={SUS_FOOTNOTES} label="Proof points" />
       {/* §6 "Reports and policies" → /sustainability/governance */}
       <SplitBlock title={SUS_REPORTS.title} body={SUS_REPORTS.body} cta={SUS_REPORTS.cta} />
-      {/* §7 "Featured sustainability stories" carousel (40px chevrons, 3 slides repeating slide 1) */}
-      <FeatureBand controls="carousel-sm" title={SUS_STORIES.title} body={SUS_STORIES.body} actions={SUS_STORIES.actions} />
+      {/* §7 "Featured sustainability stories": four curated case studies in a grid, like the news cards below */}
+      <SectionHeading {...SUS_STORIES.heading} />
+      <NewsCardRow cards={SUS_STORIES.cards} label="Featured sustainability stories" className="pb-12 pt-2 md:pb-16 md:pt-4 lg:pb-[72px] lg:pt-[30px]" />
       {/* §8a–b "News": 4 inert cards, "Explore the latest" → /news */}
       <SectionHeading {...LATEST_HEADINGS.sustainability} />
       <NewsCardRow cards={SUS_LATEST} label="Sustainability news" />
